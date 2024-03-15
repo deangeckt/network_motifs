@@ -1,12 +1,12 @@
 from network import Network
-from utils import Verbose
+from simple_logger import Logger, LogLvl
 from itertools import combinations
 
 
 class Circuits:
-    def __init__(self, network: Network, verbose=Verbose.info):
+    def __init__(self, network: Network, logger: Logger):
         self.network = network
-        self.verbose = verbose
+        self.logger = logger
 
     def count_circuits(self):
         self.__count_self_loops()
@@ -14,25 +14,22 @@ class Circuits:
         self.__count_fan_outs()
         self.__count_cascades()
 
-        if self.verbose >= Verbose.info:
-            print(f"self loops (x -> x): {self.self_loops}")
-            print(f"mutual regulation (x -> y, y -> x): {self.mutual_regulation}")
-            print(f"fan outs (x -> y, x -> z): {self.fan_outs}")
-            print(f"cascades (x -> y, y -> z): {self.cascades}")
+        self.logger.info(f"self loops (x -> x): {self.self_loops}")
+        self.logger.info(f"mutual regulation (x -> y, y -> x): {self.mutual_regulation}")
+        self.logger.info(f"fan outs (x -> y, x -> z): {self.fan_outs}")
+        self.logger.info(f"cascades (x -> y, y -> z): {self.cascades}")
 
     def __count_self_loops(self):
         """
         Counts the number of self loops (x -> x) in the given network.
         O(n)
         """
-        if self.verbose >= Verbose.debug:
-            print('--- self loops (x -> x) debugging: --- ')
+        self.logger.debug('--- self loops (x -> x) debugging: --- ')
 
         count = 0
         for node in range(len(self.network.adj_matrix)):
             if self.network.adj_matrix[node, node]:
-                if self.verbose >= Verbose.debug:
-                    print(f'{node} -> {node}')
+                self.logger.debug(f'{node} -> {node}')
                 count += 1
 
         self.self_loops = count
@@ -42,8 +39,7 @@ class Circuits:
         Counts the number of mutual regulation (x -> y, y -> x)
         O(n^2). (with list representation: o(n*e))
         """
-        if self.verbose >= Verbose.debug:
-            print('--- mutual regulation (x -> y, y -> x) debugging: --- ')
+        self.logger.debug('--- mutual regulation (x -> y, y -> x) debugging: --- ')
 
         count = 0
         for x in range(len(self.network.adj_matrix)):
@@ -51,9 +47,8 @@ class Circuits:
                 if x == y:
                     continue
                 if self.network.adj_matrix[x, y] and self.network.adj_matrix[y, x]:
-                    if self.verbose >= Verbose.debug:
-                        print(self.network.mapped_nodes_reverse[x], '<->',
-                              self.network.mapped_nodes_reverse[y])
+                    self.logger.debug(f'{self.network.mapped_nodes_reverse[x]} '
+                                      f'<-> {self.network.mapped_nodes_reverse[y]}')
                     count += 1
 
         self.mutual_regulation = count
@@ -63,8 +58,7 @@ class Circuits:
         Counts the number of cascades (x -> y, y -> z) in the given network.
         O(n * out degree^2) using list representation. (with adj matrix: o(n^3))
         """
-        if self.verbose >= Verbose.debug:
-            print('--- cascades (x -> y, y -> z) debugging: --- ')
+        self.logger.debug('--- cascades (x -> y, y -> z) debugging: --- ')
 
         count = 0
         for x, x_neighbors in enumerate(self.network.nodes):
@@ -75,10 +69,9 @@ class Circuits:
                 for z in y_neighbors:
                     if z == y or z == x:
                         continue
-                    if self.verbose >= Verbose.debug:
-                        print(self.network.mapped_nodes_reverse[x], '->',
-                              self.network.mapped_nodes_reverse[y], '->',
-                              self.network.mapped_nodes_reverse[z])
+                    self.logger.debug(f'{self.network.mapped_nodes_reverse[x]} -> '
+                                      f'{self.network.mapped_nodes_reverse[y]} -> '
+                                      f'{self.network.mapped_nodes_reverse[z]}')
 
                     count += 1
 
@@ -89,8 +82,7 @@ class Circuits:
         Counts the number of cascades (x -> y, x -> z) in the given network.
         O(n)
         """
-        if self.verbose >= Verbose.debug:
-            print('--- fan outs (x -> y, x -> z) debugging: --- ')
+        self.logger.debug('--- fan outs (x -> y, x -> z) debugging: --- ')
 
         count = 0
         for node, neighbors in enumerate(self.network.nodes):
@@ -100,12 +92,15 @@ class Circuits:
                 continue
             count += (n * (n - 1)) / 2
 
-            if self.verbose >= Verbose.debug:
+            if self.logger.lvl == LogLvl.debug:
                 comb = list(combinations(without_self_neighbors, 2))
                 for y_, z_ in comb:
                     x = self.network.mapped_nodes_reverse[node]
                     y = self.network.mapped_nodes_reverse[y_]
                     z = self.network.mapped_nodes_reverse[z_]
-                    print(f'{x} -> {y}, {x} -> {z}')
+                    self.logger.debug(f'{x} -> {y}, {x} -> {z}')
 
         self.fan_outs = int(count)
+
+        def __count_feed_forward():
+            pass

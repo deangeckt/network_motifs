@@ -1,7 +1,9 @@
 # https://www.weizmann.ac.il/mcb/UriAlon/sites/mcb.UriAlon/files/uploads/SysBioCourse2018/exercise_2.pdf
 from circuits import Circuits
 from network import Network
-from utils import Verbose
+from simple_logger import Logger, LogLvl
+
+logger = Logger(LogLvl.debug)
 
 
 def analyze_network(file_path: str, name: str):
@@ -9,7 +11,7 @@ def analyze_network(file_path: str, name: str):
     with open(file_path, "r") as f:
         network = Network()
         network.load_graph(f.readlines())
-        Circuits(network, verbose=Verbose.info).count_circuits()
+        Circuits(network, logger).count_circuits()
     print()
 
 

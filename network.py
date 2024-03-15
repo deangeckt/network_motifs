@@ -3,12 +3,14 @@ import numpy as np
 
 class Network:
     def __init__(self):
-        pass
+        self.nodes = None
+        self.adj_matrix = None
+
+        # debug: in case nodes names aren't arranged serially
+        self.mapped_nodes_reverse = None
+        self.mapped_nodes = None
 
     def load_graph(self, txt: list[str]):
-        self.__load_to_adj_matrix(txt)
-
-    def __load_to_adj_matrix(self, txt: list[str]):
         nodes_set = set()
         for line in txt:
             v1, v2, w = tuple(line.strip().split())
