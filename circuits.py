@@ -13,11 +13,13 @@ class Circuits:
         self.__count_mutual_regulation()
         self.__count_fan_outs()
         self.__count_cascades()
+        self.__count_feed_forward()
 
         self.logger.info(f"self loops (x -> x): {self.self_loops}")
         self.logger.info(f"mutual regulation (x -> y, y -> x): {self.mutual_regulation}")
         self.logger.info(f"fan outs (x -> y, x -> z): {self.fan_outs}")
         self.logger.info(f"cascades (x -> y, y -> z): {self.cascades}")
+        self.logger.info(f"feed forwards (x -> y, x -> z, y -> z): {self.feed_forwards}")
 
     def __count_self_loops(self):
         """
@@ -102,5 +104,29 @@ class Circuits:
 
         self.fan_outs = int(count)
 
-        def __count_feed_forward():
-            pass
+    def __count_feed_forward(self):
+        """
+        Counts the number of feed forward (x -> y, x -> z, y -> z) in the given network.
+        O(n * out degree^3)
+        """
+        self.logger.debug('--- feed forwards (x -> y, x -> z, y -> z) debugging: --- ')
+
+        count = 0
+        for x, x_neighbors in enumerate(self.network.nodes):
+            for y in x_neighbors:
+                if x == y:
+                    continue
+                y_neighbors = self.network.nodes[y]
+                for z in y_neighbors:
+                    if z == y or z == x:
+                        continue
+                    if z not in x_neighbors:
+                        continue
+                    self.logger.debug(
+                        f'{self.network.mapped_nodes_reverse[x]} -> {self.network.mapped_nodes_reverse[y]}, '
+                        f'{self.network.mapped_nodes_reverse[x]} -> {self.network.mapped_nodes_reverse[z]}, '
+                        f'{self.network.mapped_nodes_reverse[y]} -> {self.network.mapped_nodes_reverse[z]} ')
+
+                    count += 1
+
+        self.feed_forwards = count

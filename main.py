@@ -16,6 +16,6 @@ def analyze_network(file_path: str, name: str):
 
 
 if __name__ == "__main__":
-    analyze_network("networks/toy_network.txt", "toy")
+    # analyze_network("networks/toy_network.txt", "toy")
     analyze_network("networks/paper_exmp_network.txt", "paper example")
-    analyze_network("networks/systems_biology_ex_network.txt", "uri alon course homework")
+    # analyze_network("networks/systems_biology_ex_network.txt", "uri alon course homework")
