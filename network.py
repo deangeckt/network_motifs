@@ -1,14 +1,18 @@
 import numpy as np
 
+from simple_logger import Logger
+
 
 class Network:
     def __init__(self):
-        self.nodes = None
-        self.adj_matrix = None
+        self.logger = Logger()
+
+        self.nodes: list[list[int]] = []
+        self.adj_matrix: np.ndarray = np.empty(0)
 
         # debug: in case nodes names aren't arranged serially
-        self.mapped_nodes_reverse = None
-        self.mapped_nodes = None
+        self.mapped_nodes_reverse: dict = {}
+        self.mapped_nodes: dict = {}
 
     def load_graph(self, txt: list[str]):
         nodes_set = set()
@@ -33,3 +37,9 @@ class Network:
 
             self.adj_matrix[v1_idx, v2_idx] = 1
             self.nodes[v1_idx].append(v2_idx)
+
+    def log_properties(self):
+        self.logger.info(f'Network properties:')
+        self.logger.info(f'  - Nodes: {len(self.nodes)}')
+        self.logger.info(f'  - Edges: {np.count_nonzero(self.adj_matrix)}')
+        self.logger.info('')

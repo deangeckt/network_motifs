@@ -4,11 +4,12 @@ from itertools import combinations
 
 
 class Circuits:
-    def __init__(self, network: Network, logger: Logger):
+    def __init__(self, network: Network, use_logger=True):
         self.network = network
-        self.logger = logger
+        self.logger = Logger()
+        self.logger.toggle(use_logger)
 
-    def count_circuits(self):
+    def count_circuits(self) -> dict:
         self.__count_self_loops()
         self.__count_mutual_regulation()
         self.__count_fan_outs()
@@ -20,6 +21,14 @@ class Circuits:
         self.logger.info(f"fan outs (x -> y, x -> z): {self.fan_outs}")
         self.logger.info(f"cascades (x -> y, y -> z): {self.cascades}")
         self.logger.info(f"feed forwards (x -> y, x -> z, y -> z): {self.feed_forwards}")
+
+        return {
+            'self_loops': self.self_loops,
+            'mutual_regulation': self.mutual_regulation,
+            'fan_outs': self.fan_outs,
+            'cascades': self.cascades,
+            'feed_forwards': self.feed_forwards,
+        }
 
     def __count_self_loops(self):
         """

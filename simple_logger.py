@@ -9,11 +9,16 @@ class LogLvl(int, Enum):
 
 @singleton
 class Logger:
-    def __init__(self, lvl: LogLvl):
+    def __init__(self, lvl=LogLvl.info):
         self.lvl = lvl
+        self.on = True
 
-    @staticmethod
-    def __print(msg: str):
+    def toggle(self, on: bool):
+        self.on = on
+
+    def __print(self, msg: str):
+        if not self.on:
+            return
         print(msg)
 
     def debug(self, msg: str):
