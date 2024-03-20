@@ -1,7 +1,5 @@
-import numpy as np
-import scipy
-
 from circuits import Circuits
+from motif_criteria import MotifCriteria
 from network import Network
 from network_randomizer import NetworkRandomizer
 from simple_logger import Logger, LogLvl
@@ -9,26 +7,11 @@ from simple_logger import Logger, LogLvl
 logger = Logger(LogLvl.info)
 
 
-def is_statistical_significant(n_real: int, random_network_samples: list[int], alpha=0.01) -> bool:
-    n_rand = np.mean(random_network_samples)
-    std = np.std(random_network_samples)
-    if not std:
-        logger.info('std is 0, cannot calculate z_score')
-        return False
-
-    z_score = (n_real - n_rand) / std
-    p_value = scipy.stats.norm.sf(abs(z_score))
-    logger.info(f'n_real: {n_real} n_rand: {n_rand} std: {std} z_score: {z_score}')
-    is_significant = p_value < alpha
-    logger.info(f'significant test with alpha: {alpha}: {is_significant}')
-    return is_significant
-
-
 def analyze_network(file_path: str, name: str):
     logger.info(f'Analyze {name} network:\n')
     with open(file_path, "r") as f:
         network = Network()
-        network.load_graph(f.readlines())
+        network.load_from_txt(f.readlines())
         network.log_properties()
         # network.plot()
         network_circuits = Circuits(network).count_circuits()
@@ -42,9 +25,9 @@ def analyze_network(file_path: str, name: str):
         logger.toggle(True)
 
         for circuit in network_circuits:
-            logger.info(f"\n{circuit}:")
+            logger.info(f"\ncircuit {circuit}")
             random_network_samples = [rand_network[circuit] for rand_network in random_network_circuits]
-            is_statistical_significant(network_circuits[circuit], random_network_samples)
+            MotifCriteria().is_motif(network_circuits[circuit], random_network_samples)
 
     logger.info('\n')
 

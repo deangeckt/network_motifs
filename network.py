@@ -16,7 +16,7 @@ class Network:
         self.mapped_nodes_reverse: dict = {}
         self.mapped_nodes: dict = {}
 
-    def load_graph(self, txt: list[str]):
+    def load_from_txt(self, txt: list[str]):
         nodes_set = set()
         for line in txt:
             v1, v2, w = tuple(line.strip().split())
