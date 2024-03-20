@@ -11,6 +11,8 @@ class Network:
 
         self.nodes: list[list[int]] = []
         self.adj_matrix: np.ndarray = np.empty(0)
+        self.N = 0
+        self.E = 0
 
         # debug: in case nodes names aren't arranged serially
         self.mapped_nodes_reverse: dict = {}
@@ -40,10 +42,13 @@ class Network:
             self.adj_matrix[v1_idx, v2_idx] = 1
             self.nodes[v1_idx].append(v2_idx)
 
+        self.N = N
+        self.E = np.count_nonzero(self.adj_matrix)
+
     def log_properties(self):
         self.logger.info(f'Network properties:')
-        self.logger.info(f'  - Nodes: {len(self.nodes)}')
-        self.logger.info(f'  - Edges: {np.count_nonzero(self.adj_matrix)}')
+        self.logger.info(f'  - Nodes: {self.N}')
+        self.logger.info(f'  - Edges: {self.E}')
         self.logger.info('')
 
     def get_edges(self) -> list:

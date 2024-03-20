@@ -9,12 +9,11 @@ import copy
 
 
 class NetworkRandomizer:
-
     def __init__(self, network: Network):
         self.real_network = network
         self.logger = Logger()
-        config = Config()
 
+        config = Config()
         self.markov_chain_num_iterations = int(config.get_property('random', 'markov_chain_num_iterations'))
 
     def generate(self, amount: int) -> list[Network]:
