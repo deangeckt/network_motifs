@@ -1,10 +1,14 @@
+from tqdm import tqdm
+
 from circuits import Circuits
 from motif_criteria import MotifCriteria
 from network import Network
 from network_randomizer import NetworkRandomizer
-from simple_logger import Logger, LogLvl
+from utils.config import Config
+from utils.simple_logger import Logger, LogLvl
 
 logger = Logger(LogLvl.info)
+config = Config()
 
 
 def analyze_network(file_path: str, name: str):
@@ -17,11 +21,12 @@ def analyze_network(file_path: str, name: str):
         network_circuits = Circuits(network).count_circuits()
 
         randomizer = NetworkRandomizer(network)
-        random_network_amount = 1000
+        random_network_amount = int(config.get_property('random','network_amount'))
+        random_networks = randomizer.generate(amount=random_network_amount)
 
         logger.info(f"\nsearching network motifs using {random_network_amount} random networks")
-        random_networks = randomizer.generate(amount=random_network_amount)
-        random_network_circuits = [Circuits(network, use_logger=False).count_circuits() for network in random_networks]
+        random_network_circuits = [Circuits(network, use_logger=False).count_circuits() for network in
+                                   tqdm(random_networks)]
         logger.toggle(True)
 
         for circuit in network_circuits:
@@ -34,5 +39,8 @@ def analyze_network(file_path: str, name: str):
 
 if __name__ == "__main__":
     # analyze_network("networks/toy_network.txt", "toy")
-    analyze_network("networks/paper_exmp_network.txt", "paper example")
+    # analyze_network("networks/paper_exmp_network.txt", "paper example")
     # analyze_network("networks/systems_biology_ex_network.txt", "uri alon course homework")
+
+    # restore paper result on e.coli
+    analyze_network("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")

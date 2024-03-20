@@ -1,6 +1,10 @@
 import random
+
+from tqdm import tqdm
+
 from network import Network
-from simple_logger import Logger
+from utils.config import Config
+from utils.simple_logger import Logger
 import copy
 
 
@@ -9,12 +13,13 @@ class NetworkRandomizer:
     def __init__(self, network: Network):
         self.real_network = network
         self.logger = Logger()
+        config = Config()
 
-        self.markov_chain_num_iterations = 100
+        self.markov_chain_num_iterations = int(config.get_property('random', 'markov_chain_num_iterations'))
 
     def generate(self, amount: int) -> list[Network]:
         self.logger.info(f'randomizer: markov chain with {self.markov_chain_num_iterations} iterations')
-        return [self.markov_chain() for _ in range(amount)]
+        return [self.markov_chain() for _ in tqdm(range(amount))]
 
     def markov_chain(self) -> Network:
         """

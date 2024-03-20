@@ -1,5 +1,5 @@
 from network import Network
-from simple_logger import Logger, LogLvl
+from utils.simple_logger import Logger, LogLvl
 from itertools import combinations
 
 

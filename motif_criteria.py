@@ -1,14 +1,18 @@
 import numpy as np
 import scipy
-from simple_logger import Logger
+
+from utils.config import Config
+from utils.simple_logger import Logger
 
 
 class MotifCriteria:
     def __init__(self):
         self.logger = Logger()
-        self.alpha = 0.01
-        self.n_real_min = 4
-        self.larger_than_rand_factor = 0.1
+        config = Config()
+
+        self.alpha = float(config.get_property('motif_criteria', 'alpha'))
+        self.n_real_min = int(config.get_property('motif_criteria', 'n_real_min'))
+        self.larger_than_rand_factor = float(config.get_property('motif_criteria', 'larger_than_rand_factor'))
 
     def __is_statistical_significant_rand_network(self, n_real: int, random_network_samples: list[int]) -> bool:
         n_rand = np.mean(random_network_samples)

@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 
-from simple_logger import Logger
+from utils.simple_logger import Logger
 
 
 class Network:
