@@ -1,4 +1,6 @@
+import networkx as nx
 import numpy as np
+import matplotlib.pyplot as plt
 
 from simple_logger import Logger
 
@@ -43,3 +45,19 @@ class Network:
         self.logger.info(f'  - Nodes: {len(self.nodes)}')
         self.logger.info(f'  - Edges: {np.count_nonzero(self.adj_matrix)}')
         self.logger.info('')
+
+    def get_edges(self) -> list:
+        """
+        return a list of tuples with the graph edges
+        """
+        edges = []
+        for i, node in enumerate(self.nodes):
+            for neighbor in node:
+                edges.append((self.mapped_nodes_reverse[i], self.mapped_nodes_reverse[neighbor]))
+        return edges
+
+    def plot(self):
+        G = nx.DiGraph()
+        G.add_edges_from(self.get_edges())
+        nx.draw_networkx(G, node_size=600, node_color='lightgreen')
+        plt.show()

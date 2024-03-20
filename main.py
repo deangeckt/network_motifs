@@ -30,6 +30,7 @@ def analyze_network(file_path: str, name: str):
         network = Network()
         network.load_graph(f.readlines())
         network.log_properties()
+        # network.plot()
         network_circuits = Circuits(network).count_circuits()
 
         randomizer = NetworkRandomizer(network)
