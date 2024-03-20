@@ -6,7 +6,7 @@ from network import Network
 from network_randomizer import NetworkRandomizer
 from simple_logger import Logger, LogLvl
 
-logger = Logger(LogLvl.debug)
+logger = Logger(LogLvl.info)
 
 
 def is_statistical_significant(n_real: int, random_network_samples: list[int], alpha=0.01) -> bool:
@@ -49,6 +49,6 @@ def analyze_network(file_path: str, name: str):
 
 
 if __name__ == "__main__":
-    analyze_network("networks/toy_network.txt", "toy")
-    # analyze_network("networks/paper_exmp_network.txt", "paper example")
+    # analyze_network("networks/toy_network.txt", "toy")
+    analyze_network("networks/paper_exmp_network.txt", "paper example")
     # analyze_network("networks/systems_biology_ex_network.txt", "uri alon course homework")

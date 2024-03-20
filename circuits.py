@@ -67,7 +67,7 @@ class Circuits:
     def __count_cascades(self):
         """
         Counts the number of cascades (x -> y, y -> z) in the given network.
-        O(n * out degree^2) using list representation. (with adj matrix: o(n^3))
+        O(n_i * degree_i^2) using list representation. (with adj matrix: o(n^3))
         """
         self.logger.debug('--- cascades (x -> y, y -> z) debugging: --- ')
 
@@ -116,7 +116,7 @@ class Circuits:
     def __count_feed_forward(self):
         """
         Counts the number of feed forward (x -> y, x -> z, y -> z) in the given network.
-        O(n * out degree^3)
+        O(n * degree^3)
         """
         self.logger.debug('--- feed forwards (x -> y, x -> z, y -> z) debugging: --- ')
 

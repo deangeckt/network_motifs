@@ -13,16 +13,13 @@ class NetworkRandomizer:
         self.markov_chain_num_iterations = 100
 
     def generate(self, amount: int) -> list[Network]:
-        self.logger.info(f'randomizer: markov_chain with {self.markov_chain_num_iterations} iterations')
+        self.logger.info(f'randomizer: markov chain with {self.markov_chain_num_iterations} iterations')
         return [self.markov_chain() for _ in range(amount)]
-
-    @staticmethod
-    def sample_random_node(network_size: int):
-        return random.randint(0, network_size - 1)
 
     def markov_chain(self) -> Network:
         """
         S11. R. Kannan, P. Tetali, S. Vempala, Random Struct. Algorithms 14, 293 (1999).
+        Degree constrain is saved
         """
         network = copy.deepcopy(self.real_network)
         network_size = len(network.nodes)
