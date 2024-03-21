@@ -1,6 +1,6 @@
 from tqdm import tqdm
 
-from circuits import Circuits
+from specific_subgraphs import SpecificSubGraphs
 from motif_criteria import MotifCriteria
 from network import Network
 from network_randomizer import NetworkRandomizer
@@ -11,36 +11,35 @@ logger = Logger(LogLvl.info)
 config = Config()
 
 
-def analyze_network(file_path: str, name: str):
-    logger.info(f'Analyze {name} network:\n')
+def specific_motif_search(file_path: str, name: str):
+    logger.info(f'Specific Motif search for {name} network:\n')
     with open(file_path, "r") as f:
         network = Network()
         network.load_from_txt(f.readlines())
         network.log_properties()
         # network.plot()
-        network_circuits = Circuits(network).count_circuits()
 
-        randomizer = NetworkRandomizer(network)
+        randomizer = NetworkRandomizer(network.graph)
         random_network_amount = int(config.get_property('random','network_amount'))
         random_networks = randomizer.generate(amount=random_network_amount)
 
-        logger.info(f"\nsearching network motifs using {random_network_amount} random networks")
-        random_network_circuits = [Circuits(network, use_logger=False).count_circuits() for network in
-                                   tqdm(random_networks)]
+        network_sub_graphs = SpecificSubGraphs(network.graph).count_sub_graphs()
+        logger.toggle(False)
+        random_network_sub_graphs = [SpecificSubGraphs(network).count_sub_graphs() for network in tqdm(random_networks)]
         logger.toggle(True)
 
-        for circuit in network_circuits:
-            logger.info(f"\ncircuit {circuit}")
-            random_network_samples = [rand_network[circuit] for rand_network in random_network_circuits]
-            MotifCriteria().is_motif(network_circuits[circuit], random_network_samples)
+        for sub_graph in network_sub_graphs:
+            logger.info(f"\nsubgraph - {sub_graph}")
+            random_network_samples = [rand_network[sub_graph] for rand_network in random_network_sub_graphs]
+            MotifCriteria().is_motif(network_sub_graphs[sub_graph], random_network_samples)
 
     logger.info('\n')
 
 
 if __name__ == "__main__":
-    # analyze_network("networks/toy_network.txt", "toy")
-    # analyze_network("networks/paper_exmp_network.txt", "paper example")
-    # analyze_network("networks/systems_biology_ex_network.txt", "uri alon course homework")
+    # specific_motif_search("networks/toy_network.txt", "toy")
+    # specific_motif_search("networks/paper_exmp_network.txt", "paper example")
+    # specific_motif_search("networks/systems_biology_ex_network.txt", "uri alon course homework")
 
     # restore paper result on e.coli
-    analyze_network("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
+    specific_motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
