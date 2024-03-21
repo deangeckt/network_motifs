@@ -1,12 +1,13 @@
 from networkx import DiGraph
-from utils.simple_logger import Logger, LogLvl
+
+from subgraphs.sub_graphs import SubGraphs
+from utils.simple_logger import LogLvl
 from itertools import combinations
 
 
-class SpecificSubGraphs:
+class SpecificSubGraphs(SubGraphs):
     def __init__(self, network: DiGraph, search=None):
-        self.network = network
-        self.logger = Logger()
+        super().__init__(network)
         self.implemented_sub_graphs_search = {'self_loops': self.__count_self_loops,
                                               'mutual_regulation': self.__count_mutual_regulation,
                                               'fan_outs': self.__count_fan_outs,
@@ -15,8 +16,8 @@ class SpecificSubGraphs:
                                               }
         self.search = self.implemented_sub_graphs_search.keys() if search is None else search
 
-    def count_sub_graphs(self) -> dict:
-        self.logger.info('Specific Sub Graphs:')
+    def search_sub_graphs(self, k: int) -> dict:
+        self.logger.info('Specific Sub Graphs search:')
 
         res = {}
         for sub_graph in self.search:

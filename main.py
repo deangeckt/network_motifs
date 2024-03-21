@@ -1,9 +1,9 @@
 from tqdm import tqdm
 
-from specific_subgraphs import SpecificSubGraphs
 from motif_criteria import MotifCriteria
 from network import Network
 from network_randomizer import NetworkRandomizer
+from subgraphs.specific_subgraphs import SpecificSubGraphs
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 
@@ -23,9 +23,9 @@ def specific_motif_search(file_path: str, name: str):
         random_network_amount = int(config.get_property('random','network_amount'))
         random_networks = randomizer.generate(amount=random_network_amount)
 
-        network_sub_graphs = SpecificSubGraphs(network.graph).count_sub_graphs()
+        network_sub_graphs = SpecificSubGraphs(network.graph).search_sub_graphs()
         logger.toggle(False)
-        random_network_sub_graphs = [SpecificSubGraphs(network).count_sub_graphs() for network in tqdm(random_networks)]
+        random_network_sub_graphs = [SpecificSubGraphs(network).search_sub_graphs() for network in tqdm(random_networks)]
         logger.toggle(True)
 
         for sub_graph in network_sub_graphs:
