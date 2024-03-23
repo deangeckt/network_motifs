@@ -1,9 +1,9 @@
-import numpy as np
 from networkx import DiGraph
 
 from subgraphs.sub_graphs import SubGraphs
 import networkx as nx
 
+from subgraphs.sub_graphs_utils import get_id, get_sub_graph_from_id
 from utils.simple_logger import LogLvl, Logger
 
 
@@ -22,37 +22,20 @@ class MFinder(SubGraphs):
     """
     MFinder enumeration algorithm
     """
+
     def __init__(self, network: DiGraph):
         super().__init__(network)
         self.fsl = {}  # frequent sub graph list
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
-        self.hash_ = set()
-
-    @staticmethod
-    def __get_id(sub_graph: tuple) -> int:
-        graph = nx.DiGraph(list(sub_graph))
-        adj_mat = nx.adjacency_matrix(graph).todense()
-        vec = adj_mat.flatten()
-        decimal = 0
-        for i, bit in enumerate(vec):
-            decimal += bit * (2 ** i)
-        return decimal
-
-    def get_sub_graph_from_id(self, decimal: int) -> DiGraph:
-        bin_digits = [int(d) for d in str(bin(decimal))[2:]]
-        pad_amount = self.k ** 2 - len(bin_digits)
-        padding = pad_amount * [0]
-        bin_digits = padding + bin_digits
-        bin_digits.reverse()
-        adj_mat = np.array(bin_digits).reshape(self.k, self.k)
-        return nx.DiGraph(adj_mat)
+        self.hash_ = set()  # hash for trimming during the backtracking
 
     def __is_unique(self, sub_graph: tuple) -> bool:
         return UniqueSubGraph(sub_graph) not in self.unique
 
     def __inc_count_w_canonical_label(self, sub_graph: tuple):
-        sub_id = self.__get_id(sub_graph)
+        # TODO: improve run time with hashing as a key - not looping on fsl. check correctness
+        sub_id = get_id(sub_graph)
         self.logger.debug(f'inc count to motif id: {sub_id}')
         self.logger.debug(sub_graph)
         if len(self.fsl) == 0:
@@ -65,7 +48,7 @@ class MFinder(SubGraphs):
         graph = nx.DiGraph(list(sub_graph))
         found = False
         for id_ in self.fsl:
-            other_graph = self.get_sub_graph_from_id(id_)
+            other_graph = get_sub_graph_from_id(decimal=id_, k=self.k)
             if nx.is_isomorphic(graph, other_graph):
                 self.fsl[id_] += 1
                 found = True
@@ -114,14 +97,14 @@ class MFinder(SubGraphs):
 
 if __name__ == "__main__":
     logger = Logger(LogLvl.debug)
-
+    k = 2
     g = nx.DiGraph([(0, 1), (1, 0), (0, 2), (1, 2), (2, 1), (2, 0), (0, 0)])
     g = nx.DiGraph([(0, 1), (1, 0), (0, 0)])
     mfinder = MFinder(g)
-    sub_graphs = mfinder.search_sub_graphs(k=2)
+    sub_graphs = mfinder.search_sub_graphs(k=k)
     total = 0
     for sub_id in sub_graphs:
-        sub_graph = mfinder.get_sub_graph_from_id(sub_id)
+        sub_graph = get_sub_graph_from_id(sub_id, k=k)
         amount = sub_graphs[sub_id]
         total += amount
         print()
