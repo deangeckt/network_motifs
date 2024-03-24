@@ -6,7 +6,7 @@ from networkx import DiGraph
 from enum import Enum
 
 
-class SubGraphAlgo(str, Enum):
+class SubGraphAlgoName(str, Enum):
     specific = 'specific'
     mfinder = 'mfinder'
 
@@ -19,7 +19,10 @@ class MotifName(str, Enum):
     feed_forwards = 'feed_forwards'
 
 
-three_sub_graphs_ids = {MotifName.feed_forwards: [38, 44, 104, 134, 194, 200]}
+three_sub_graphs_ids = {MotifName.feed_forwards: [38, 44, 104, 134, 194, 200],
+                        MotifName.fan_outs: [12, 34, 66, 96, 132, 136],
+                        MotifName.cascades: [6, 40, 192]
+                        }
 
 
 def get_sub_id_name(sub_id: int, k: int) -> Optional[MotifName]:

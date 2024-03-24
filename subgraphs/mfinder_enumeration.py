@@ -5,6 +5,7 @@ import networkx as nx
 
 from subgraphs.sub_graphs_utils import get_id, get_sub_graph_from_id
 from utils.simple_logger import LogLvl, Logger
+from collections import defaultdict
 
 
 class UniqueSubGraph:
@@ -25,7 +26,8 @@ class MFinder(SubGraphs):
 
     def __init__(self, network: DiGraph):
         super().__init__(network)
-        self.fsl = {}  # frequent sub graph list
+        self.fsl = defaultdict(int)  # frequent sub graph list
+        self.fsl_ids = {}
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
         self.hash_ = set()  # hash for trimming during the backtracking
@@ -34,28 +36,13 @@ class MFinder(SubGraphs):
         return UniqueSubGraph(sub_graph) not in self.unique
 
     def __inc_count_w_canonical_label(self, sub_graph: tuple):
-        # TODO: improve run time with hashing as a key - not looping on fsl. check correctness
         sub_id = get_id(sub_graph)
         self.logger.debug(f'inc count to motif id: {sub_id}')
         self.logger.debug(sub_graph)
-        if len(self.fsl) == 0:
-            self.fsl[sub_id] = 1
-            return
-        if sub_id in self.fsl:
-            self.fsl[sub_id] += 1
-            return
 
-        graph = nx.DiGraph(list(sub_graph))
-        found = False
-        for id_ in self.fsl:
-            other_graph = get_sub_graph_from_id(decimal=id_, k=self.k)
-            if nx.is_isomorphic(graph, other_graph):
-                self.fsl[id_] += 1
-                found = True
-                break
-
-        if not found:
-            self.fsl[sub_id] = 1
+        graph_hash = nx.weisfeiler_lehman_graph_hash(nx.DiGraph(list(sub_graph)), iterations=self.k)
+        self.fsl[graph_hash] += 1
+        self.fsl_ids[graph_hash] = sub_id
 
     def __find_sub_graphs_new_edge(self, sub_graph: tuple, edge: tuple):
         if edge in sub_graph:
@@ -67,6 +54,8 @@ class MFinder(SubGraphs):
 
     def __find_sub_graphs(self, sub_graph: tuple):
         graph = nx.DiGraph(list(sub_graph))
+        if len(graph) > self.k:
+            return
         if len(graph) == self.k and self.__is_unique(sub_graph):
             self.unique.add(UniqueSubGraph(sub_graph))
             self.__inc_count_w_canonical_label(sub_graph)
@@ -83,13 +72,16 @@ class MFinder(SubGraphs):
                 self.__find_sub_graphs_new_edge(sub_graph, (k, i))
 
     def search_sub_graphs(self, k: int) -> dict:
-        self.fsl = {}
+        self.fsl = defaultdict(int)
+        self.fsl_ids = {}
         self.k = k
         self.unique = set()
         self.hash_ = set()
 
         self.logger.info('Sub Graphs search:')
         for i, j in list(self.network.edges):
+            self.logger.debug(f'({i}, {j})')
             self.__find_sub_graphs(((i, j),))
 
-        return self.fsl
+        fsl_mapped = {self.fsl_ids[hash_]: self.fsl[hash_] for hash_ in self.fsl}
+        return fsl_mapped

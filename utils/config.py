@@ -11,3 +11,6 @@ class Config:
     def get_property(self, section: str, prop: str):
         return self.config[section][prop]
 
+    def get_boolean_property(self, section: str, prop: str) -> bool:
+        return self.config.getboolean(section, prop)
+
