@@ -22,18 +22,6 @@ class MotifName(str, Enum):
 three_sub_graphs_ids = {MotifName.feed_forwards: [38, 44, 104, 134, 194, 200]}
 
 
-# def rename_sub_graphs(decimal_dict: dict, k: int) -> dict:
-#     """
-#     rename sub id's to motif names if exist
-#     """
-#     res = {}
-#     for decimal_id in decimal_dict:
-#         sub_name = get_sub_id_name(decimal_id, k)
-#         sub_key = sub_name if sub_name else decimal_id
-#         res[sub_key] = decimal_dict[decimal_id]
-#     return res
-
-
 def get_sub_id_name(sub_id: int, k: int) -> Optional[MotifName]:
     if k != 3:
         return None

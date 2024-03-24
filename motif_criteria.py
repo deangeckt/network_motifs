@@ -15,6 +15,9 @@ class MotifCriteria:
         self.uniqueness_threshold = float(config.get_property('motif_criteria', 'uniqueness_threshold'))
 
     def __is_statistically_significant(self, n_real: int, random_network_samples: list[int]) -> bool:
+        if not random_network_samples:
+            self.logger.info('no random samples')
+            return False
         n_rand = np.mean(random_network_samples)
         std = np.std(random_network_samples)
         if not std:

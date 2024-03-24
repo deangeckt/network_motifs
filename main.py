@@ -57,7 +57,7 @@ def motif_search(file_path: str, name: str):
         random_networks = randomizer.generate(amount=random_network_amount)
 
         logger.toggle(False)
-        random_network_sub_graphs = [MFinder(network).search_sub_graphs(k=k) for network in
+        random_network_sub_graphs = [sub_graph_algorithms[algo](network).search_sub_graphs(k=k) for network in
                                      tqdm(random_networks)]
         logger.toggle(True)
 
@@ -72,14 +72,14 @@ if __name__ == "__main__":
     logger = Logger(LogLvl.info)
     config = Config()
 
-    algo = SubGraphAlgo.mfinder
-    k = 3
+    k = int(config.get_property('run_args', 'k'))
+    algo = SubGraphAlgo(config.get_property('run_args', 'sub_graph_algorithm'))
 
     # g = nx.DiGraph([(0, 1), (1, 0), (0, 2), (1, 2), (2, 1), (2, 0), (0, 0)])
     # sub_graph_search(g)
 
-    motif_search("networks/toy_network.txt", "toy")
-    # motif_search("networks/paper_exmp_network.txt", "paper example")
+    # motif_search("networks/toy_network.txt", "toy")
+    motif_search("networks/paper_exmp_network.txt", "paper example")
     # motif_search("networks/systems_biology_ex_network.txt", "uri alon course homework")
 
     # restore paper result on e.coli
