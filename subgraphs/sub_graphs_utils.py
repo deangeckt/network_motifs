@@ -20,8 +20,8 @@ class MotifName(str, Enum):
 
 
 three_sub_graphs_ids = {MotifName.feed_forwards: [38, 44, 104, 134, 194, 200],
-                        MotifName.fan_outs: [12, 34, 66, 96, 132, 136],
-                        MotifName.cascades: [6, 40, 192]
+                        MotifName.cascades: [12, 34, 66, 96, 132, 136],
+                        MotifName.fan_outs: [6, 40, 192]
                         }
 
 
