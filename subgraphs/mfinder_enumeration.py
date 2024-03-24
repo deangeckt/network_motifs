@@ -93,23 +93,3 @@ class MFinder(SubGraphs):
             self.__find_sub_graphs(((i, j),))
 
         return self.fsl
-
-
-if __name__ == "__main__":
-    logger = Logger(LogLvl.debug)
-    k = 2
-    g = nx.DiGraph([(0, 1), (1, 0), (0, 2), (1, 2), (2, 1), (2, 0), (0, 0)])
-    g = nx.DiGraph([(0, 1), (1, 0), (0, 0)])
-    mfinder = MFinder(g)
-    sub_graphs = mfinder.search_sub_graphs(k=k)
-    total = 0
-    for sub_id in sub_graphs:
-        sub_graph = get_sub_graph_from_id(sub_id, k=k)
-        amount = sub_graphs[sub_id]
-        total += amount
-        print()
-        print(nx.adjacency_matrix(sub_graph).todense())
-        print(f'Amount: {amount}')
-
-    print('\nmotif amount', len(sub_graphs))
-    print('total', total)

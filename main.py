@@ -6,29 +6,24 @@ from network import Network
 from network_randomizer import NetworkRandomizer
 from subgraphs.mfinder_enumeration import MFinder
 from subgraphs.specific_subgraphs import SpecificSubGraphs
-from subgraphs.sub_graphs_utils import get_sub_id_name, get_sub_graph_from_id
+from subgraphs.sub_graphs import SubGraphs
+from subgraphs.sub_graphs_utils import get_sub_id_name, get_sub_graph_from_id, SubGraphAlgo
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import networkx as nx
 
-logger = Logger(LogLvl.info)
-config = Config()
+
+sub_graph_algorithms = {
+    SubGraphAlgo.specific: SpecificSubGraphs,
+    SubGraphAlgo.mfinder: MFinder,
+}
 
 
-def sub_graph_search(graph: DiGraph):
-    pass
+def sub_graph_search(network: DiGraph) -> dict:
+    sub_graph_algo: SubGraphs = sub_graph_algorithms[algo](network)
+    network_sub_graphs = sub_graph_algo.search_sub_graphs(k=k)
 
-
-def motif_search(file_path: str, name: str):
-    k = 3
-    logger.info(f'Motif search for {name} network:\n')
-    with open(file_path, "r") as f:
-        network = Network()
-        network.load_from_txt(f.readlines())
-        network.log_properties()
-
-        mfinder = MFinder(network.graph)
-        network_sub_graphs = mfinder.search_sub_graphs(k=k)
+    if algo != SubGraphAlgo.specific:
         total = 0
         for sub_id in network_sub_graphs:
             sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
@@ -44,6 +39,18 @@ def motif_search(file_path: str, name: str):
 
         logger.info(f'\nMotif candidate amount: {len(network_sub_graphs)}')
         logger.info(f'Total appearances: {total}')
+
+    return network_sub_graphs
+
+
+def motif_search(file_path: str, name: str):
+    logger.info(f'Motif search for {name} network:\n')
+    with open(file_path, "r") as f:
+        network = Network()
+        network.load_from_txt(f.readlines())
+        network.log_properties()
+
+        network_sub_graphs = sub_graph_search(network.graph)
 
         randomizer = NetworkRandomizer(network.graph)
         random_network_amount = int(config.get_property('random', 'network_amount'))
@@ -61,36 +68,19 @@ def motif_search(file_path: str, name: str):
             MotifCriteria().is_motif(network_sub_graphs[sub_id], random_network_samples)
 
 
-def specific_motif_search(file_path: str, name: str):
-    logger.info(f'Specific Motif search for {name} network:\n')
-    with open(file_path, "r") as f:
-        network = Network()
-        network.load_from_txt(f.readlines())
-        network.log_properties()
-        # network.plot()
-
-        randomizer = NetworkRandomizer(network.graph)
-        random_network_amount = int(config.get_property('random', 'network_amount'))
-        random_networks = randomizer.generate(amount=random_network_amount)
-
-        network_sub_graphs = SpecificSubGraphs(network.graph).search_sub_graphs(k=3)
-        logger.toggle(False)
-        random_network_sub_graphs = [SpecificSubGraphs(network).search_sub_graphs(k=3) for network in
-                                     tqdm(random_networks)]
-        logger.toggle(True)
-
-        for sub_graph in network_sub_graphs:
-            logger.info(f"\nsubgraph - {sub_graph}")
-            random_network_samples = [rand_network[sub_graph] for rand_network in random_network_sub_graphs]
-            MotifCriteria().is_motif(network_sub_graphs[sub_graph], random_network_samples)
-
-    logger.info('\n')
-
-
 if __name__ == "__main__":
-    # specific_motif_search("networks/toy_network.txt", "toy")
-    motif_search("networks/paper_exmp_network.txt", "paper example")
-    # specific_motif_search("networks/systems_biology_ex_network.txt", "uri alon course homework")
+    logger = Logger(LogLvl.info)
+    config = Config()
+
+    algo = SubGraphAlgo.mfinder
+    k = 3
+
+    # g = nx.DiGraph([(0, 1), (1, 0), (0, 2), (1, 2), (2, 1), (2, 0), (0, 0)])
+    # sub_graph_search(g)
+
+    motif_search("networks/toy_network.txt", "toy")
+    # motif_search("networks/paper_exmp_network.txt", "paper example")
+    # motif_search("networks/systems_biology_ex_network.txt", "uri alon course homework")
 
     # restore paper result on e.coli
-    # specific_motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
+    # motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")

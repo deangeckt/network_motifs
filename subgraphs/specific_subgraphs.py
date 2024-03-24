@@ -1,20 +1,23 @@
+from typing import Optional
+
 from networkx import DiGraph
 
 from subgraphs.sub_graphs import SubGraphs
+from subgraphs.sub_graphs_utils import MotifName
 from utils.simple_logger import LogLvl
 from itertools import combinations
 
 
 class SpecificSubGraphs(SubGraphs):
-    def __init__(self, network: DiGraph, search=None):
+    def __init__(self, network: DiGraph, search: Optional[list[MotifName]] = None):
         super().__init__(network)
-        self.implemented_sub_graphs_search = {'self_loops': self.__count_self_loops,
-                                              'mutual_regulation': self.__count_mutual_regulation,
-                                              'fan_outs': self.__count_fan_outs,
-                                              'cascades': self.__count_cascades,
-                                              'feed_forwards': self.__count_feed_forward
+        self.implemented_sub_graphs_search = {MotifName.self_loops: self.__count_self_loops,
+                                              MotifName.mutual_regulation: self.__count_mutual_regulation,
+                                              MotifName.fan_outs: self.__count_fan_outs,
+                                              MotifName.cascades: self.__count_cascades,
+                                              MotifName.feed_forwards: self.__count_feed_forward
                                               }
-        self.search = self.implemented_sub_graphs_search.keys() if search is None else search
+        self.search: list[MotifName] = self.implemented_sub_graphs_search.keys() if search is None else search
 
     def search_sub_graphs(self, k: int) -> dict:
         self.logger.info('Specific Sub Graphs search:')

@@ -1,16 +1,45 @@
+from typing import Optional
+
 import networkx as nx
 import numpy as np
 from networkx import DiGraph
+from enum import Enum
 
-three_sub_graphs_ids = {'feed_forwards': [38, 44, 104, 134, 194, 200]}
+
+class SubGraphAlgo(str, Enum):
+    specific = 'specific'
+    mfinder = 'mfinder'
 
 
-def get_sub_id_name(sub_id: int, k: int):
+class MotifName(str, Enum):
+    self_loops = 'self_loops'
+    mutual_regulation = 'mutual_regulation'
+    fan_outs = 'fan_outs'
+    cascades = 'cascades'
+    feed_forwards = 'feed_forwards'
+
+
+three_sub_graphs_ids = {MotifName.feed_forwards: [38, 44, 104, 134, 194, 200]}
+
+
+# def rename_sub_graphs(decimal_dict: dict, k: int) -> dict:
+#     """
+#     rename sub id's to motif names if exist
+#     """
+#     res = {}
+#     for decimal_id in decimal_dict:
+#         sub_name = get_sub_id_name(decimal_id, k)
+#         sub_key = sub_name if sub_name else decimal_id
+#         res[sub_key] = decimal_dict[decimal_id]
+#     return res
+
+
+def get_sub_id_name(sub_id: int, k: int) -> Optional[MotifName]:
     if k != 3:
         return None
-    for sub_graph in three_sub_graphs_ids:
-        if sub_id in three_sub_graphs_ids[sub_graph]:
-            return sub_graph
+    for sub_graph_name in three_sub_graphs_ids:
+        if sub_id in three_sub_graphs_ids[sub_graph_name]:
+            return sub_graph_name
     return None
 
 
