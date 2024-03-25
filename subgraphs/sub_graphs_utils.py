@@ -16,6 +16,9 @@ class UniqueSubGraph:
     def __hash__(self):
         return hash(tuple(sorted(self.sub_graph)))
 
+    def __str__(self):
+        return str(self.sub_graph)
+
 
 class SubGraphAlgoName(str, Enum):
     specific = 'specific'

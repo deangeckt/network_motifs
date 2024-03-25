@@ -74,6 +74,8 @@ class SpecificSubGraphs(SubGraphs):
         self.logger.debug('--- cascades (x -> y, y -> z) debugging: --- ')
 
         count = 0
+        self.debug_hash_ = set()
+
         for x in list(self.network.nodes):
             x_neighbors = list(self.network.adj[x])
             for y in x_neighbors:
@@ -83,15 +85,21 @@ class SpecificSubGraphs(SubGraphs):
                 for z in y_neighbors:
                     if z == y or z == x:
                         continue
+
+                    sub_graph = ((x, y), (y, z))
+                    sub_graph = UniqueSubGraph(sub_graph)
+                    if sub_graph in self.debug_hash_:
+                        continue
+                    self.debug_hash_.add(sub_graph)
                     self.logger.debug(f'{x} -> {y} -> {z}')
                     count += 1
 
-        self.logger.info(f"cascades (x -> y, x -> z): {count}")
+        self.logger.info(f"cascades (x -> y, y -> z): {count}")
         return count
 
     def __count_fan_outs(self):
         """
-        Counts the number of cascades (x -> y, x -> z) in the given network.
+        Counts the number of fan outs (x -> y, x -> z) in the given network.
         O(n)
         """
         self.logger.debug('--- fan outs (x -> y, x -> z) debugging: --- ')
@@ -111,7 +119,7 @@ class SpecificSubGraphs(SubGraphs):
                     self.logger.debug(f'{x} -> {y}, {x} -> {z}')
 
         fan_outs = int(count)
-        self.logger.info(f"fan outs (x -> y, y -> z): {fan_outs}")
+        self.logger.info(f"fan outs (x -> y, x -> z): {fan_outs}")
         return fan_outs
 
     def __count_feed_forward(self):
