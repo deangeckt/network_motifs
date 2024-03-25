@@ -82,12 +82,12 @@ if __name__ == "__main__":
     algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
 
     # g = nx.DiGraph([(0, 1), (1, 0), (0, 2), (1, 2), (2, 1), (2, 0), (0, 0)])
-    g = nx.DiGraph([(0, 1), (0, 2), (1, 2), (1, 0)])
-    sub_graph_search(g)
+    # g = nx.DiGraph([(0, 1), (0, 2), (1, 2), (1, 0)])
+    # sub_graph_search(g)
 
     # motif_search("networks/toy_network.txt", "toy")
     # motif_search("networks/paper_exmp_network.txt", "paper example")
     # motif_search("networks/systems_biology_ex_network.txt", "uri alon course homework") #  mfinder 3.7 sec
 
     # restore paper result on e.coli (use ~100-200 rand networks)
-    # motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")  # mfinder ~ 1 min
+    motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")  # mfinder ~ 1 min

@@ -86,7 +86,7 @@ class SpecificSubGraphs(SubGraphs):
                     self.logger.debug(f'{x} -> {y} -> {z}')
                     count += 1
 
-        self.logger.info(f"fan outs (x -> y, x -> z): {count}")
+        self.logger.info(f"cascades (x -> y, x -> z): {count}")
         return count
 
     def __count_fan_outs(self):
@@ -111,7 +111,7 @@ class SpecificSubGraphs(SubGraphs):
                     self.logger.debug(f'{x} -> {y}, {x} -> {z}')
 
         fan_outs = int(count)
-        self.logger.info(f"cascades (x -> y, y -> z): {fan_outs}")
+        self.logger.info(f"fan outs (x -> y, y -> z): {fan_outs}")
         return fan_outs
 
     def __count_feed_forward(self):
