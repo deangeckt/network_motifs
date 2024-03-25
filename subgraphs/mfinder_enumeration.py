@@ -3,8 +3,7 @@ from networkx import DiGraph
 from subgraphs.sub_graphs import SubGraphs
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import get_id, get_sub_graph_from_id
-from utils.simple_logger import LogLvl, Logger
+from subgraphs.sub_graphs_utils import get_id
 from collections import defaultdict
 
 
@@ -21,7 +20,10 @@ class UniqueSubGraph:
 
 class MFinder(SubGraphs):
     """
-    MFinder enumeration algorithm
+    MFinder enumeration algorithm.
+    paper:  R. Milo, S. Shen-Orr, S. Itzkovitz, N. Kashtan,D. Chklovskii, and U. Alon, “Network motifs: simple
+            building blocks of complex networks.” Science, vol. 298, no. 5594, pp. 824–827, October 2002.
+    pseudocode: Ribeiro, Pedro and Silva, Fernando and Kaiser, Marcus: "Strategies for Network Motifs Discovery"
     """
 
     def __init__(self, network: DiGraph):
@@ -67,7 +69,7 @@ class MFinder(SubGraphs):
             for k in list(self.network.adj[i]):
                 self.__find_sub_graphs_new_edge(sub_graph, (i, k))
 
-            in_edges = [u for u, v in list(self.network.edges) if v == i]  # O(E) - can use adj mat's col for O(N)
+            in_edges = [u for u, v in list(self.network.edges) if v == i]  # TODO: O(E) - can use adj mat's col for O(N)
             for k in in_edges:
                 self.__find_sub_graphs_new_edge(sub_graph, (k, i))
 
@@ -80,7 +82,7 @@ class MFinder(SubGraphs):
 
         self.logger.info('Sub Graphs search:')
         for i, j in list(self.network.edges):
-            self.logger.debug(f'({i}, {j})')
+            self.logger.debug(f'Edge: ({i}, {j}):')
             self.__find_sub_graphs(((i, j),))
 
         fsl_mapped = {self.fsl_ids[hash_]: self.fsl[hash_] for hash_ in self.fsl}

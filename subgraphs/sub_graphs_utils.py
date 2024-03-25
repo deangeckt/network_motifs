@@ -36,7 +36,9 @@ def get_sub_id_name(sub_id: int, k: int) -> Optional[MotifName]:
 
 def get_id(sub_graph: tuple) -> int:
     graph = nx.DiGraph(list(sub_graph))
-    adj_mat = nx.adjacency_matrix(graph).todense()
+    nodes = list(graph.nodes)
+    nodes.sort()
+    adj_mat = nx.adjacency_matrix(graph, nodelist=nodes).todense()
     vec = adj_mat.flatten()
     decimal = 0
     for i, bit in enumerate(vec):

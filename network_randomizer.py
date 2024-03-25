@@ -7,6 +7,7 @@ from utils.config import Config
 from utils.simple_logger import Logger
 
 
+# TODO: abc class + folder
 class NetworkRandomizer:
     def __init__(self, network: DiGraph):
         self.real_network = network

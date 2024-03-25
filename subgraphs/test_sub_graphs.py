@@ -35,7 +35,7 @@ def test_three_sub_graphs():
         print('compare on original network')
         __compare(network.graph, k, compare)
 
-        rand_amount = 10
+        rand_amount = 50
         print(f'compare on {rand_amount} random networks')
         randomizer = NetworkRandomizer(network.graph)
         random_networks = randomizer.generate(amount=rand_amount)

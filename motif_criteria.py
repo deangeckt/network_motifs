@@ -42,6 +42,7 @@ class MotifCriteria:
 
         return is_freq
 
+    # TODO: impl anti motif: - return enum - motif, anti, none
     def is_motif(self, n_real: int, random_network_samples: list[int]) -> bool:
         self.logger.info('checking motif criteria:')
         is_significant = self.__is_statistically_significant(n_real, random_network_samples)
