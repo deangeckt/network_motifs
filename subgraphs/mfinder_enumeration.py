@@ -3,19 +3,8 @@ from networkx import DiGraph
 from subgraphs.sub_graphs import SubGraphs
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import get_id
+from subgraphs.sub_graphs_utils import get_id, UniqueSubGraph
 from collections import defaultdict
-
-
-class UniqueSubGraph:
-    def __init__(self, sub_graph: tuple):
-        self.sub_graph = sub_graph
-
-    def __eq__(self, other):
-        return sorted(self.sub_graph) == sorted(other.sub_graph)
-
-    def __hash__(self):
-        return hash(tuple(sorted(self.sub_graph)))
 
 
 class MFinder(SubGraphs):

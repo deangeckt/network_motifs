@@ -6,6 +6,17 @@ from networkx import DiGraph
 from enum import Enum
 
 
+class UniqueSubGraph:
+    def __init__(self, sub_graph: tuple):
+        self.sub_graph = sub_graph
+
+    def __eq__(self, other):
+        return sorted(self.sub_graph) == sorted(other.sub_graph)
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.sub_graph)))
+
+
 class SubGraphAlgoName(str, Enum):
     specific = 'specific'
     mfinder = 'mfinder'
@@ -17,19 +28,30 @@ class MotifName(str, Enum):
     fan_outs = 'fan_outs'
     cascades = 'cascades'
     feed_forwards = 'feed_forwards'
+    bi_fan = 'bi_fan'
 
 
-three_sub_graphs_ids = {MotifName.feed_forwards: [38, 44, 104, 134, 194, 200],
-                        MotifName.cascades: [12, 34, 66, 96, 132, 136],
-                        MotifName.fan_outs: [6, 40, 192]
-                        }
+three_sub_graphs_ids = {
+    MotifName.feed_forwards: [38, 44, 104, 134, 194, 200],
+    MotifName.cascades: [12, 34, 66, 96, 132, 136],
+    MotifName.fan_outs: [6, 40, 192]
+}
+four_sub_graphs_ids = {
+    MotifName.bi_fan: [204]  # TODO: add the rest
+}
+
+sub_graphs_ids_per_k = {
+    3: three_sub_graphs_ids,
+    4: four_sub_graphs_ids
+}
 
 
 def get_sub_id_name(sub_id: int, k: int) -> Optional[MotifName]:
-    if k != 3:
+    if k not in sub_graphs_ids_per_k:
         return None
-    for sub_graph_name in three_sub_graphs_ids:
-        if sub_id in three_sub_graphs_ids[sub_graph_name]:
+    sub_graphs_id = sub_graphs_ids_per_k[k]
+    for sub_graph_name in sub_graphs_id:
+        if sub_id in sub_graphs_id[sub_graph_name]:
             return sub_graph_name
     return None
 

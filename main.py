@@ -37,14 +37,14 @@ def sub_graph_search(network: DiGraph) -> dict:
             logger.info(nx.adjacency_matrix(sub_graph).todense())
             logger.info(f'Appearances: {amount}')
 
-        logger.info(f'\nMotif candidate amount: {len(network_sub_graphs)}')
+        logger.info(f'\nMotif candidates: {len(network_sub_graphs)}')
         logger.info(f'Total appearances: {total}')
 
     return network_sub_graphs
 
 
 def motif_search(file_path: str, name: str):
-    logger.info(f'Motif search for {name} network:\n')
+    logger.info(f'Motif search - {algo} algorithm, for {name} network:\n')
     with open(file_path, "r") as f:
         network = Network()
         network.load_from_txt(f.readlines())
@@ -81,13 +81,13 @@ if __name__ == "__main__":
     k = int(config.get_property('run_args', 'k'))
     algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
 
-    # g = nx.DiGraph([(0, 1), (1, 0), (0, 2), (1, 2), (2, 1), (2, 0), (0, 0)])
-    # g = nx.DiGraph([(0, 1), (0, 2), (1, 2), (1, 0)])
+    g = nx.DiGraph([(0, 4), (0, 5), (3,1), (3,2), (3,5), (3,4), (0,1)])
+    # g = nx.DiGraph([(1, 0), (2, 0), (1, 2), (0, 0)])
     # sub_graph_search(g)
 
     # motif_search("networks/toy_network.txt", "toy")
-    # motif_search("networks/paper_exmp_network.txt", "paper example")
+    motif_search("networks/paper_exmp_network.txt", "paper example")
     # motif_search("networks/systems_biology_ex_network.txt", "uri alon course homework") #  mfinder 3.7 sec
 
     # restore paper result on e.coli (use ~100-200 rand networks)
-    motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")  # mfinder ~ 1 min
+    # motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")  # mfinder ~ k=3: 1 min, k=4: 22 min
