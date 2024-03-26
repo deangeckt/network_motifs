@@ -120,9 +120,9 @@ def debug_compare_to_uri():
 
 
 if __name__ == "__main__":
-    logger = Logger(LogLvl.debug)
+    logger = Logger(LogLvl.info)
     config = Config()
-    debug_compare_to_uri()
+    # debug_compare_to_uri()
 
     k = int(config.get_property('run_args', 'k'))
     algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
@@ -136,4 +136,4 @@ if __name__ == "__main__":
     # motif_search("networks/systems_biology_ex_network.txt", "uri alon course homework") #  mfinder 3.7 sec
 
     # restore paper result on e.coli (use ~100-200 rand networks)
-    # motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")  # mfinder ~ k=3: 1 min, k=4: 22 min
+    motif_search("../colinet-1.0/coliInterNoAutoRegVec.txt", "colinet1_noAuto")  # mfinder ~ k=3: 1 min, k=4: 22 min

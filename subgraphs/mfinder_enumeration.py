@@ -58,7 +58,7 @@ class MFinder(SubGraphs):
             for k in list(self.network.adj[i]):
                 self.__find_sub_graphs_new_edge(sub_graph, (i, k))
 
-            in_edges = [u for u, v in list(self.network.edges) if v == i]  # TODO: O(E) - can use adj mat's col for O(N)
+            in_edges = [u for u, v in self.network.in_edges(nbunch=i)]
             for k in in_edges:
                 self.__find_sub_graphs_new_edge(sub_graph, (k, i))
 
