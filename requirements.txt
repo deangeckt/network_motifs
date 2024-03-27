@@ -5,3 +5,5 @@ matplotlib
 tqdm
 pytest
 singleton_decorator
+pandas
+openpyxl
