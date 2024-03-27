@@ -1,8 +1,8 @@
 import pytest
 
 from network import Network
-from subgraphs.induced_mfinder_enumeration import MFinderInduced
-from subgraphs.none_induced_mfinder_enumeration import MFinderNoneInduced
+from subgraphs.mfinder_enum_induced import MFinderInduced
+from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName
 from utils.simple_logger import Logger
 

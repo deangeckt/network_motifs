@@ -5,7 +5,7 @@ from networkx import DiGraph
 from utils.simple_logger import Logger
 
 
-class SubGraphs(metaclass=ABCMeta):
+class SubGraphsABC(metaclass=ABCMeta):
     def __init__(self, network: DiGraph):
         self.network = network
         self.logger = Logger()

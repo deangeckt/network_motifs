@@ -6,23 +6,23 @@ from networkx import DiGraph
 from enum import Enum
 
 
-class UniqueSubGraph:
-    def __init__(self, sub_graph: tuple):
-        self.sub_graph = sub_graph
+class HashedGraph:
+    def __init__(self, graph: tuple):
+        self.graph = graph
 
     def __eq__(self, other):
-        return sorted(self.sub_graph) == sorted(other.sub_graph)
+        return sorted(self.graph) == sorted(other.graph)
 
     def __hash__(self):
-        return hash(tuple(sorted(self.sub_graph)))
+        return hash(tuple(sorted(self.graph)))
 
     def __str__(self):
-        return str(self.sub_graph)
+        return str(self.graph)
 
 
-def graph_to_unique(g: DiGraph) -> UniqueSubGraph:
+def graph_to_hashed_graph(g: DiGraph) -> HashedGraph:
     graph_tuple = tuple(list(g.edges))
-    return UniqueSubGraph(graph_tuple)
+    return HashedGraph(graph_tuple)
 
 
 class SubGraphAlgoName(str, Enum):

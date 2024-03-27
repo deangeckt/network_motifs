@@ -2,13 +2,13 @@ from typing import Optional
 
 from networkx import DiGraph
 
-from subgraphs.sub_graphs import SubGraphs
-from subgraphs.sub_graphs_utils import MotifName, UniqueSubGraph
+from subgraphs.sub_graphs_abc import SubGraphsABC
+from subgraphs.sub_graphs_utils import MotifName, HashedGraph
 from utils.simple_logger import LogLvl
 from itertools import combinations
 
 
-class SpecificSubGraphs(SubGraphs):
+class SpecificSubGraphs(SubGraphsABC):
     """
     None induced
     """
@@ -90,7 +90,7 @@ class SpecificSubGraphs(SubGraphs):
                         continue
 
                     sub_graph = ((x, y), (y, z))
-                    sub_graph = UniqueSubGraph(sub_graph)
+                    sub_graph = HashedGraph(sub_graph)
                     if sub_graph in self.debug_hash_:
                         continue
                     self.debug_hash_.add(sub_graph)
@@ -181,7 +181,7 @@ class SpecificSubGraphs(SubGraphs):
                     if x_wz in y_comb:
                         w, z = x_wz
                         sub_graph = ((x, w), (x, z), (y, w), (y, z))
-                        sub_graph = UniqueSubGraph(sub_graph)
+                        sub_graph = HashedGraph(sub_graph)
                         if sub_graph in hash_:
                             continue
                         hash_.add(sub_graph)

@@ -4,10 +4,10 @@ from tqdm import tqdm
 from motif_criteria import MotifCriteria
 from network import Network
 from network_randomizer import NetworkRandomizer
-from subgraphs.induced_mfinder_enumeration import MFinderInduced
-from subgraphs.none_induced_mfinder_enumeration import MFinderNoneInduced
+from subgraphs.mfinder_enum_induced import MFinderInduced
+from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.specific_subgraphs import SpecificSubGraphs
-from subgraphs.sub_graphs import SubGraphs
+from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import get_sub_id_name, get_sub_graph_from_id, SubGraphAlgoName
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
@@ -22,7 +22,7 @@ sub_graph_algorithms = {
 
 
 def sub_graph_search(network: DiGraph) -> dict:
-    sub_graph_algo: SubGraphs = sub_graph_algorithms[algo](network)
+    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network)
     network_sub_graphs = sub_graph_algo.search_sub_graphs(k=k)
 
     if algo != SubGraphAlgoName.specific:

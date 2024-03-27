@@ -1,13 +1,13 @@
 from networkx import DiGraph
 
-from subgraphs.sub_graphs import SubGraphs
+from subgraphs.sub_graphs_abc import SubGraphsABC
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import get_id, graph_to_unique
+from subgraphs.sub_graphs_utils import get_id, graph_to_hashed_graph
 from collections import defaultdict
 
 
-class MFinderInduced(SubGraphs):
+class MFinderInduced(SubGraphsABC):
     """
     MFinder enumeration algorithm.
     paper:  R. Milo, S. Shen-Orr, S. Itzkovitz, N. Kashtan,D. Chklovskii, and U. Alon, “Network motifs: simple
@@ -24,7 +24,7 @@ class MFinderInduced(SubGraphs):
         self.hash_ = set()  # hash for trimming during the backtracking
 
     def __is_unique(self, sub_graph: DiGraph) -> bool:
-        return graph_to_unique(sub_graph) not in self.unique
+        return graph_to_hashed_graph(sub_graph) not in self.unique
 
     def __inc_count_w_canonical_label(self, sub_graph: DiGraph):
         sub_id = get_id(sub_graph)
@@ -48,7 +48,7 @@ class MFinderInduced(SubGraphs):
         if len(graph) > self.k:
             return
         if len(graph) == self.k and self.__is_unique(graph):
-            self.unique.add(graph_to_unique(graph))
+            self.unique.add(graph_to_hashed_graph(graph))
             self.__inc_count_w_canonical_label(graph)
             if self.k > 2:
                 return

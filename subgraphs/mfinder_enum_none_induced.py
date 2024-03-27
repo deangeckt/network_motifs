@@ -1,13 +1,13 @@
 from networkx import DiGraph
 
-from subgraphs.sub_graphs import SubGraphs
+from subgraphs.sub_graphs_abc import SubGraphsABC
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import get_id, UniqueSubGraph
+from subgraphs.sub_graphs_utils import get_id, HashedGraph
 from collections import defaultdict
 
 
-class MFinderNoneInduced(SubGraphs):
+class MFinderNoneInduced(SubGraphsABC):
     """
     MFinder enumeration algorithm. none-induced version of the algo:
     paper:  R. Milo, S. Shen-Orr, S. Itzkovitz, N. Kashtan,D. Chklovskii, and U. Alon, “Network motifs: simple
@@ -24,7 +24,7 @@ class MFinderNoneInduced(SubGraphs):
         self.hash_ = set()  # hash for trimming during the backtracking
 
     def __is_unique(self, sub_graph: tuple) -> bool:
-        return UniqueSubGraph(sub_graph) not in self.unique
+        return HashedGraph(sub_graph) not in self.unique
 
     def __inc_count_w_canonical_label(self, sub_graph: tuple):
         graph = nx.DiGraph(list(sub_graph))
@@ -40,7 +40,7 @@ class MFinderNoneInduced(SubGraphs):
         if edge in sub_graph:
             return
         new_sub_graph = (*sub_graph, edge)
-        if UniqueSubGraph(new_sub_graph) in self.hash_:
+        if HashedGraph(new_sub_graph) in self.hash_:
             return
         self.__find_sub_graphs(new_sub_graph)
 
@@ -49,12 +49,12 @@ class MFinderNoneInduced(SubGraphs):
         if len(graph) > self.k:
             return
         if len(graph) == self.k and self.__is_unique(sub_graph):
-            self.unique.add(UniqueSubGraph(sub_graph))
+            self.unique.add(HashedGraph(sub_graph))
             self.__inc_count_w_canonical_label(sub_graph)
             if self.k > 2:
                 return
 
-        self.hash_.add(UniqueSubGraph(sub_graph))
+        self.hash_.add(HashedGraph(sub_graph))
         for i in list(graph.nodes):
             for k in list(self.network.adj[i]):
                 self.__find_sub_graphs_new_edge(sub_graph, (i, k))
