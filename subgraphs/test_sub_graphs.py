@@ -1,42 +1,56 @@
-from networkx import DiGraph
-from tqdm import tqdm
+import pytest
 
 from network import Network
-from network_randomizer import NetworkRandomizer
-from subgraphs.mfinder_enumeration import MFinder
-from subgraphs.specific_subgraphs import SpecificSubGraphs
+from subgraphs.induced_mfinder_enumeration import MFinderInduced
+from subgraphs.none_induced_mfinder_enumeration import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName
 from utils.simple_logger import Logger
 
+logger = Logger()
+logger.toggle(False)
 
-def __compare(graph: DiGraph, k: int, compare: list[MotifName]):
-    mfinder = MFinder(graph)
-    mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
 
-    specific = SpecificSubGraphs(graph, search=compare)
-    expected_sub_graphs = specific.search_sub_graphs(k=k)
-
-    for sub_id in mfinder_sub_graphs:
+def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: dict):
+    for sub_id in actual_sub_graphs:
         sub_name = get_sub_id_name(sub_id=sub_id, k=k)
-        if sub_name not in compare:
+        if sub_name not in expected_sub_graphs:
             continue
-        assert mfinder_sub_graphs[sub_id] == expected_sub_graphs[sub_name]
+        assert actual_sub_graphs[sub_id] == expected_sub_graphs[sub_name]
 
 
-def test_three_sub_graphs():
-    logger = Logger()
-    logger.toggle(False)
-    compare = [MotifName.feed_forwards, MotifName.fan_outs, MotifName.cascades]
+paper_example_induced = ("networks/paper_exmp_network.txt",
+                         {MotifName.cascades: 10, MotifName.fan_outs: 3, MotifName.feed_forwards: 5}
+                         )
+paper_ecoli_induced = ("networks/coliInterNoAutoRegVec.txt",
+                       {MotifName.cascades: 162, MotifName.fan_outs: 226, MotifName.feed_forwards: 40}
+                       )
+paper_example_none_induced = ("networks/paper_exmp_network.txt",
+                              {MotifName.cascades: 15, MotifName.fan_outs: 8, MotifName.feed_forwards: 5}
+                              )
+paper_ecoli_none_induced = ("networks/coliInterNoAutoRegVec.txt",
+                            {MotifName.cascades: 202, MotifName.fan_outs: 266, MotifName.feed_forwards: 40}
+                            )
+
+
+@pytest.mark.parametrize("network_file,expected", [paper_example_induced, paper_ecoli_induced])
+def test_three_sub_graphs_induced(network_file, expected):
     k = 3
-    with open("networks/paper_exmp_network.txt", "r") as f:
+    with open(network_file, "r") as f:
         network = Network()
         network.load_from_txt(f.readlines())
 
-        print('compare on original network')
-        __compare(network.graph, k, compare)
+        mfinder = MFinderInduced(network.graph)
+        mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
+        __compare(k, expected, mfinder_sub_graphs)
 
-        rand_amount = 50
-        print(f'compare on {rand_amount} random networks')
-        randomizer = NetworkRandomizer(network.graph)
-        random_networks = randomizer.generate(amount=rand_amount)
-        [__compare(rand_network, k, compare) for rand_network in tqdm(random_networks)]
+
+@pytest.mark.parametrize("network_file,expected", [paper_example_none_induced, paper_ecoli_none_induced])
+def test_three_sub_graphs_none_induced(network_file, expected):
+    k = 3
+    with open(network_file, "r") as f:
+        network = Network()
+        network.load_from_txt(f.readlines())
+
+        mfinder = MFinderNoneInduced(network.graph)
+        mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
+        __compare(k, expected, mfinder_sub_graphs)

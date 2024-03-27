@@ -4,6 +4,14 @@ import scipy
 from utils.config import Config
 from utils.simple_logger import Logger
 
+from enum import Enum
+
+
+class MotifType(str, Enum):
+    motif = 'motif'
+    anti_motif = 'anti-motif'
+    none = 'none'
+
 
 class MotifCriteria:
     def __init__(self):
@@ -31,19 +39,34 @@ class MotifCriteria:
 
         is_significant = p_value < self.alpha
         self.logger.info(f'significant test; p<alpha: {round(p_value, 2)} < {self.alpha}: {is_significant}')
+
+        # TODO: finish
+        # z_anti_score = (n_rand - n_real) / std
+        # p_value = scipy.stats.norm.sf(abs(z_score))
+        # self.logger.info(f'z_anti_score: {round(z_anti_score, 2)} '
+        #                  f'p_value: {round(p_value, 2)}')
+
         return is_significant
 
     def __is_frequency(self, n_real: int, random_network_samples: list[int]) -> bool:
         n_rand = np.mean(random_network_samples)
         is_freq = (n_real - n_rand) > (self.uniqueness_threshold * n_rand)
         self.logger.info(
-            f'frequency threshold test; real-rand> {self.uniqueness_threshold}*rand: '
+            f'frequency threshold test; real-rand > {self.uniqueness_threshold}*rand: '
             f'{round(n_real - n_rand, 2)} > {round(self.uniqueness_threshold * n_rand, 2)}: {is_freq}')
 
         return is_freq
 
-    # TODO: impl anti motif: - return enum - motif, anti, none
-    def is_motif(self, n_real: int, random_network_samples: list[int]) -> bool:
+    def __is_anti_frequency(self, n_real: int, random_network_samples: list[int]) -> bool:
+        n_rand = np.mean(random_network_samples)
+        is_freq = (n_rand - n_real) > (self.uniqueness_threshold * n_rand)
+        self.logger.info(
+            f'anti frequency threshold test; rand-real > {self.uniqueness_threshold}*rand: '
+            f'{round(n_rand - n_real, 2)} > {round(self.uniqueness_threshold * n_rand, 2)}: {is_freq}')
+
+        return is_freq
+
+    def is_motif(self, n_real: int, random_network_samples: list[int]) -> MotifType:
         self.logger.info('checking motif criteria:')
         is_significant = self.__is_statistically_significant(n_real, random_network_samples)
         is_freq = self.__is_frequency(n_real, random_network_samples)
@@ -52,5 +75,12 @@ class MotifCriteria:
         self.logger.info(f'is min test: {n_real} >= {self.minimum_frequency}: {is_larger_than_min}')
 
         is_motif = is_larger_than_min & is_significant & is_freq
-        self.logger.info(f'motif criteria: {is_motif}')
-        return is_motif
+        res = MotifType.motif if is_motif else MotifType.none
+
+        # check for anti motif
+        if not is_motif:
+            if self.__is_anti_frequency(n_real, random_network_samples):
+                res = MotifType.anti_motif
+
+        self.logger.info(f'motif criteria: {res}')
+        return res

@@ -9,6 +9,9 @@ from itertools import combinations
 
 
 class SpecificSubGraphs(SubGraphs):
+    """
+    None induced
+    """
     def __init__(self, network: DiGraph, search: Optional[list[MotifName]] = None):
         super().__init__(network)
         self.implemented_sub_graphs_search = {MotifName.self_loops: self.__count_self_loops,

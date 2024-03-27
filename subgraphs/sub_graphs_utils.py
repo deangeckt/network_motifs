@@ -20,9 +20,15 @@ class UniqueSubGraph:
         return str(self.sub_graph)
 
 
+def graph_to_unique(g: DiGraph) -> UniqueSubGraph:
+    graph_tuple = tuple(list(g.edges))
+    return UniqueSubGraph(graph_tuple)
+
+
 class SubGraphAlgoName(str, Enum):
     specific = 'specific'
-    mfinder = 'mfinder'
+    mfinder_induced = 'mfinder_i'
+    mfinder_none_induced = 'mfinder_ni'
 
 
 class MotifName(str, Enum):
@@ -59,8 +65,7 @@ def get_sub_id_name(sub_id: int, k: int) -> Optional[MotifName]:
     return None
 
 
-def get_id(sub_graph: tuple) -> int:
-    graph = nx.DiGraph(list(sub_graph))
+def get_id(graph: DiGraph) -> int:
     nodes = list(graph.nodes)
     nodes.sort()
     adj_mat = nx.adjacency_matrix(graph, nodelist=nodes).todense()
