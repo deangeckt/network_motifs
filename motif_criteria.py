@@ -40,12 +40,6 @@ class MotifCriteria:
         is_significant = p_value < self.alpha
         self.logger.info(f'significant test; p<alpha: {round(p_value, 2)} < {self.alpha}: {is_significant}')
 
-        # TODO: finish
-        # z_anti_score = (n_rand - n_real) / std
-        # p_value = scipy.stats.norm.sf(abs(z_score))
-        # self.logger.info(f'z_anti_score: {round(z_anti_score, 2)} '
-        #                  f'p_value: {round(p_value, 2)}')
-
         return is_significant
 
     def __is_frequency(self, n_real: int, random_network_samples: list[int]) -> bool:
@@ -79,7 +73,7 @@ class MotifCriteria:
 
         # check for anti motif
         if not is_motif:
-            if self.__is_anti_frequency(n_real, random_network_samples):
+            if self.__is_anti_frequency(n_real, random_network_samples) and is_significant:
                 res = MotifType.anti_motif
 
         self.logger.info(f'motif criteria: {res}')
