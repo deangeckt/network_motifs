@@ -1,6 +1,6 @@
 networkx==3.2.1
-numpy
-scipy
+numpy==1.26.4
+scipy==1.12.0
 matplotlib
 tqdm
 pytest
