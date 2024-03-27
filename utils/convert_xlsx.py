@@ -22,7 +22,8 @@ def convert_xlsx(xlsx_path: str, sheet_name: str, output_name: str):
         print(f'invalid xlsx file or indices')
         return
 
-    neurons = neurons_col
+    neuron_names = neurons_col
+    participating_neurons = set()
 
     adj_output_file_name = f'{output_name}_adj.txt'
     with open(adj_output_file_name, "w") as f:
@@ -36,14 +37,17 @@ def convert_xlsx(xlsx_path: str, sheet_name: str, output_name: str):
                     amount_of_synapses += synapses
                     amount_of_edges += 1
                     f.write(f'{i} {j} {synapses}\n')
+                    participating_neurons.add(i)
+                    participating_neurons.add(j)
 
     neuron_output_file_name = f'{output_name}_neurons.txt'
     with open(neuron_output_file_name, "w") as f:
-        [f.write(f'{neuron}\n') for neuron in neurons]
+        [f.write(f'{neuron}\n') for neuron in neuron_names]
 
-    print(f'total number of neurons: {len(neurons)}')
+    print(f'total number of neurons: {len(neuron_names)}')
     print(f'total number of synapses: {amount_of_synapses}')
     print(f'total number of network edges: {amount_of_edges}')
+    print(f'total number of network nodes: {len(participating_neurons)}')
 
     print(f'saved adj matrix file to: {adj_output_file_name}')
     print(f'saved neurons names file to: {neuron_output_file_name}')

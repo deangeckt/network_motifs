@@ -48,7 +48,9 @@ def sub_graph_search(network: DiGraph) -> dict:
 
 
 def motif_search(file_path: str, name: str, neurons_file: Optional[str] = None):
-    logger.info(f'Motif search - {algo} algorithm, for {name} network:\n')
+    logger.info(f'Network name: {name}')
+    logger.info(f'Algorithm: {algo}\n')
+
     network = Network()
     if neurons_file is not None:
         network.load_adj_file(file_path, is_synapse=True)
@@ -101,6 +103,7 @@ if __name__ == "__main__":
 
     # mfinder ~ k=3: 2.3 sec, k=4: 67 sec
     # motif_search("networks/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
+
     motif_search("networks/2020_herm_chem_synapse_adj.txt",
                  "2020_herm_chem_synapse",
                  "networks/2020_herm_neurons.txt")
