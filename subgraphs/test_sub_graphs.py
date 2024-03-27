@@ -35,22 +35,20 @@ paper_ecoli_none_induced = ("networks/coliInterNoAutoRegVec.txt",
 @pytest.mark.parametrize("network_file,expected", [paper_example_induced, paper_ecoli_induced])
 def test_three_sub_graphs_induced(network_file, expected):
     k = 3
-    with open(network_file, "r") as f:
-        network = Network()
-        network.load_from_txt(f.readlines())
+    network = Network()
+    network.load_adj_file(network_file)
 
-        mfinder = MFinderInduced(network.graph)
-        mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
-        __compare(k, expected, mfinder_sub_graphs)
+    mfinder = MFinderInduced(network.graph)
+    mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
+    __compare(k, expected, mfinder_sub_graphs)
 
 
 @pytest.mark.parametrize("network_file,expected", [paper_example_none_induced, paper_ecoli_none_induced])
 def test_three_sub_graphs_none_induced(network_file, expected):
     k = 3
-    with open(network_file, "r") as f:
-        network = Network()
-        network.load_from_txt(f.readlines())
+    network = Network()
+    network.load_adj_file(network_file)
 
-        mfinder = MFinderNoneInduced(network.graph)
-        mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
-        __compare(k, expected, mfinder_sub_graphs)
+    mfinder = MFinderNoneInduced(network.graph)
+    mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
+    __compare(k, expected, mfinder_sub_graphs)
