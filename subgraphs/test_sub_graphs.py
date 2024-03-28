@@ -18,16 +18,16 @@ def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: dict):
         assert actual_sub_graphs[sub_id] == expected_sub_graphs[sub_name]
 
 
-paper_example_induced = ("networks/paper_exmp_network.txt",
+paper_example_induced = (r"networks/Uri_Alon_2002/example.txt",
                          {MotifName.cascades: 10, MotifName.fan_outs: 3, MotifName.feed_forwards: 5}
                          )
-paper_ecoli_induced = ("networks/coliInterNoAutoRegVec.txt",
+paper_ecoli_induced = (r"networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
                        {MotifName.cascades: 162, MotifName.fan_outs: 226, MotifName.feed_forwards: 40}
                        )
-paper_example_none_induced = ("networks/paper_exmp_network.txt",
+paper_example_none_induced = (r"networks/Uri_Alon_2002/example.txt",
                               {MotifName.cascades: 15, MotifName.fan_outs: 8, MotifName.feed_forwards: 5}
                               )
-paper_ecoli_none_induced = ("networks/coliInterNoAutoRegVec.txt",
+paper_ecoli_none_induced = (r"networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
                             {MotifName.cascades: 202, MotifName.fan_outs: 266, MotifName.feed_forwards: 40}
                             )
 
