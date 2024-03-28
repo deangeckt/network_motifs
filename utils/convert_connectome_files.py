@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
-import scipy.io
+import scipy.io as sio
+
+"""
+    convert to the simple txt format: (v1, v2, w) per line. 
+    w isn't the weight but the number of synapses
+"""
 
 
 def common_adj_mat_formatting(adj_mat: np.ndarray, neuron_names: list[str], output_name: str):
@@ -38,8 +43,7 @@ def convert_worm_wiring_xlsx(xlsx_path: str, sheet_name: str, output_name: str, 
                              amount: int):
     """
     https://wormwiring.org/pages/adjacency.html xlsx format
-    convert to the simple txt format: (v1, v2, w) per line.
-    convert to the simple txt format: (v1, v2, w) per line. w isn't the weight but the number of synapses
+    Cook, (2019). Whole-animal connectomes of both Caenorhabditis elegans sexes.
     """
     xls = pd.ExcelFile(xlsx_path)
     df = xls.parse(sheet_name, header=None)
@@ -59,14 +63,12 @@ def convert_worm_wiring_xlsx(xlsx_path: str, sheet_name: str, output_name: str, 
 
 def convert_durbin_txt(file_path: str, output_name: str, filter_syn_type: str, filter_recon: str, filter_joint: bool):
     """
-    https://www.wormatlas.org/neuronalwiring.html - Neuronal Connectivity I: by R. Durbin
-    convert to the simple txt format: (v1, v2, w) per line. w isn't the weight but the number of synapses
+    https://www.wormatlas.org/neuronalwiring.html - Neuronal Connectivity I: by R. Durbin 1986
     : param filter_syn_type: either 'chem', 'gap', 'all
     : param filter_recon: either: one of 'JSH', 'N2U'
     : param filter_joint: relevant for 'chem' synapse only - either True or False
     """
-
-    def __append_adj_mat(adj_mat: np.ndarray, v1: int, v2: int):
+    def __append_adj_mat(adj_mat: np.ndarray, v1: int, v2: int, num_of_synapses: int):
         if not np.isnan(adj_mat[v1, v2]):
             adj_mat[v1, v2] += num_of_synapses
         else:
@@ -113,23 +115,23 @@ def convert_durbin_txt(file_path: str, output_name: str, filter_syn_type: str, f
 
     for n1, n2, synapse_type, _, num_of_synapses in data:
         if 'Receive' in synapse_type:
-            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n2], v2=neurons[n1])
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n2], v2=neurons[n1], num_of_synapses=int(num_of_synapses))
         elif synapse_type == 'Gap_junction':
-            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n1], v2=neurons[n2])
-            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n2], v2=neurons[n1])
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n1], v2=neurons[n2], num_of_synapses=int(num_of_synapses))
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n2], v2=neurons[n1], num_of_synapses=int(num_of_synapses))
         else:
-            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n1], v2=neurons[n2])
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n1], v2=neurons[n2], num_of_synapses=int(num_of_synapses))
 
     common_adj_mat_formatting(adj_mat=adj_mat, neuron_names=list(neurons_names), output_name=output_name)
 
 
-def convert_azuleye_mat(file_path: str, output_name: str):
+def convert_azulay_mat(file_path: str, output_name: str):
     """
     Azulay A, Itskovits E, Zaslaver A (2016) "The C. elegans Connectome Consists of Homogenous Circuits with Defined Functional Roles.
     """
-    mat = scipy.io.loadmat(file_path)
+    mat = sio.loadmat(file_path)
     adj_mat = mat['Adj']
-    neurons_names = list(range(len(adj_mat)))
+    neurons_names = [str(n) for n in list(range(len(adj_mat)))]
     common_adj_mat_formatting(adj_mat=adj_mat, neuron_names=neurons_names, output_name=output_name)
 
 
@@ -146,8 +148,9 @@ if __name__ == "__main__":
     #                          'hermaphrodite chemical',
     #                          '2020_si_5_herm_chem_synapse', 23, 53, 272)
     # convert_durbin_txt("../networks/Durbin_1986/neurodata.txt",
-    #                    'durbin_herm_chem_synapses',
+    #                    'durbin_herm_all_synapses',
     #                    'all',
     #                    'N2U',
     #                    False)
-    convert_azuleye_mat('../networks/azuleye_2016/c_white_by_azuleye.mat', 'azuleye_2016')
+    # convert_azulay_mat('../networks/azulay_2016/c_white_by_azulay.mat', 'azulay_2016')
+    pass
