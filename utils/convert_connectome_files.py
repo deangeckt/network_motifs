@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import scipy.io
 
 
 def common_adj_mat_formatting(adj_mat: np.ndarray, neuron_names: list[str], output_name: str):
@@ -11,12 +12,14 @@ def common_adj_mat_formatting(adj_mat: np.ndarray, neuron_names: list[str], outp
         for i in range(len(adj_mat)):
             for j in range(len(adj_mat)):
                 synapses = adj_mat[i, j]
-                if not np.isnan(synapses):
-                    amount_of_synapses += synapses
-                    amount_of_edges += 1
-                    f.write(f'{i} {j} {synapses}\n')
-                    participating_neurons.add(i)
-                    participating_neurons.add(j)
+                if np.isnan(synapses) or synapses == 0:
+                    continue
+
+                amount_of_synapses += synapses
+                amount_of_edges += 1
+                f.write(f'{i} {j} {synapses}\n')
+                participating_neurons.add(i)
+                participating_neurons.add(j)
 
     neuron_output_file_name = f'{output_name}_neurons.txt'
     with open(neuron_output_file_name, "w") as f:
@@ -58,10 +61,17 @@ def convert_durbin_txt(file_path: str, output_name: str, filter_syn_type: str, f
     """
     https://www.wormatlas.org/neuronalwiring.html - Neuronal Connectivity I: by R. Durbin
     convert to the simple txt format: (v1, v2, w) per line. w isn't the weight but the number of synapses
-    : param filter_syn_type: either 'chem', 'gap'
+    : param filter_syn_type: either 'chem', 'gap', 'all
     : param filter_recon: either: one of 'JSH', 'N2U'
     : param filter_joint: relevant for 'chem' synapse only - either True or False
     """
+
+    def __append_adj_mat(adj_mat: np.ndarray, v1: int, v2: int):
+        if not np.isnan(adj_mat[v1, v2]):
+            adj_mat[v1, v2] += num_of_synapses
+        else:
+            adj_mat[v1, v2] = num_of_synapses
+
     neurons_names = set()
     data = []
 
@@ -82,12 +92,9 @@ def convert_durbin_txt(file_path: str, output_name: str, filter_syn_type: str, f
     gap_data = list(filter(lambda x: x[2] == 'Gap_junction', data))
     chem_data = list(filter(lambda x: x[2] != 'Gap_junction', data))
 
-    if filter_joint:
-        chem_data = list(filter(lambda x: 'joint' in x[2], chem_data))
-    else:
-        chem_data = list(filter(lambda x: 'joint' not in x[2], chem_data))
-
-    if filter_syn_type == 'gap':
+    if filter_syn_type == 'all':
+        data = gap_data + chem_data
+    elif filter_syn_type == 'gap':
         data = gap_data
     elif filter_syn_type == 'chem':
         data = chem_data
@@ -105,18 +112,25 @@ def convert_durbin_txt(file_path: str, output_name: str, filter_syn_type: str, f
     adj_mat.fill(np.nan)
 
     for n1, n2, synapse_type, _, num_of_synapses in data:
-        v1 = neurons[n1]
-        v2 = neurons[n2]
-
         if 'Receive' in synapse_type:
-            v1 = neurons[n2]
-            v2 = neurons[n1]
-        if not np.isnan(adj_mat[v1, v2]):
-            adj_mat[v1, v2] += num_of_synapses
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n2], v2=neurons[n1])
+        elif synapse_type == 'Gap_junction':
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n1], v2=neurons[n2])
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n2], v2=neurons[n1])
         else:
-            adj_mat[v1, v2] = num_of_synapses
+            __append_adj_mat(adj_mat=adj_mat, v1=neurons[n1], v2=neurons[n2])
 
     common_adj_mat_formatting(adj_mat=adj_mat, neuron_names=list(neurons_names), output_name=output_name)
+
+
+def convert_azuleye_mat(file_path: str, output_name: str):
+    """
+    Azulay A, Itskovits E, Zaslaver A (2016) "The C. elegans Connectome Consists of Homogenous Circuits with Defined Functional Roles.
+    """
+    mat = scipy.io.loadmat(file_path)
+    adj_mat = mat['Adj']
+    neurons_names = list(range(len(adj_mat)))
+    common_adj_mat_formatting(adj_mat=adj_mat, neuron_names=neurons_names, output_name=output_name)
 
 
 if __name__ == "__main__":
@@ -131,8 +145,9 @@ if __name__ == "__main__":
     # convert_worm_wiring_xlsx('../networks/Cook_2019/SI 5 Connectome adjacency matrices, corrected July 2020.xlsx',
     #                          'hermaphrodite chemical',
     #                          '2020_si_5_herm_chem_synapse', 23, 53, 272)
-    convert_durbin_txt("../networks/Durbin_1986/neurodata.txt",
-                       'durbin_herm_chem_synapses',
-                       'chem',
-                       'N2U',
-                       False)
+    # convert_durbin_txt("../networks/Durbin_1986/neurodata.txt",
+    #                    'durbin_herm_chem_synapses',
+    #                    'all',
+    #                    'N2U',
+    #                    False)
+    convert_azuleye_mat('../networks/azuleye_2016/c_white_by_azuleye.mat', 'azuleye_2016')

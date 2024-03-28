@@ -104,9 +104,10 @@ if __name__ == "__main__":
     # mfinder ~ k=3: 2.3 sec, k=4: 67 sec
     # motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
 
-    motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj.txt",
-                 "2020_si2_herm_chem_synapse",
-                 "networks/Cook_2019/2020_si_2_herm_neurons.txt")
+
+    # motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj.txt",
+    #              "2020_si2_herm_chem_synapse",
+    #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
 
     # motif_search("networks/Cook_2019/2020_herm_gap_adj.txt",
     #              "2020_herm_gap",

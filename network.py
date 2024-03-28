@@ -54,7 +54,7 @@ class Network:
             self.logger.info(f'  - Neurons: {len(self.neuron_names)}')
             self.logger.info(f'  - Neurons with a Synapse: {len(self.participating_neurons)}')
             self.logger.info(f'  - Synapses in the network: {self.amount_of_synapses_in_total}')
-            self.logger.info(f'\n  - Participating Nodes are neurons with at least:'
+            self.logger.info(f'\n  - Participating Nodes are neurons in a tuple with at least:'
                              f' {self.synapse_amount_threshold} synapses')
             self.logger.info(f'  - Synapses in the graph: {self.amount_of_synapses_in_graph}')
 
