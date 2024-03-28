@@ -108,6 +108,6 @@ if __name__ == "__main__":
     #              "2020_si2_herm_chem_synapse",
     #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
 
-    # motif_search("networks/Cook_2019/2020_herm_gap_adj.txt",
-    #              "2020_herm_gap",
-    #              "networks/Cook_2019/2020_herm_neurons.txt")
+    motif_search("networks/Cook_2019/2020_si_2_herm_gap_adj.txt",
+                 "2020_si2_herm_gap",
+                 "networks/Cook_2019/2020_si_2_herm_neurons.txt")

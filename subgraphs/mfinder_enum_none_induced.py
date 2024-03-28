@@ -1,3 +1,5 @@
+from functools import cache
+
 from networkx import DiGraph
 
 from subgraphs.sub_graphs_abc import SubGraphsABC
@@ -44,6 +46,7 @@ class MFinderNoneInduced(SubGraphsABC):
             return
         self.__find_sub_graphs(new_sub_graph)
 
+    @cache
     def __find_sub_graphs(self, sub_graph: tuple):
         graph = nx.DiGraph(list(sub_graph))
         if len(graph) > self.k:
@@ -70,7 +73,7 @@ class MFinderNoneInduced(SubGraphsABC):
         self.unique = set()
         self.hash_ = set()
 
-        self.logger.info('Sub Graphs search:')
+        self.logger.info(f'Sub Graphs search using k: {self.k}')
         for i, j in list(self.network.edges):
             self.logger.debug(f'Edge: ({i}, {j}):')
             self.__find_sub_graphs(((i, j),))
