@@ -24,7 +24,6 @@ class SpecificSubGraphs(SubGraphsABC):
         self.search: list[MotifName] = self.implemented_sub_graphs_search.keys() if search is None else search
 
     def search_sub_graphs(self, k: int) -> dict:
-        self.logger.info('Specific Sub Graphs search:')
         res = {}
         for sub_graph in self.search:
             if sub_graph not in self.implemented_sub_graphs_search:
@@ -77,7 +76,6 @@ class SpecificSubGraphs(SubGraphsABC):
         self.logger.debug('--- cascades (x -> y, y -> z) debugging: --- ')
 
         count = 0
-        self.debug_hash_ = set()
 
         for x in list(self.network.nodes):
             x_neighbors = list(self.network.adj[x])
@@ -89,11 +87,6 @@ class SpecificSubGraphs(SubGraphsABC):
                     if z == y or z == x:
                         continue
 
-                    sub_graph = ((x, y), (y, z))
-                    sub_graph = HashedGraph(sub_graph)
-                    if sub_graph in self.debug_hash_:
-                        continue
-                    self.debug_hash_.add(sub_graph)
                     self.logger.debug(f'{x} -> {y} -> {z}')
                     count += 1
 
@@ -191,3 +184,5 @@ class SpecificSubGraphs(SubGraphsABC):
         self.logger.info(f"bi fan (x -> w, x -> z, y -> w, y -> z): {count}")
         return count
 
+    def get_sub_graphs_fully_mapped(self) -> dict:
+        pass

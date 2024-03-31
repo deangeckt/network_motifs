@@ -8,6 +8,8 @@ import networkx as nx
 from subgraphs.sub_graphs_utils import get_id, graph_to_hashed_graph
 from collections import defaultdict
 
+from utils.config import Config
+
 
 class MFinderInduced(SubGraphsABC):
     """
@@ -19,11 +21,15 @@ class MFinderInduced(SubGraphsABC):
 
     def __init__(self, network: DiGraph):
         super().__init__(network)
+        config = Config()
+        self.map_sub_graphs = config.get_boolean_property('run_args', 'run_map_sub_graphs')
+
         self.fsl = defaultdict(int)  # frequent sub graph list
         self.fsl_ids = {}
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
         self.hash_ = set()  # hash for trimming during the backtracking
+        self.fsl_fully_mapped = defaultdict(list)  # in case we want list of all sub graphs
 
     def __is_unique(self, sub_graph: DiGraph) -> bool:
         return graph_to_hashed_graph(sub_graph) not in self.unique
@@ -36,6 +42,9 @@ class MFinderInduced(SubGraphsABC):
         graph_hash = nx.weisfeiler_lehman_graph_hash(sub_graph, iterations=self.k)
         self.fsl[graph_hash] += 1
         self.fsl_ids[graph_hash] = sub_id
+
+        if self.map_sub_graphs:
+            self.fsl_fully_mapped[graph_hash].append(list(sub_graph.edges))
 
     def __find_sub_graphs_new_edge(self, sub_graph: frozenset, k: int):
         if k in sub_graph:
@@ -71,11 +80,14 @@ class MFinderInduced(SubGraphsABC):
         self.k = k
         self.unique = set()
         self.hash_ = set()
+        self.fsl_fully_mapped = defaultdict(list)
 
-        self.logger.info(f'Sub Graphs search using k: {self.k}')
         for i, j in list(self.network.edges):
             self.logger.debug(f'Edge: ({i}, {j}):')
             self.__find_sub_graphs(frozenset({i, j}))
 
         fsl_mapped = {self.fsl_ids[hash_]: self.fsl[hash_] for hash_ in self.fsl}
         return fsl_mapped
+
+    def get_sub_graphs_fully_mapped(self) -> dict:
+        return {self.fsl_ids[hash_]: self.fsl_fully_mapped[hash_] for hash_ in self.fsl}

@@ -1,3 +1,6 @@
+from collections import defaultdict
+from typing import Union
+
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -48,7 +51,7 @@ class Network:
         with open(file_path, "r") as f:
             self.neuron_names = [line.strip() for line in f.readlines()]
 
-    def log_properties(self):
+    def properties(self):
         self.logger.info(f'Network properties:')
         if self.neuron_names:
             self.logger.info(f'  - Neurons: {len(self.neuron_names)}')
@@ -60,7 +63,41 @@ class Network:
 
         self.logger.info(f'  - Nodes: {len(self.graph)}')
         self.logger.info(f'  - Edges: {len(self.graph.edges)}')
+        self.logger.info(f'  - Average clustering coefficient: {round(nx.average_clustering(self.graph), 3)}')
+        self.logger.info(f'  - Density: {round(nx.density(self.graph), 3)}')
+
+        # connected_components = [nx.induced_subgraph(self.graph, cc) for cc in nx.weakly_connected_components(self.graph)]
+        # avg_shortest_path = sum([nx.average_shortest_path_length(cc) for cc in connected_components]) / len(connected_components)
+        # self.logger.info(f'  - Average shortest path: {round(avg_shortest_path, 3)}')
+
+        max_node, max_degree = sorted(list(self.graph.out_degree), key=lambda x: x[1], reverse=True)[0]
+        self.logger.info(f'  - Max out degree of Node {max_node}: {max_degree}')
+
+        max_node, max_degree = sorted(list(self.graph.in_degree), key=lambda x: x[1], reverse=True)[0]
+        self.logger.info(f'  - Max in degree of Node {max_node}: {max_degree}')
         self.logger.info('')
+
+    def node_properties(self, node: Union[str, int]):
+        self.logger.info(f'Node {node} properties:')
+
+        if isinstance(node, str):
+            node = self.neuron_names.index(node)
+
+        self.logger.info(f'Degree: {self.graph.degree[node]}')
+        self.logger.info(f'Out Degree: {self.graph.out_degree[node]}')
+        self.logger.info(f'In Degree: {self.graph.in_degree[node]}')
+        self.logger.info(f'Clustering coefficient: {round(nx.average_clustering(self.graph, nodes=[node]), 3)}')
+
+    def sort_node_appearances_in_sub_graph(self, appearances: list[tuple]) -> dict:
+        nodes_count = defaultdict(int)
+        for sub_graph in appearances:
+            graph = nx.DiGraph()
+            graph.add_edges_from(sub_graph)
+            for n in list(graph.nodes):
+                node = self.neuron_names[n] if self.neuron_names else n
+                nodes_count[node] += 1
+
+        return dict(sorted(nodes_count.items(), key=lambda item: item[1], reverse=True))
 
     def plot(self):
         # TODO: need better plotting tools

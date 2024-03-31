@@ -22,9 +22,18 @@ sub_graph_algorithms = {
 }
 
 
-def sub_graph_search(network: DiGraph) -> dict:
-    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network)
+def sub_graph_search(network: Network) -> dict:
+    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network.graph)
+
+    logger.info(f'Sub graph search using k: {k}')
+    start_time = time.time()
     network_sub_graphs = sub_graph_algo.search_sub_graphs(k=k)
+    end_time = time.time()
+    logger.info(f'Sub graph search timer [S]: {round(end_time - start_time, 2)}')
+
+    network_sub_graphs_full = None
+    if config.get_boolean_property('run_args', 'run_map_sub_graphs'):
+        network_sub_graphs_full = sub_graph_algo.get_sub_graphs_fully_mapped()
 
     if algo != SubGraphAlgoName.specific:
         total = 0
@@ -40,6 +49,11 @@ def sub_graph_search(network: DiGraph) -> dict:
             logger.info(sub_name_log)
             logger.info(str(nx.adjacency_matrix(sub_graph).todense()))
             logger.info(f'Appearances: {amount}')
+
+            if network_sub_graphs_full:
+                logger.info(f'Appearances (edges): {network_sub_graphs_full[sub_id]}')
+                sorted_nodes = network.sort_node_appearances_in_sub_graph(network_sub_graphs_full[sub_id])
+                logger.info(f'Appearances Sorted by Nodes: {sorted_nodes}')
 
         logger.info(f'\nMotif candidates: {len(network_sub_graphs)}')
         logger.info(f'Total appearances: {total}')
@@ -57,14 +71,14 @@ def motif_search(file_path: str, name: str, neurons_file: Optional[str] = None):
         network.load_neurons_file(neurons_file)
     else:
         network.load_adj_file(file_path, is_synapse=False)
-    network.log_properties()
+    network.properties()
 
-    start_time = time.time()
-    network_sub_graphs = sub_graph_search(network.graph)
-    end_time = time.time()
-    logger.info(f'Sub graph search timer [S]: {round(end_time - start_time, 2)}')
+    if not config.get_boolean_property('run_args', 'run_sub_graph_search'):
+        return
 
-    if not config.get_boolean_property('run_args', 'full_search'):
+    network_sub_graphs = sub_graph_search(network)
+
+    if not config.get_boolean_property('run_args', 'run_motif_criteria'):
         return
 
     randomizer = NetworkRandomizer(network.graph)
@@ -101,13 +115,12 @@ if __name__ == "__main__":
     # motif_search("networks/toy_network.txt", "toy")
     # motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
 
-    # mfinder ~ k=3: 2.3 sec, k=4: 67 sec
     # motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
 
-    # motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj.txt",
-    #              "2020_si2_herm_chem_synapse",
-    #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
-
-    motif_search("networks/Cook_2019/2020_si_2_herm_gap_adj.txt",
-                 "2020_si2_herm_gap",
+    motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj.txt",
+                 "2020_si2_herm_chem_synapse",
                  "networks/Cook_2019/2020_si_2_herm_neurons.txt")
+
+    # motif_search("networks/Cook_2019/2020_si_2_herm_gap_adj.txt",
+    #              "2020_si2_herm_gap",
+    #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
