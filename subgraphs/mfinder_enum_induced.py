@@ -19,13 +19,12 @@ class MFinderInduced(SubGraphsABC):
     pseudocode: Ribeiro, Pedro and Silva, Fernando and Kaiser, Marcus: "Strategies for Network Motifs Discovery"
     """
 
-    def __init__(self, network: DiGraph):
-        super().__init__(network)
+    def __init__(self, network: DiGraph, isomorphic_mapping: dict):
+        super().__init__(network, isomorphic_mapping)
         config = Config()
-        self.map_sub_graphs = config.get_boolean_property('run_args', 'run_map_sub_graphs')
+        self.map_sub_graphs = config.get_boolean_property('run_args', 'log_all_motif_sub_graphs')
 
         self.fsl = defaultdict(int)  # frequent sub graph list
-        self.fsl_ids = {}
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
         self.hash_ = set()  # hash for trimming during the backtracking
@@ -39,12 +38,14 @@ class MFinderInduced(SubGraphsABC):
         self.logger.debug(f'inc count to motif id: {sub_id}')
         self.logger.debug(list(sub_graph.edges))
 
-        graph_hash = nx.weisfeiler_lehman_graph_hash(sub_graph, iterations=self.k)
-        self.fsl[graph_hash] += 1
-        self.fsl_ids[graph_hash] = sub_id
+        if sub_id not in self.isomorphic_mapping:
+            return
+
+        sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
+        self.fsl[sub_id_isomorphic_representative] += 1
 
         if self.map_sub_graphs:
-            self.fsl_fully_mapped[graph_hash].append(list(sub_graph.edges))
+            self.fsl_fully_mapped[sub_id_isomorphic_representative].append(list(sub_graph.edges))
 
     def __find_sub_graphs_new_edge(self, sub_graph: frozenset, k: int):
         if k in sub_graph:
@@ -76,7 +77,6 @@ class MFinderInduced(SubGraphsABC):
 
     def search_sub_graphs(self, k: int) -> dict:
         self.fsl = defaultdict(int)
-        self.fsl_ids = {}
         self.k = k
         self.unique = set()
         self.hash_ = set()
@@ -86,8 +86,7 @@ class MFinderInduced(SubGraphsABC):
             self.logger.debug(f'Edge: ({i}, {j}):')
             self.__find_sub_graphs(frozenset({i, j}))
 
-        fsl_mapped = {self.fsl_ids[hash_]: self.fsl[hash_] for hash_ in self.fsl}
-        return fsl_mapped
+        return dict(sorted(self.fsl.items()))
 
     def get_sub_graphs_fully_mapped(self) -> dict:
-        return {self.fsl_ids[hash_]: self.fsl_fully_mapped[hash_] for hash_ in self.fsl}
+        return self.fsl_fully_mapped

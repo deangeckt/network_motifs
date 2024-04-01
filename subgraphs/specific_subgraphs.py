@@ -12,8 +12,11 @@ class SpecificSubGraphs(SubGraphsABC):
     """
     None induced
     """
-    def __init__(self, network: DiGraph, search: Optional[list[MotifName]] = None):
-        super().__init__(network)
+    def __init__(self, network: DiGraph,
+                 isomorphic_mapping: dict,
+                 search: Optional[list[MotifName]] = None):
+
+        super().__init__(network, isomorphic_mapping)
         self.implemented_sub_graphs_search = {MotifName.self_loops: self.__count_self_loops,
                                               MotifName.mutual_regulation: self.__count_mutual_regulation,
                                               MotifName.fan_outs: self.__count_fan_outs,

@@ -19,8 +19,8 @@ class MFinderNoneInduced(SubGraphsABC):
     pseudocode: Ribeiro, Pedro and Silva, Fernando and Kaiser, Marcus: "Strategies for Network Motifs Discovery"
     """
 
-    def __init__(self, network: DiGraph):
-        super().__init__(network)
+    def __init__(self, network: DiGraph, isomorphic_mapping: dict):
+        super().__init__(network, isomorphic_mapping)
         config = Config()
         self.map_sub_graphs = config.get_boolean_property('run_args', 'run_map_sub_graphs')
 

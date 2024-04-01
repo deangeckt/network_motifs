@@ -1,9 +1,12 @@
-from typing import Optional
+from collections import defaultdict
+from typing import Optional, Tuple, Dict, Any
 
 import networkx as nx
 import numpy as np
 from networkx import DiGraph
 from enum import Enum
+
+from utils.config import Config
 
 
 class HashedGraph:
@@ -45,8 +48,9 @@ three_sub_graphs_ids = {
     MotifName.cascades: [12, 34, 66, 96, 132, 136],
     MotifName.fan_outs: [6, 40, 192]
 }
+
 four_sub_graphs_ids = {
-    MotifName.bi_fan: [204]  # TODO: add the rest
+    MotifName.bi_fan: [204, 2448, 2570, 13056, 20560, 24582]
 }
 
 sub_graphs_ids_per_k = {
@@ -84,3 +88,40 @@ def get_sub_graph_from_id(decimal: int, k: int) -> DiGraph:
     bin_digits.reverse()
     adj_mat = np.array(bin_digits).reshape(k, k)
     return nx.DiGraph(adj_mat)
+
+
+def generate_isomorphic_k_sub_graphs(k: int) -> tuple[dict, dict]:
+    """
+    :param k: motif / sub graph size
+    :return: isomorphic_mapping: a dict where each key is a motif / sub graph id and
+    the value is the smallest motif id of the same isomorphic set of sub graphs.
+    :return isomorphic_graphs: a dict where each key is the smallest  motif id and the value
+    is the list of all the motif ids that are isomorphic to it.
+    """
+    config = Config()
+    allow_self_loops = config.get_boolean_property('run_args', 'allow_self_loops')
+
+    isomorphic = defaultdict(list)
+    possible_options = (2 ** (k ** 2))
+    for sub_id in range(possible_options):
+        sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
+        un_dir_ub_graph = nx.Graph(sub_graph)
+
+        # remove the not connected cases, e.g.: no edges at all-sub graph
+        if not nx.is_connected(un_dir_ub_graph):
+            continue
+
+        if list(nx.selfloop_edges(sub_graph)) and not allow_self_loops:
+            continue
+
+        graph_hash = nx.weisfeiler_lehman_graph_hash(sub_graph, iterations=k)
+        isomorphic[graph_hash].append(sub_id)
+
+    isomorphic_graphs = {iso[0]: iso for iso in isomorphic.values()}
+
+    isomorphic_mapping = {}
+    for iso_graphs in isomorphic.values():
+        for sub_id in iso_graphs:
+            isomorphic_mapping[sub_id] = iso_graphs[0]
+
+    return isomorphic_mapping, isomorphic_graphs

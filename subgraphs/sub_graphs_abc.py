@@ -6,8 +6,9 @@ from utils.simple_logger import Logger
 
 
 class SubGraphsABC(metaclass=ABCMeta):
-    def __init__(self, network: DiGraph):
+    def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         self.network = network
+        self.isomorphic_mapping = isomorphic_mapping
         self.logger = Logger()
 
     @abstractmethod

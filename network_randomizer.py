@@ -17,7 +17,7 @@ class NetworkRandomizer:
         self.markov_chain_num_iterations = int(config.get_property('random', 'markov_chain_num_iterations'))
 
     def generate(self, amount: int) -> list[DiGraph]:
-        self.logger.info(f'Randomizer: generating {amount} networks using '
+        self.logger.info(f'\nRandomizer: generating {amount} networks using '
                          f'markov chain with {self.markov_chain_num_iterations} iterations')
         return [self.markov_chain() for _ in tqdm(range(amount))]
 
