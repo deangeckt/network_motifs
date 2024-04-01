@@ -22,10 +22,9 @@ class MFinderNoneInduced(SubGraphsABC):
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
         config = Config()
-        self.map_sub_graphs = config.get_boolean_property('run_args', 'run_map_sub_graphs')
+        self.map_sub_graphs = config.get_boolean_property('run_args', 'log_all_motif_sub_graphs')
 
         self.fsl = defaultdict(int)  # frequent sub graph list
-        self.fsl_ids = {}
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
         self.hash_ = set()  # hash for trimming during the backtracking
@@ -37,15 +36,18 @@ class MFinderNoneInduced(SubGraphsABC):
     def __inc_count_w_canonical_label(self, sub_graph: tuple):
         graph = nx.DiGraph(list(sub_graph))
         sub_id = get_id(graph)
+
+        if sub_id not in self.isomorphic_mapping:
+            return
+
         self.logger.debug(f'inc count to motif id: {sub_id}')
         self.logger.debug(sub_graph)
 
-        graph_hash = nx.weisfeiler_lehman_graph_hash(graph, iterations=self.k)
-        self.fsl[graph_hash] += 1
-        self.fsl_ids[graph_hash] = sub_id
+        sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
+        self.fsl[sub_id_isomorphic_representative] += 1
 
         if self.map_sub_graphs:
-            self.fsl_fully_mapped[graph_hash].append(sub_graph)
+            self.fsl_fully_mapped[sub_id_isomorphic_representative].append(sub_graph)
 
     def __find_sub_graphs_new_edge(self, sub_graph: tuple, edge: tuple):
         if edge in sub_graph:
@@ -77,7 +79,6 @@ class MFinderNoneInduced(SubGraphsABC):
 
     def search_sub_graphs(self, k: int) -> dict:
         self.fsl = defaultdict(int)
-        self.fsl_ids = {}
         self.k = k
         self.unique = set()
         self.hash_ = set()
@@ -87,8 +88,7 @@ class MFinderNoneInduced(SubGraphsABC):
             self.logger.debug(f'Edge: ({i}, {j}):')
             self.__find_sub_graphs(((i, j),))
 
-        fsl_mapped = {self.fsl_ids[hash_]: self.fsl[hash_] for hash_ in self.fsl}
-        return fsl_mapped
+        return dict(sorted(self.fsl.items()))
 
     def get_sub_graphs_fully_mapped(self) -> dict:
-        return {self.fsl_ids[hash_]: self.fsl_fully_mapped[hash_] for hash_ in self.fsl}
+        return self.fsl_fully_mapped

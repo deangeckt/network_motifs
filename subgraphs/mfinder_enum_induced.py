@@ -35,11 +35,11 @@ class MFinderInduced(SubGraphsABC):
 
     def __inc_count_w_canonical_label(self, sub_graph: DiGraph):
         sub_id = get_id(sub_graph)
-        self.logger.debug(f'inc count to motif id: {sub_id}')
-        self.logger.debug(list(sub_graph.edges))
-
         if sub_id not in self.isomorphic_mapping:
             return
+
+        self.logger.debug(f'inc count to motif id: {sub_id}')
+        self.logger.debug(list(sub_graph.edges))
 
         sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
         self.fsl[sub_id_isomorphic_representative] += 1

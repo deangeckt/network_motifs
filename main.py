@@ -13,7 +13,7 @@ from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import networkx as nx
 import time
-from typing import Optional, Tuple
+from typing import Optional
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
@@ -23,18 +23,19 @@ sub_graph_algorithms = {
 
 
 def log_motif_details(sub_id: int, network_sub_graphs: dict, network: Network, network_sub_graphs_full=None):
-    if sub_id not in network_sub_graphs:
-        return
-    amount = network_sub_graphs[sub_id]
-    sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
-
     sub_name = get_sub_id_name(sub_id=sub_id, k=k)
     sub_name_log = f'\nSub graph {sub_id}:'
     if sub_name:
         sub_name_log += f' {sub_name}'
+    sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
 
     logger.info(sub_name_log)
     logger.info(str(nx.adjacency_matrix(sub_graph).todense()))
+
+    if sub_id not in network_sub_graphs:
+        return
+
+    amount = network_sub_graphs[sub_id]
     logger.info(f'Appearances: {amount}')
 
     if network_sub_graphs_full:
@@ -127,13 +128,13 @@ if __name__ == "__main__":
     # sub_graph_search(g)
 
     # motif_search("networks/toy_network.txt", "toy")
-    motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
+    # motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
 
     # motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
 
-    # motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-    #              "2020_si2_herm_chem_synapse",
-    #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
+    motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
+                 "2020_si2_herm_chem_synapse",
+                 "networks/Cook_2019/2020_si_2_herm_neurons.txt")
 
     # motif_search("networks/Cook_2019/2020_si_2_herm_gap_adj.txt",
     #              "2020_si2_herm_gap",
