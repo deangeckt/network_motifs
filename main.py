@@ -92,29 +92,25 @@ def motif_search(file_path: str, name: str, neurons_file: Optional[str] = None):
 
     randomizer = NetworkRandomizer(network.graph)
     random_network_amount = int(config.get_property('random', 'network_amount'))
-    random_networks = randomizer.generate(amount=random_network_amount)
 
+    random_networks = randomizer.generate(amount=random_network_amount)
     logger.toggle(False)
-    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network.graph, isomorphic_mapping)
-    random_network_sub_graphs = [sub_graph_algo.search_sub_graphs(k=k) for network in tqdm(random_networks)]
+    random_network_sub_graphs = []
+    for rand_network in tqdm(random_networks):
+        sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](rand_network, isomorphic_mapping)
+        random_network_sub_graphs.append(sub_graph_algo.search_sub_graphs(k=k))
     logger.toggle(True)
 
     motif_criteria = MotifCriteria()
 
     for sub_id in isomorphic_graphs:
-        sub_name = get_sub_id_name(sub_id=sub_id, k=k)
-        sub_name_log = f'\nSub graph {sub_id}:'
-        if sub_name:
-            sub_name_log += f' {sub_name}'
-        logger.info(sub_name_log)
+        log_motif_details(sub_id, network_sub_graphs, network, network_sub_graphs_full)
 
         random_network_samples = [rand_network.get(sub_id, 0) for rand_network in random_network_sub_graphs]
         motif_criteria.is_motif(n_real=network_sub_graphs.get(sub_id, 0),
                                 random_network_samples=random_network_samples,
                                 sub_graphs=network_sub_graphs_full[sub_id]
                                 )
-
-        log_motif_details(sub_id, network_sub_graphs, network, network_sub_graphs_full)
 
 
 if __name__ == "__main__":
@@ -131,11 +127,11 @@ if __name__ == "__main__":
     # motif_search("networks/toy_network.txt", "toy")
     # motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
 
-    motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
+    # motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
 
-    # motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-    #              "2020_si2_herm_chem_synapse",
-    #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
+    motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
+                 "2020_si2_herm_chem_synapse",
+                 "networks/Cook_2019/2020_si_2_herm_neurons.txt")
 
     # motif_search("networks/Cook_2019/2020_si_2_herm_gap_adj.txt",
     #              "2020_si2_herm_gap",

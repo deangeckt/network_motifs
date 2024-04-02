@@ -81,7 +81,7 @@ class MotifCriteria:
             return True
 
         uniq_n_real = get_number_of_disjoint_group_nodes(sub_graphs)
-        print(uniq_n_real)
+        # print(uniq_n_real)
         is_uniq = uniq_n_real >= self.uniqueness_threshold
         self.logger.info(f'\tis uniqueness test; {uniq_n_real} >= {self.uniqueness_threshold}: {is_uniq}')
         return is_uniq
