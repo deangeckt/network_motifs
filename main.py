@@ -2,7 +2,7 @@ from tqdm import tqdm
 
 from motif_criteria import MotifCriteria
 from network import Network
-from network_randomizer import NetworkRandomizer
+from random_networks.markov_chain_switching import MarkovChainSwitching
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.specific_subgraphs import SpecificSubGraphs
@@ -48,9 +48,9 @@ def sub_graph_search(network: Network) -> tuple[dict, Optional[dict]]:
     sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network.graph, isomorphic_mapping)
 
     logger.info(f'Sub graph search using k: {k}')
-    logger.info(f'Connected sub graphs - all options: {len(isomorphic_graphs)}')
+    logger.info(f'Total num of different sub graphs size {k} is: {len(isomorphic_graphs)}')
     allow_self_loops = config.get_boolean_property('run_args', 'allow_self_loops')
-    logger.info(f'Connected sub graphs - allow self loops: {allow_self_loops}')
+    logger.info(f'Allow self loops: {allow_self_loops}')
 
     start_time = time.time()
     network_sub_graphs = sub_graph_algo.search_sub_graphs(k=k)
@@ -90,10 +90,10 @@ def motif_search(file_path: str, name: str, neurons_file: Optional[str] = None):
     if not config.get_boolean_property('run_args', 'run_motif_criteria'):
         return
 
-    randomizer = NetworkRandomizer(network.graph)
+    randomizer = MarkovChainSwitching(network.graph)
     random_network_amount = int(config.get_property('random', 'network_amount'))
-
     random_networks = randomizer.generate(amount=random_network_amount)
+
     logger.toggle(False)
     random_network_sub_graphs = []
     for rand_network in tqdm(random_networks):

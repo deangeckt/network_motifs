@@ -147,7 +147,7 @@ def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
         if not found:
             disjoint.append(nodes)
 
-    # TODO: unit still not right
+    # TODO: uniQ still not right
     # graph = nx.DiGraph()
     # for sub_graph in sub_graphs:
     #     graph.add_edges_from(sub_graph)
