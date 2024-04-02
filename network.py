@@ -100,6 +100,6 @@ class Network:
         return dict(sorted(nodes_count.items(), key=lambda item: item[1], reverse=True))
 
     def plot(self):
-        # TODO: need better plotting tools
+        # TODO: need better plotting tools / motif plotting
         nx.draw_networkx(self.graph, with_labels=True, node_size=600, node_color='lightgreen')
         plt.show()
