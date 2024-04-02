@@ -22,7 +22,8 @@ class SubGraphsABC(metaclass=ABCMeta):
     @abstractmethod
     def get_sub_graphs_fully_mapped(self) -> dict:
         """
-        :return: a dict where each key is a sub graph id and value a list with all sub graphs (list of tuple of edges)
+        :return: a dict where each key is a sub graph id and value is a list with all sub graphs
+        (list of tuple of edges)
         """
         pass
 

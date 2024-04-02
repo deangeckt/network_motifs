@@ -88,7 +88,7 @@ class Network:
         self.logger.info(f'In Degree: {self.graph.in_degree[node]}')
         self.logger.info(f'Clustering coefficient: {round(nx.average_clustering(self.graph, nodes=[node]), 3)}')
 
-    def sort_node_appearances_in_sub_graph(self, appearances: list[tuple]) -> dict:
+    def sort_node_appearances_in_sub_graph(self, appearances: list[list[tuple]]) -> dict:
         nodes_count = defaultdict(int)
         for sub_graph in appearances:
             graph = nx.DiGraph()

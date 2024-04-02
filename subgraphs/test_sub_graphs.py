@@ -3,7 +3,7 @@ import pytest
 from network import Network
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
-from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName
+from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs
 from utils.simple_logger import Logger
 
 logger = Logger()
@@ -37,8 +37,9 @@ def test_three_sub_graphs_induced(network_file, expected):
     k = 3
     network = Network()
     network.load_adj_file(network_file)
+    isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
-    mfinder = MFinderInduced(network.graph)
+    mfinder = MFinderInduced(network.graph, isomorphic_mapping)
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
     __compare(k, expected, mfinder_sub_graphs)
 
@@ -48,7 +49,8 @@ def test_three_sub_graphs_none_induced(network_file, expected):
     k = 3
     network = Network()
     network.load_adj_file(network_file)
+    isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
-    mfinder = MFinderNoneInduced(network.graph)
+    mfinder = MFinderNoneInduced(network.graph, isomorphic_mapping)
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
     __compare(k, expected, mfinder_sub_graphs)

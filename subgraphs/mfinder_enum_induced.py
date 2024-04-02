@@ -8,8 +8,6 @@ import networkx as nx
 from subgraphs.sub_graphs_utils import get_id, graph_to_hashed_graph
 from collections import defaultdict
 
-from utils.config import Config
-
 
 class MFinderInduced(SubGraphsABC):
     """
@@ -21,14 +19,13 @@ class MFinderInduced(SubGraphsABC):
 
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
-        config = Config()
-        self.map_sub_graphs = config.get_boolean_property('run_args', 'log_all_motif_sub_graphs')
 
-        self.fsl = defaultdict(int)  # frequent sub graph list
+        self.fsl = defaultdict(int)  # frequent sub graph list - value is the frequency
+        self.fsl_fully_mapped = defaultdict(list)  # same fsl, the value is the list of sub graphs
+
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
         self.hash_ = set()  # hash for trimming during the backtracking
-        self.fsl_fully_mapped = defaultdict(list)  # in case we want list of all sub graphs
 
     def __is_unique(self, sub_graph: DiGraph) -> bool:
         return graph_to_hashed_graph(sub_graph) not in self.unique
@@ -43,9 +40,7 @@ class MFinderInduced(SubGraphsABC):
 
         sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
         self.fsl[sub_id_isomorphic_representative] += 1
-
-        if self.map_sub_graphs:
-            self.fsl_fully_mapped[sub_id_isomorphic_representative].append(list(sub_graph.edges))
+        self.fsl_fully_mapped[sub_id_isomorphic_representative].append(list(sub_graph.edges))
 
     def __find_sub_graphs_new_edge(self, sub_graph: frozenset, k: int):
         if k in sub_graph:
@@ -77,10 +72,10 @@ class MFinderInduced(SubGraphsABC):
 
     def search_sub_graphs(self, k: int) -> dict:
         self.fsl = defaultdict(int)
+        self.fsl_fully_mapped = defaultdict(list)
         self.k = k
         self.unique = set()
         self.hash_ = set()
-        self.fsl_fully_mapped = defaultdict(list)
 
         for i, j in list(self.network.edges):
             self.logger.debug(f'Edge: ({i}, {j}):')

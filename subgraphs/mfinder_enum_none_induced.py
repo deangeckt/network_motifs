@@ -8,8 +8,6 @@ import networkx as nx
 from subgraphs.sub_graphs_utils import get_id, HashedGraph
 from collections import defaultdict
 
-from utils.config import Config
-
 
 class MFinderNoneInduced(SubGraphsABC):
     """
@@ -21,14 +19,13 @@ class MFinderNoneInduced(SubGraphsABC):
 
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
-        config = Config()
-        self.map_sub_graphs = config.get_boolean_property('run_args', 'log_all_motif_sub_graphs')
 
-        self.fsl = defaultdict(int)  # frequent sub graph list
+        self.fsl = defaultdict(int)  # frequent sub graph list - value is the frequency
+        self.fsl_fully_mapped = defaultdict(list)  # same fsl, the value is the list of sub graphs
+
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
         self.hash_ = set()  # hash for trimming during the backtracking
-        self.fsl_fully_mapped = defaultdict(list)  # in case we want list of all sub graphs
 
     def __is_unique(self, sub_graph: tuple) -> bool:
         return HashedGraph(sub_graph) not in self.unique
@@ -45,9 +42,7 @@ class MFinderNoneInduced(SubGraphsABC):
 
         sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
         self.fsl[sub_id_isomorphic_representative] += 1
-
-        if self.map_sub_graphs:
-            self.fsl_fully_mapped[sub_id_isomorphic_representative].append(sub_graph)
+        self.fsl_fully_mapped[sub_id_isomorphic_representative].append(sub_graph)
 
     def __find_sub_graphs_new_edge(self, sub_graph: tuple, edge: tuple):
         if edge in sub_graph:

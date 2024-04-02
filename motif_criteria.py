@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 
+from subgraphs.sub_graphs_utils import get_number_of_disjoint_group_nodes
 from utils.config import Config
 from utils.simple_logger import Logger
 
@@ -23,9 +24,16 @@ class MotifCriteria:
         # The uniqueness value is the number of times a subgraph appears in the
         # network with completely disjoint groups of nodes
         self.uniqueness_threshold = int(config.get_property('motif_criteria', 'uniqueness_threshold'))
+        self.use_uniqueness = config.get_boolean_property('motif_criteria', 'use_uniq_criteria')
 
         # Mfactor in the original paper
         self.frequency_threshold = float(config.get_property('motif_criteria', 'frequency_threshold'))
+
+        self.logger.info(f'Motif criteria:')
+        self.logger.info(f'\talpha: {self.alpha}')
+        self.logger.info(f'\tuse uniqueness: {self.use_uniqueness}')
+        self.logger.info(f'\tuniqueness threshold: {self.uniqueness_threshold}')
+        self.logger.info(f'\tfrequency threshold: {self.frequency_threshold}')
 
     def __is_statistically_significant(self, n_real: int, random_network_samples: list[int]) -> bool:
         n_rand = np.mean(random_network_samples)
@@ -63,15 +71,27 @@ class MotifCriteria:
 
         return is_freq
 
-    def is_motif(self, n_real: int, random_network_samples: list[int]) -> MotifType:
+    def __is_uniq(self, sub_graphs: list):
+        """
+        :param sub_graphs: a list of the motif candidate sub graphs edges
+        :return: if configured to use the uniqueness test
+        check if the motif candidate uniq amount of sub graphs >= uniqueness_threshold
+        """
+        if not self.use_uniqueness:
+            return True
+
+        uniq_n_real = get_number_of_disjoint_group_nodes(sub_graphs)
+        print(uniq_n_real)
+        is_uniq = uniq_n_real >= self.uniqueness_threshold
+        self.logger.info(f'\tis uniqueness test; {uniq_n_real} >= {self.uniqueness_threshold}: {is_uniq}')
+        return is_uniq
+
+    def is_motif(self, n_real: int, random_network_samples: list[int], sub_graphs: list) -> MotifType:
         is_significant = self.__is_statistically_significant(n_real, random_network_samples)
         is_freq = self.__is_frequency(n_real, random_network_samples)
+        is_uniq = self.__is_uniq(sub_graphs)
 
-        # TODO: fix uniqueness test
-        is_larger_than_min = n_real >= self.uniqueness_threshold
-        self.logger.info(f'\tis uniqueness test; {n_real} >= {self.uniqueness_threshold}: {is_larger_than_min}')
-
-        is_motif = is_larger_than_min & is_significant & is_freq
+        is_motif = is_uniq & is_significant & is_freq
         res = MotifType.motif if is_motif else MotifType.none
 
         # check for anti motif
