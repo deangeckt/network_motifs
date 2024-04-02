@@ -15,7 +15,6 @@ class MarkovChainSwitching(NetworkRandomizer):
 
         self.q = int(config.get_property('random', 'markov_chain_q'))
         self.markov_chain_num_iterations = network.number_of_edges() * self.q
-        self.use_self_loops = config.get_boolean_property('run_args', 'allow_self_loops')
 
     def generate(self, amount: int) -> list[DiGraph]:
         self.logger.info('\nRandomizer: markov chain switching algo')

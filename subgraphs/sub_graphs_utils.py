@@ -91,6 +91,7 @@ def get_sub_graph_from_id(decimal: int, k: int) -> DiGraph:
 
 
 def generate_isomorphic_k_sub_graphs(k: int) -> tuple[dict, dict]:
+    # TODO: for k=4 should be 199
     """
     :param k: motif / sub graph size
     :return: isomorphic_mapping: a dict where each key is a motif / sub graph id and
