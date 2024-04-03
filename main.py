@@ -9,7 +9,7 @@ from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import get_sub_id_name, get_sub_graph_from_id, SubGraphAlgoName, \
-    generate_isomorphic_k_sub_graphs
+    generate_isomorphic_k_sub_graphs, get_number_of_disjoint_group_nodes
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import networkx as nx
@@ -67,6 +67,7 @@ def sub_graph_search(network: Network) -> tuple[dict, Optional[dict]]:
         if not config.get_boolean_property('run_args', 'run_motif_criteria'):
             for sub_id in network_sub_graphs:
                 log_motif_details(sub_id, network_sub_graphs, network, network_sub_graphs_full)
+                logger.info(f'Uniq: {get_number_of_disjoint_group_nodes(network_sub_graphs_full[sub_id])}')
 
     return network_sub_graphs, network_sub_graphs_full
 
@@ -82,6 +83,7 @@ def motif_search(file_path: str, name: str, neurons_file: Optional[str] = None):
     else:
         network.load_adj_file(file_path, is_synapse=False)
     network.properties()
+    # network.plot()
 
     if not config.get_boolean_property('run_args', 'run_sub_graph_search'):
         return
@@ -128,10 +130,10 @@ if __name__ == "__main__":
     algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
 
-    custom_graph_search(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
+    # custom_graph_search(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
 
     # motif_search("networks/toy_network.txt", "toy")
-    # motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
+    motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
 
     # motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
 
