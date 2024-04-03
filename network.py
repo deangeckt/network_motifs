@@ -3,6 +3,7 @@ from typing import Union
 
 import networkx as nx
 import matplotlib.pyplot as plt
+from networkx import DiGraph
 
 from utils.config import Config
 from utils.simple_logger import Logger
@@ -20,6 +21,9 @@ class Network:
         self.synapse_amount_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
         self.participating_neurons = set()
         self.participating_nodes = set()
+
+    def load_graph(self, graph: DiGraph):
+        self.graph = graph
 
     def load_adj_file(self, file_path: str, is_synapse=False):
         """
