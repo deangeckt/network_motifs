@@ -136,12 +136,12 @@ if __name__ == "__main__":
     # motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
 
     # motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
-    motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-                 '2020_si_2_herm_chem_synapse_adj_5')
-
     # motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-    #              "2020_si2_herm_chem_synapse",
-    #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
+    #              '2020_si_2_herm_chem_synapse_adj_5')
+
+    motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
+                 "2020_si2_herm_chem_synapse",
+                 "networks/Cook_2019/2020_si_2_herm_neurons.txt")
 
     # motif_search("networks/Cook_2019/2020_si_2_herm_gap_adj.txt",
     #              "2020_si2_herm_gap",

@@ -75,9 +75,11 @@ class Network:
         # self.logger.info(f'  - Average shortest path: {round(avg_shortest_path, 3)}')
 
         max_node, max_degree = sorted(list(self.graph.out_degree), key=lambda x: x[1], reverse=True)[0]
+        max_node = self.neuron_names[max_node] if self.neuron_names else max_node
         self.logger.info(f'  - Max out degree of Node {max_node}: {max_degree}')
 
         max_node, max_degree = sorted(list(self.graph.in_degree), key=lambda x: x[1], reverse=True)[0]
+        max_node = self.neuron_names[max_node] if self.neuron_names else max_node
         self.logger.info(f'  - Max in degree of Node {max_node}: {max_degree}')
         self.logger.info('')
 

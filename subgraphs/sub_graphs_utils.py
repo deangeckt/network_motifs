@@ -6,6 +6,8 @@ import numpy as np
 from networkx import DiGraph
 from enum import Enum
 
+from tqdm import tqdm
+
 from utils.config import Config
 
 
@@ -91,39 +93,51 @@ def get_sub_graph_from_id(decimal: int, k: int) -> DiGraph:
 
 
 def generate_isomorphic_k_sub_graphs(k: int) -> tuple[dict, dict]:
-    # TODO: for k=4 should be 199
     """
     :param k: motif / sub graph size
     :return: isomorphic_mapping: a dict where each key is a motif / sub graph id and
     the value is the smallest motif id of the same isomorphic set of sub graphs.
-    :return isomorphic_graphs: a dict where each key is the smallest  motif id and the value
+    :return isomorphic_graphs: a dict where each key is the smallest motif id and the value
     is the list of all the motif ids that are isomorphic to it.
+
+    not scalable for k >= 5.
+    In case we are NOT looking for Anti Motifs - this isn't mandatory for mfinder.
     """
     config = Config()
     allow_self_loops = config.get_boolean_property('run_args', 'allow_self_loops')
 
-    isomorphic = defaultdict(list)
+    isomorphic = defaultdict(dict)
+
     possible_options = (2 ** (k ** 2))
-    for sub_id in range(possible_options):
+    for sub_id in tqdm(range(possible_options)):
         sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
         un_dir_ub_graph = nx.Graph(sub_graph)
+
+        if list(nx.selfloop_edges(sub_graph)) and not allow_self_loops:
+            continue
 
         # remove the not connected cases, e.g.: no edges at all-sub graph
         if not nx.is_connected(un_dir_ub_graph):
             continue
 
-        if list(nx.selfloop_edges(sub_graph)) and not allow_self_loops:
-            continue
+        found = False
+        for reps_graph_id in isomorphic:
+            reps_graph = isomorphic[reps_graph_id]['reps_graph']
+            if nx.is_isomorphic(reps_graph, sub_graph):
+                isomorphic[reps_graph_id]['list'].append(sub_id)
+                found = True
+                break
 
-        graph_hash = nx.weisfeiler_lehman_graph_hash(sub_graph, iterations=k)
-        isomorphic[graph_hash].append(sub_id)
-
-    isomorphic_graphs = {iso[0]: iso for iso in isomorphic.values()}
+        if not found:
+            isomorphic[sub_id]['reps_graph'] = sub_graph
+            isomorphic[sub_id]['list'] = [sub_id]
 
     isomorphic_mapping = {}
-    for iso_graphs in isomorphic.values():
-        for sub_id in iso_graphs:
-            isomorphic_mapping[sub_id] = iso_graphs[0]
+    isomorphic_graphs = {}
+    for id_ in isomorphic:
+        isomorphic_graphs[id_] = isomorphic[id_]['list']
+        for sub_id in isomorphic[id_]['list']:
+            isomorphic_mapping[sub_id] = id_
 
     return isomorphic_mapping, isomorphic_graphs
 
@@ -133,20 +147,28 @@ def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
     :param sub_graphs: all the sub graphs (list of edges) participating in a candidate motif sub graph
     :return: the number of completely disjoint groups of nodes
     """
+
     # TODO: uniQ still not aligned with mfinder software
-    disjoint = []
-    for sub_graph in sub_graphs:
+
+    def sub_graph_to_nodes_set(sub_graph: list[tuple]) -> set:
         nodes = set([v1 for v1, v2 in sub_graph])
         nodes.update(set([v2 for v1, v2 in sub_graph]))
+        return nodes
 
-        found = False
-        for group in disjoint:
-            if nodes.intersection(group):
-                group.update(nodes)
-                found = True
+    uniq = 0
+    all_sets: list[set] = [sub_graph_to_nodes_set(sub_graph) for sub_graph in sub_graphs]
+
+    for sub_set in all_sets:
+        all_others_as_a_set = set()
+        for set_ in all_sets:
+            if set_ == sub_set:
+                continue
+            all_others_as_a_set.update(set_)
+
+        for node in sub_set:
+            if node not in all_others_as_a_set:
+                uniq += 1
+                print(f'Uniq node: {node} in the sub_set: {sub_set}')
                 break
 
-        if not found:
-            disjoint.append(nodes)
-
-    return len(disjoint)
+    return uniq
