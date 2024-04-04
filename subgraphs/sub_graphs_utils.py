@@ -168,7 +168,7 @@ def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
         for node in sub_set:
             if node not in all_others_as_a_set:
                 uniq += 1
-                print(f'Uniq node: {node} in the sub_set: {sub_set}')
+                # print(f'Uniq node: {node} in the sub_set: {sub_set}')
                 break
 
     return uniq

@@ -1,3 +1,5 @@
+import ast
+
 from singleton_decorator import singleton
 import configparser
 
@@ -14,3 +16,6 @@ class Config:
     def get_boolean_property(self, section: str, prop: str) -> bool:
         return self.config.getboolean(section, prop)
 
+    def get_string_list(self, section: str, prop: str) -> list[str]:
+        str_ = self.config[section][prop]
+        return ast.literal_eval(str_)

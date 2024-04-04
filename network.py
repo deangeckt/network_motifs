@@ -3,6 +3,7 @@ from typing import Union
 
 import networkx as nx
 import matplotlib.pyplot as plt
+import pandas as pd
 from networkx import DiGraph
 
 from utils.config import Config
@@ -22,38 +23,83 @@ class Network:
         self.participating_neurons = set()
         self.participating_nodes = set()
 
+        # polarity configuration
+        self.p_src_col = int(config.get_property('polarity', 'src_col'))
+        self.p_tar_col = int(config.get_property('polarity', 'tar_col'))
+        self.p_weight_col = int(config.get_property('polarity', 'weight_col'))
+        self.p_edge_type_col = int(config.get_property('polarity', 'edge_type_col'))
+        self.p_polarity_col = int(config.get_property('polarity', 'polarity_col'))
+        self.p_prim_nt_col = int(config.get_property('polarity', 'prim_nt_col'))
+
+        # polarity options [+, -, no pred, complex]
+        self.filter_polarity = config.get_string_list('polarity', 'filter_polarity')
+        # primary neurotransmitter options [GABA, Glu, ACh]
+        self.filter_prim_nt = config.get_string_list('polarity', 'filter_prim_nt')
+
     def load_graph(self, graph: DiGraph):
         self.graph = graph
 
-    def load_adj_file(self, file_path: str, is_synapse=False):
+    def __load_synapse(self, v1, v2, w):
+        self.participating_neurons.add(int(v1))
+        self.participating_neurons.add(int(v2))
+        self.amount_of_synapses_in_total += int(w)
+
+        if int(w) >= self.synapse_amount_threshold:
+            self.amount_of_synapses_in_graph += int(w)
+            self.graph.add_edge(int(v1), int(v2))
+            self.participating_nodes.add(int(v1))
+            self.participating_nodes.add(int(v2))
+
+    def load_polarity_neuronal_file(self, xlsx_path: str, sheet_name: str):
+        """
+        xlsx files from the paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P.
+        Synaptic polarity and sign-balance prediction using gene expression data in the Caenorhabditis elegans chemical synapse neuronal connectome network
+        """
+        xls = pd.ExcelFile(xlsx_path)
+        df = xls.parse(sheet_name, header=None)
+
+        # filter
+        self.logger.info(f'\nFiltering Neurons with polarity: {self.filter_polarity}')
+        df = df[df[self.p_polarity_col].isin(self.filter_polarity)]
+        self.logger.info(f'Filtering Neurons with primary neurotransmitter: {self.filter_prim_nt}\n')
+        df = df[df[self.p_prim_nt_col].isin(self.filter_prim_nt)]
+
+        src_neurons_names = df.iloc[:, self.p_src_col]
+        tar_neurons_names = df.iloc[:, self.p_tar_col]
+        edge_weights = df.iloc[:, self.p_weight_col]
+        # polarity = df.iloc[:, self.p_polarity_col]
+        # primary_neurotransmitter = df.iloc[:, self.p_prim_nt_col]
+
+        self.neuron_names = list(set(src_neurons_names) | set(tar_neurons_names))
+        neurons_indices = {ss: i for i, ss in enumerate(self.neuron_names)}
+
+        for v1, v2, w in zip(src_neurons_names, tar_neurons_names, edge_weights):
+            self.__load_synapse(neurons_indices[v1], neurons_indices[v2], w)
+
+    def load_adj_neuronal_file(self, adj_file_path: str, neurons_file_path: str):
+        """
+        adj_file_path: simple txt format: (v1, v2, w) per line
+            whereas v1 -> v2, and w is the number of synapses
+        neurons_file_path: contains the names of c.elegans neurons
+            whereas each line is a name and the index match the adjacency matrix file
+        """
+        with open(adj_file_path, "r") as f:
+            for line in f.readlines():
+                v1, v2, w = tuple(line.strip().split())
+                self.__load_synapse(v1, v2, w)
+
+        with open(neurons_file_path, "r") as f:
+            self.neuron_names = [line.strip() for line in f.readlines()]
+
+    def load_adj_file(self, file_path):
         """
         simple txt format: (v1, v2, w) per line
-        whereas v1 -> v2, and w either the weight or number of synapses
+        whereas v1 -> v2, and w is ignored
         """
         with open(file_path, "r") as f:
             for line in f.readlines():
-                v1, v2, w = tuple(line.strip().split())
-                if is_synapse:
-                    self.participating_neurons.add(int(v1))
-                    self.participating_neurons.add(int(v2))
-                    self.amount_of_synapses_in_total += int(w)
-
-                    if int(w) >= self.synapse_amount_threshold:
-                        self.amount_of_synapses_in_graph += int(w)
-                        self.graph.add_edge(int(v1), int(v2))
-                        self.participating_nodes.add(int(v1))
-                        self.participating_nodes.add(int(v2))
-                else:
-                    self.graph.add_edge(int(v1), int(v2))
-
-    def load_neurons_file(self, file_path):
-        """
-        neuronal names of c.elegans
-        whereas each line is a name and the index match the adjacency matrix file
-        :return:
-        """
-        with open(file_path, "r") as f:
-            self.neuron_names = [line.strip() for line in f.readlines()]
+                v1, v2, _ = tuple(line.strip().split())
+                self.graph.add_edge(int(v1), int(v2))
 
     def properties(self):
         self.logger.info(f'Network properties:')
@@ -107,5 +153,11 @@ class Network:
 
     def plot(self):
         # TODO: need better plotting tools / motif plotting
-        nx.draw_networkx(self.graph, with_labels=True, node_size=600, node_color='lightgreen')
+        if self.neuron_names:
+            mapping = {i: n for i, n in enumerate(self.neuron_names)}
+            plot_g = nx.relabel_nodes(self.graph, mapping)
+        else:
+            plot_g = self.graph
+
+        nx.draw_networkx(plot_g, with_labels=True, node_size=600, node_color='lightgreen')
         plt.show()

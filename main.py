@@ -23,6 +23,12 @@ sub_graph_algorithms = {
 }
 
 
+def custom_graph_search(graph: DiGraph):
+    network = Network()
+    network.load_graph(graph)
+    sub_graph_search(network)
+
+
 def log_motif_details(sub_id: int, network_sub_graphs: dict, network: Network, network_sub_graphs_full: dict):
     sub_name = get_sub_id_name(sub_id=sub_id, k=k)
     sub_name_log = f'\nSub graph {sub_id}:'
@@ -42,10 +48,10 @@ def log_motif_details(sub_id: int, network_sub_graphs: dict, network: Network, n
     if config.get_boolean_property('run_args', 'log_all_motif_sub_graphs'):
         logger.info(f'Appearances (edges): {network_sub_graphs_full[sub_id]}')
         sorted_nodes = network.sort_node_appearances_in_sub_graph(network_sub_graphs_full[sub_id])
-        logger.info(f'Appearances Sorted by Nodes: {sorted_nodes}')
+        logger.info(f'Appearances of Nodes in the sub-graph: {sorted_nodes}')
 
 
-def sub_graph_search(network: Network) -> tuple[dict, Optional[dict]]:
+def sub_graph_search(network: Network) -> tuple[dict, dict]:
     sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network.graph, isomorphic_mapping)
 
     logger.info(f'Sub graph search using k: {k}')
@@ -72,18 +78,8 @@ def sub_graph_search(network: Network) -> tuple[dict, Optional[dict]]:
     return network_sub_graphs, network_sub_graphs_full
 
 
-def motif_search(file_path: str, name: str, neurons_file: Optional[str] = None):
-    logger.info(f'Network name: {name}')
+def motif_search(network: Network):
     logger.info(f'Algorithm: {algo}\n')
-
-    network = Network()
-    if neurons_file is not None:
-        network.load_adj_file(file_path, is_synapse=True)
-        network.load_neurons_file(neurons_file)
-    else:
-        network.load_adj_file(file_path, is_synapse=False)
-    network.properties()
-    # network.plot()
 
     if not config.get_boolean_property('run_args', 'run_sub_graph_search'):
         return
@@ -116,10 +112,29 @@ def motif_search(file_path: str, name: str, neurons_file: Optional[str] = None):
                                 )
 
 
-def custom_graph_search(graph: DiGraph):
+def load_network_file(
+        name: str,
+        adj_file_path: Optional[str] = None,
+        neurons_file_path: Optional[str] = None,
+        polarity_xlsx_file_path: Optional[str] = None,
+        polarity_sheet_name: Optional[str] = None,
+) -> Network:
+    logger.info(f'Network name: {name}')
     network = Network()
-    network.load_graph(graph)
-    sub_graph_search(network)
+
+    if adj_file_path and neurons_file_path:
+        network.load_adj_neuronal_file(adj_file_path=adj_file_path, neurons_file_path=neurons_file_path)
+    elif adj_file_path:
+        network.load_adj_file(file_path=adj_file_path)
+    elif polarity_xlsx_file_path and polarity_sheet_name:
+        network.load_polarity_neuronal_file(xlsx_path=polarity_xlsx_file_path, sheet_name=polarity_sheet_name)
+    else:
+        logger.info('Error reading input file')
+        exit(-1)
+
+    network.properties()
+    network.plot()
+    return network
 
 
 if __name__ == "__main__":
@@ -132,17 +147,20 @@ if __name__ == "__main__":
 
     # custom_graph_search(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
 
-    # motif_search("networks/toy_network.txt", "toy")
-    # motif_search("networks/Uri_Alon_2002/example.txt", "paper example")
+    # network = load_network_file(adj_file_path="networks/toy_network.txt", name='toy')
+    #
+    # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/example.txt", name="paper example")
+    #
+    # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
+    #                             name='colinet1_noAuto')
+    #
+    # network = load_network_file(adj_file_path="networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
+    #                             neurons_file_path="networks/Cook_2019/2020_si_2_herm_neurons.txt",
+    #                             name="2020_si2_herm_chem_synapse_5"
+    #                             )
 
-    # motif_search("networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt", "colinet1_noAuto")
-    # motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-    #              '2020_si_2_herm_chem_synapse_adj_5')
+    network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
+                                polarity_sheet_name='5. Sign prediction',
+                                name="polarity 2020 SI 1")
 
-    motif_search("networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-                 "2020_si2_herm_chem_synapse",
-                 "networks/Cook_2019/2020_si_2_herm_neurons.txt")
-
-    # motif_search("networks/Cook_2019/2020_si_2_herm_gap_adj.txt",
-    #              "2020_si2_herm_gap",
-    #              "networks/Cook_2019/2020_si_2_herm_neurons.txt")
+    motif_search(network=network)
