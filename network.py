@@ -3,6 +3,7 @@ from typing import Union
 
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from networkx import DiGraph
 
@@ -16,6 +17,10 @@ class Network:
         self.logger = Logger()
         self.graph = nx.DiGraph()
 
+        # general configuration
+        self.plot = config.get_boolean_property('run_args', 'plot_properties')
+
+        # neurons configuration
         self.neuron_names = []
         self.amount_of_synapses_in_graph = 0
         self.amount_of_synapses_in_total = 0
@@ -33,7 +38,7 @@ class Network:
 
         # polarity options [+, -, no pred, complex]
         self.filter_polarity = config.get_string_list('polarity', 'filter_polarity')
-        # primary neurotransmitter options [GABA, Glu, ACh]
+        # primary neurotransmitter options [GABA, Glu, ACh, 0] (o is an int)
         self.filter_prim_nt = config.get_string_list('polarity', 'filter_prim_nt')
 
     def load_graph(self, graph: DiGraph):
@@ -114,11 +119,13 @@ class Network:
         self.logger.info(f'  - Nodes: {len(self.graph)}')
         self.logger.info(f'  - Edges: {len(self.graph.edges)}')
         self.logger.info(f'  - Average clustering coefficient: {round(nx.average_clustering(self.graph), 3)}')
-        self.logger.info(f'  - Density: {round(nx.density(self.graph), 3)}')
 
-        # connected_components = [nx.induced_subgraph(self.graph, cc) for cc in nx.weakly_connected_components(self.graph)]
-        # avg_shortest_path = sum([nx.average_shortest_path_length(cc) for cc in connected_components]) / len(connected_components)
-        # self.logger.info(f'  - Average shortest path: {round(avg_shortest_path, 3)}')
+        un_dir_graph = nx.Graph(self.graph)
+        avg_short_path_len = np.mean([nx.average_shortest_path_length(un_dir_graph.subgraph(c).copy()) for c in
+                                      nx.connected_components(un_dir_graph)])
+
+        self.logger.info(f'  - Average shortest path (undirected): {round(avg_short_path_len, 3)}')
+        self.logger.info(f'  - Density: {round(nx.density(self.graph), 3)}')
 
         max_node, max_degree = sorted(list(self.graph.out_degree), key=lambda x: x[1], reverse=True)[0]
         max_node = self.neuron_names[max_node] if self.neuron_names else max_node
@@ -128,6 +135,8 @@ class Network:
         max_node = self.neuron_names[max_node] if self.neuron_names else max_node
         self.logger.info(f'  - Max in degree of Node {max_node}: {max_degree}')
         self.logger.info('')
+
+        self.plot_properties()
 
     def node_properties(self, node: Union[str, int]):
         self.logger.info(f'Node {node} properties:')
@@ -151,7 +160,21 @@ class Network:
 
         return dict(sorted(nodes_count.items(), key=lambda item: item[1], reverse=True))
 
-    def plot(self):
+    def __plot_rich_club_coefficient(self):
+        un_dir_graph = nx.Graph(self.graph)
+        un_dir_graph.remove_edges_from(nx.selfloop_edges(un_dir_graph))
+        rc = nx.rich_club_coefficient(un_dir_graph, normalized=False, seed=42)
+
+        plt.figure()
+        plt.title('Rich Club Coefficient')
+        plt.xlabel('Degree (k)')
+        plt.ylabel('Rich Club Coefficient')
+        plt.scatter(list(rc.keys()), list(rc.values()))
+        plt.show()
+
+    def plot_properties(self):
+        if not self.plot:
+            return
         # TODO: need better plotting tools / motif plotting
         if self.neuron_names:
             mapping = {i: n for i, n in enumerate(self.neuron_names)}
@@ -159,5 +182,8 @@ class Network:
         else:
             plot_g = self.graph
 
+        plt.figure()
         nx.draw_networkx(plot_g, with_labels=True, node_size=600, node_color='lightgreen')
         plt.show()
+
+        self.__plot_rich_club_coefficient()

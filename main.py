@@ -133,7 +133,6 @@ def load_network_file(
         exit(-1)
 
     network.properties()
-    network.plot()
     return network
 
 
@@ -162,5 +161,4 @@ if __name__ == "__main__":
     network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
                                 polarity_sheet_name='5. Sign prediction',
                                 name="polarity 2020 SI 1")
-
-    motif_search(network=network)
+    # motif_search(network=network)
