@@ -38,7 +38,7 @@ class Network:
 
         # polarity options [+, -, no pred, complex]
         self.filter_polarity = config.get_string_list('polarity', 'filter_polarity')
-        # primary neurotransmitter options [GABA, Glu, ACh, 0] (o is an int)
+        # primary neurotransmitter options [GABA, Glu, ACh, 0] (0 is an int)
         self.filter_prim_nt = config.get_string_list('polarity', 'filter_prim_nt')
 
     def load_graph(self, graph: DiGraph):

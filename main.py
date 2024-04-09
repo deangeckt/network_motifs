@@ -1,3 +1,5 @@
+import random
+
 from networkx import DiGraph
 from tqdm import tqdm
 
@@ -102,7 +104,7 @@ def motif_search(network: Network):
 
     motif_criteria = MotifCriteria()
 
-    for sub_id in isomorphic_graphs:
+    for sub_id in tqdm(isomorphic_graphs):
         log_motif_details(sub_id, network_sub_graphs, network, network_sub_graphs_full)
 
         random_network_samples = [rand_network.get(sub_id, 0) for rand_network in random_network_sub_graphs]
@@ -137,7 +139,8 @@ def load_network_file(
 
 
 if __name__ == "__main__":
-    logger = Logger(LogLvl.info)
+    random.seed(42)
+    logger = Logger(LogLvl.info, 'cook_100_wo_mutual_edges.txt')
     config = Config()
 
     k = int(config.get_property('run_args', 'k'))
@@ -153,12 +156,12 @@ if __name__ == "__main__":
     # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                             name='colinet1_noAuto')
     #
-    # network = load_network_file(adj_file_path="networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-    #                             neurons_file_path="networks/Cook_2019/2020_si_2_herm_neurons.txt",
-    #                             name="2020_si2_herm_chem_synapse_5"
-    #                             )
+    network = load_network_file(adj_file_path="networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
+                                neurons_file_path="networks/Cook_2019/2020_si_2_herm_neurons.txt",
+                                name="2020_si2_herm_chem_synapse_5"
+                                )
 
-    network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
-                                polarity_sheet_name='5. Sign prediction',
-                                name="polarity 2020 SI 1")
-    # motif_search(network=network)
+    # network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
+    #                             polarity_sheet_name='5. Sign prediction',
+    #                             name="polarity 2020 SI 1")
+    motif_search(network=network)
