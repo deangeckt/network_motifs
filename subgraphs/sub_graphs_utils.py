@@ -147,28 +147,8 @@ def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
     :param sub_graphs: all the sub graphs (list of edges) participating in a candidate motif sub graph
     :return: the number of completely disjoint groups of nodes
     """
+    graph = nx.DiGraph()
+    for sub_graph in sub_graphs:
+        graph.add_edges_from(sub_graph)
 
-    # TODO: uniQ still not aligned with mfinder software
-
-    def sub_graph_to_nodes_set(sub_graph: list[tuple]) -> set:
-        nodes = set([v1 for v1, v2 in sub_graph])
-        nodes.update(set([v2 for v1, v2 in sub_graph]))
-        return nodes
-
-    uniq = 0
-    all_sets: list[set] = [sub_graph_to_nodes_set(sub_graph) for sub_graph in sub_graphs]
-
-    for sub_set in all_sets:
-        all_others_as_a_set = set()
-        for set_ in all_sets:
-            if set_ == sub_set:
-                continue
-            all_others_as_a_set.update(set_)
-
-        for node in sub_set:
-            if node not in all_others_as_a_set:
-                uniq += 1
-                # print(f'Uniq node: {node} in the sub_set: {sub_set}')
-                break
-
-    return uniq
+    return nx.number_weakly_connected_components(graph)

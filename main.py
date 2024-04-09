@@ -140,7 +140,7 @@ def load_network_file(
 
 if __name__ == "__main__":
     random.seed(42)
-    logger = Logger(LogLvl.info, 'cook_100_wo_mutual_edges.txt')
+    logger = Logger(LogLvl.info)
     config = Config()
 
     k = int(config.get_property('run_args', 'k'))
@@ -151,15 +151,15 @@ if __name__ == "__main__":
 
     # network = load_network_file(adj_file_path="networks/toy_network.txt", name='toy')
     #
-    # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/example.txt", name="paper example")
+    network = load_network_file(adj_file_path="networks/Uri_Alon_2002/example.txt", name="paper example")
     #
     # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                             name='colinet1_noAuto')
     #
-    network = load_network_file(adj_file_path="networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-                                neurons_file_path="networks/Cook_2019/2020_si_2_herm_neurons.txt",
-                                name="2020_si2_herm_chem_synapse_5"
-                                )
+    # network = load_network_file(adj_file_path="networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
+    #                             neurons_file_path="networks/Cook_2019/2020_si_2_herm_neurons.txt",
+    #                             name="2020_si2_herm_chem_synapse_5"
+    #                             )
 
     # network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
     #                             polarity_sheet_name='5. Sign prediction',
