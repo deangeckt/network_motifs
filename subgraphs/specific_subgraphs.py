@@ -17,11 +17,11 @@ class SpecificSubGraphs(SubGraphsABC):
                  search: Optional[list[MotifName]] = None):
 
         super().__init__(network, isomorphic_mapping)
-        self.implemented_sub_graphs_search = {MotifName.self_loops: self.__count_self_loops,
+        self.implemented_sub_graphs_search = {MotifName.self_loop: self.__count_self_loops,
                                               MotifName.mutual_regulation: self.__count_mutual_regulation,
-                                              MotifName.fan_outs: self.__count_fan_outs,
-                                              MotifName.cascades: self.__count_cascades,
-                                              MotifName.feed_forwards: self.__count_feed_forward,
+                                              MotifName.fan_out: self.__count_fan_outs,
+                                              MotifName.cascade: self.__count_cascades,
+                                              MotifName.feed_forward: self.__count_feed_forward,
                                               MotifName.bi_fan: self.__count_bi_fan
                                               }
         self.search: list[MotifName] = self.implemented_sub_graphs_search.keys() if search is None else search

@@ -72,7 +72,7 @@ class MFinderNoneInduced(SubGraphsABC):
             for k in in_edges:
                 self.__find_sub_graphs_new_edge(sub_graph, (k, i))
 
-    def search_sub_graphs(self, k: int) -> dict:
+    def search_sub_graphs(self, k: int) -> dict[int, int]:
         self.fsl = defaultdict(int)
         self.k = k
         self.unique = set()
@@ -85,5 +85,5 @@ class MFinderNoneInduced(SubGraphsABC):
 
         return dict(sorted(self.fsl.items()))
 
-    def get_sub_graphs_fully_mapped(self) -> dict:
+    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
         return self.fsl_fully_mapped

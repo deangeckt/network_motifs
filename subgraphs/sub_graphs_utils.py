@@ -1,14 +1,13 @@
 from collections import defaultdict
-from typing import Optional, Tuple, Dict, Any
 
 import networkx as nx
 import numpy as np
 from networkx import DiGraph
-from enum import Enum
 
 from tqdm import tqdm
 
 from utils.config import Config
+from utils.types import MotifName, Motif
 
 
 class HashedGraph:
@@ -30,25 +29,11 @@ def graph_to_hashed_graph(g: DiGraph) -> HashedGraph:
     return HashedGraph(graph_tuple)
 
 
-class SubGraphAlgoName(str, Enum):
-    specific = 'specific'
-    mfinder_induced = 'mfinder_i'
-    mfinder_none_induced = 'mfinder_ni'
-
-
-class MotifName(str, Enum):
-    self_loops = 'self_loops'
-    mutual_regulation = 'mutual_regulation'
-    fan_outs = 'fan_outs'
-    cascades = 'cascades'
-    feed_forwards = 'feed_forwards'
-    bi_fan = 'bi_fan'
-
-
 three_sub_graphs_ids = {
-    MotifName.feed_forwards: [38, 44, 104, 134, 194, 200],
-    MotifName.cascades: [12, 34, 66, 96, 132, 136],
-    MotifName.fan_outs: [6, 40, 192]
+    MotifName.feed_forward: [38, 44, 104, 134, 194, 200],
+    MotifName.cascade: [12, 34, 66, 96, 132, 136],
+    MotifName.fan_out: [6, 40, 192],
+    MotifName.fan_in: []  # TODO: add 36?
 }
 
 four_sub_graphs_ids = {
@@ -61,14 +46,14 @@ sub_graphs_ids_per_k = {
 }
 
 
-def get_sub_id_name(sub_id: int, k: int) -> Optional[MotifName]:
+def get_sub_id_name(sub_id: int, k: int) -> MotifName:
     if k not in sub_graphs_ids_per_k:
-        return None
+        return MotifName.na
     sub_graphs_id = sub_graphs_ids_per_k[k]
     for sub_graph_name in sub_graphs_id:
         if sub_id in sub_graphs_id[sub_graph_name]:
             return sub_graph_name
-    return None
+    return MotifName.na
 
 
 def get_id(graph: DiGraph) -> int:
@@ -152,3 +137,10 @@ def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
         graph.add_edges_from(sub_graph)
 
     return nx.number_weakly_connected_components(graph)
+
+
+def create_base_motif(sub_id: int, k: int) -> Motif:
+    name = get_sub_id_name(sub_id=sub_id, k=k)
+    sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
+    adj_mat = str(nx.adjacency_matrix(sub_graph).todense())
+    return Motif(name=name, id=sub_id, adj_mat=adj_mat)

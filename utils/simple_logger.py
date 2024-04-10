@@ -21,7 +21,7 @@ class Logger:
     def change_file(self, file: str):
         if self.file is not None:
             self.file.close()
-        self.file = open(file, "w")
+        self.file = open(file, "w", encoding="utf-8")
 
     def toggle(self, on: bool):
         self.on = on

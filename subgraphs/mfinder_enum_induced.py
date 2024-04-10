@@ -40,7 +40,7 @@ class MFinderInduced(SubGraphsABC):
 
         sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
         self.fsl[sub_id_isomorphic_representative] += 1
-        self.fsl_fully_mapped[sub_id_isomorphic_representative].append(list(sub_graph.edges))
+        self.fsl_fully_mapped[sub_id_isomorphic_representative].append(tuple(list(sub_graph.edges)))
 
     def __find_sub_graphs_new_edge(self, sub_graph: frozenset, k: int):
         if k in sub_graph:
@@ -70,7 +70,7 @@ class MFinderInduced(SubGraphsABC):
             for k in in_edges:
                 self.__find_sub_graphs_new_edge(sub_graph, k)
 
-    def search_sub_graphs(self, k: int) -> dict:
+    def search_sub_graphs(self, k: int) -> dict[int, int]:
         self.fsl = defaultdict(int)
         self.fsl_fully_mapped = defaultdict(list)
         self.k = k
@@ -83,5 +83,5 @@ class MFinderInduced(SubGraphsABC):
 
         return dict(sorted(self.fsl.items()))
 
-    def get_sub_graphs_fully_mapped(self) -> dict:
+    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
         return self.fsl_fully_mapped

@@ -12,7 +12,7 @@ class SubGraphsABC(metaclass=ABCMeta):
         self.logger = Logger()
 
     @abstractmethod
-    def search_sub_graphs(self, k: int) -> dict:
+    def search_sub_graphs(self, k: int) -> dict[int, int]:
         """
         :param k: motif size
         :return: a dict where each key is a sub graph id and value is the frequency of that sub graph
@@ -20,7 +20,7 @@ class SubGraphsABC(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_sub_graphs_fully_mapped(self) -> dict:
+    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
         """
         :return: a dict where each key is a sub graph id and value is a list with all sub graphs
         (list of tuple of edges)
