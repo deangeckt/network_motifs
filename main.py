@@ -12,7 +12,7 @@ from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif
+from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif, get_sub_graph_from_id
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
@@ -70,7 +70,7 @@ def log_motif_results(motifs: dict[int, Motif]):
         motif = motifs[motif_id]
         if motif.n_real == 0:
             continue
-        logger.info(f'Motif Id: {motif_id}')
+        logger.info(f'\nMotif Id: {motif_id}')
         logger.info(f'Appearances (edges): {motif.sub_graphs}')
         logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
 
@@ -93,13 +93,6 @@ def sub_graph_search(network: Network) -> dict[int, Motif]:
     total_sub_graphs = sum(network_sub_graphs.values())
     logger.info(f'Motif candidates found: {len(network_sub_graphs)}')
     logger.info(f'Total number of {k}-node sub graphs found: {total_sub_graphs}')
-
-    # TODO: handle specific algo and output
-    # if algo != SubGraphAlgoName.specific:
-    #     if not config.get_boolean_property('run_args', 'run_motif_criteria'):
-    #         for sub_id in network_sub_graphs:
-    #             log_motif_details(sub_id, network_sub_graphs, network, network_sub_graphs_full)
-    #             logger.info(f'Uniq: {get_number_of_disjoint_group_nodes(network_sub_graphs_full[sub_id])}')
 
     motifs = {}
     for sub_id in network_sub_graphs:

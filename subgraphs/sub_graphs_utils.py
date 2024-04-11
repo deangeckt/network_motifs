@@ -29,6 +29,10 @@ def graph_to_hashed_graph(g: DiGraph) -> HashedGraph:
     return HashedGraph(graph_tuple)
 
 
+two_sub_graphs_ids = {
+    MotifName.mutual_regulation: [6],
+}
+
 three_sub_graphs_ids = {
     MotifName.feed_forward: [38, 44, 104, 134, 194, 200],
     MotifName.cascade: [12, 34, 66, 96, 132, 136],
@@ -41,6 +45,7 @@ four_sub_graphs_ids = {
 }
 
 sub_graphs_ids_per_k = {
+    2: two_sub_graphs_ids,
     3: three_sub_graphs_ids,
     4: four_sub_graphs_ids
 }

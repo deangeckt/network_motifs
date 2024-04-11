@@ -1,9 +1,9 @@
-from typing import Optional
+from collections import defaultdict
 
 from networkx import DiGraph
 
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from subgraphs.sub_graphs_utils import MotifName, HashedGraph
+from subgraphs.sub_graphs_utils import HashedGraph
 from utils.simple_logger import LogLvl
 from itertools import combinations
 
@@ -12,52 +12,67 @@ class SpecificSubGraphs(SubGraphsABC):
     """
     None induced
     """
-    def __init__(self, network: DiGraph,
-                 isomorphic_mapping: dict,
-                 search: Optional[list[MotifName]] = None):
 
+    def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
-        self.implemented_sub_graphs_search = {MotifName.self_loop: self.__count_self_loops,
-                                              MotifName.mutual_regulation: self.__count_mutual_regulation,
-                                              MotifName.fan_out: self.__count_fan_outs,
-                                              MotifName.cascade: self.__count_cascades,
-                                              MotifName.feed_forward: self.__count_feed_forward,
-                                              MotifName.bi_fan: self.__count_bi_fan
-                                              }
-        self.search: list[MotifName] = self.implemented_sub_graphs_search.keys() if search is None else search
+        self.fsl = {}
+        self.fsl_fully_mapped = defaultdict(list)
 
-    def search_sub_graphs(self, k: int) -> dict:
-        res = {}
-        for sub_graph in self.search:
-            if sub_graph not in self.implemented_sub_graphs_search:
-                self.logger.info(f'sub graph {sub_graph} not implemented yet')
-                continue
-            res[sub_graph] = self.implemented_sub_graphs_search[sub_graph]()
+        self.two_sub_graphs_search = {
+            6: self.__count_mutual_regulation
+        }
 
-        return res
+        self.three_sub_graphs_search = {
+            6: self.__count_fan_outs,
+            12: self.__count_cascades,
+            38: self.__count_feed_forward,
+        }
 
-    def __count_self_loops(self):
+        self.four_sub_graph_search = {
+            204: self.__count_bi_fan
+        }
+
+        self.sub_graphs_ids_per_k = {
+            2: self.two_sub_graphs_search,
+            3: self.three_sub_graphs_search,
+            4: self.four_sub_graph_search
+        }
+
+    def search_sub_graphs(self, k: int) -> dict[int, int]:
+        self.fsl = {}
+        self.fsl_fully_mapped = defaultdict(list)
+
+        sub_graph_searches = self.sub_graphs_ids_per_k[k]
+
+        for id_ in sub_graph_searches:
+            sub_graph_searches[id_](id_)
+
+        return self.fsl
+
+    def __count_self_loops(self, id_: int):
         """
         Counts the number of self loops (x -> x) in the given network.
         O(n)
         """
         self.logger.debug('--- self loops (x -> x) debugging: --- ')
+        self.fsl_fully_mapped[id_] = []
 
         count = 0
         for node in list(self.network.nodes):
             if self.network.has_edge(node, node):
                 self.logger.debug(f'{node} -> {node}')
+                self.fsl_fully_mapped[id_].append(((node, node), ))
                 count += 1
 
-        self.logger.info(f"self loops (x -> x): {count}")
-        return count
+        self.fsl[id_] = count
 
-    def __count_mutual_regulation(self):
+    def __count_mutual_regulation(self, id_: int):
         """
         Counts the number of mutual regulation (x -> y, y -> x)
         O(n^2). (with list representation: o(n*e))
         """
         self.logger.debug('--- mutual regulation (x -> y, y -> x) debugging: --- ')
+        self.fsl_fully_mapped[id_] = []
 
         count = 0
         for x in list(self.network.nodes):
@@ -66,17 +81,18 @@ class SpecificSubGraphs(SubGraphsABC):
                     continue
                 if self.network.has_edge(x, y) and self.network.has_edge(y, x):
                     self.logger.debug(f'{x} <-> {y}')
+                    self.fsl_fully_mapped[id_].append(((x, y),))
                     count += 1
 
-        self.logger.info(f"mutual regulation (x -> y, y -> x): {count}")
-        return count
+        self.fsl[id_] = count
 
-    def __count_cascades(self):
+    def __count_cascades(self, id_: int):
         """
         Counts the number of cascades (x -> y, y -> z) in the given network.
         O(n_i * degree_i^2) using list representation. (with adj matrix: o(n^3))
         """
         self.logger.debug('--- cascades (x -> y, y -> z) debugging: --- ')
+        self.fsl_fully_mapped[id_] = []
 
         count = 0
 
@@ -91,17 +107,18 @@ class SpecificSubGraphs(SubGraphsABC):
                         continue
 
                     self.logger.debug(f'{x} -> {y} -> {z}')
+                    self.fsl_fully_mapped[id_].append(((x, y), (y, z)))
                     count += 1
 
-        self.logger.info(f"cascades (x -> y, y -> z): {count}")
-        return count
+        self.fsl[id_] = count
 
-    def __count_fan_outs(self):
+    def __count_fan_outs(self, id_: int):
         """
         Counts the number of fan outs (x -> y, x -> z) in the given network.
         O(n)
         """
         self.logger.debug('--- fan outs (x -> y, x -> z) debugging: --- ')
+        self.fsl_fully_mapped[id_] = []
 
         count = 0
         for x in list(self.network.nodes):
@@ -112,21 +129,20 @@ class SpecificSubGraphs(SubGraphsABC):
                 continue
             count += (n * (n - 1)) / 2
 
-            if self.logger.lvl == LogLvl.debug:
-                comb = list(combinations(without_self_neighbors, 2))
-                for y, z in comb:
-                    self.logger.debug(f'{x} -> {y}, {x} -> {z}')
+            comb = list(combinations(without_self_neighbors, 2))
+            for y, z in comb:
+                self.logger.debug(f'{x} -> {y}, {x} -> {z}')
+                self.fsl_fully_mapped[id_].append(((x, y), (x, z)))
 
-        fan_outs = int(count)
-        self.logger.info(f"fan outs (x -> y, x -> z): {fan_outs}")
-        return fan_outs
+        self.fsl[id_] = int(count)
 
-    def __count_feed_forward(self):
+    def __count_feed_forward(self, id_: int):
         """
         Counts the number of feed forward (x -> y, x -> z, y -> z) in the given network.
         O(n * degree^3)
         """
         self.logger.debug('--- feed forwards (x -> y, x -> z, y -> z) debugging: --- ')
+        self.fsl_fully_mapped[id_] = []
 
         count = 0
         for x in list(self.network.nodes):
@@ -141,17 +157,18 @@ class SpecificSubGraphs(SubGraphsABC):
                     if z not in x_neighbors:
                         continue
                     self.logger.debug(f'{x} -> {y}, {x} -> {z}, {y} -> {z}')
+                    self.fsl_fully_mapped[id_].append(((x, y), (x, z), (y, z)))
                     count += 1
 
-        self.logger.info(f"feed forwards (x -> y, x -> z, y -> z): {count}")
-        return count
+        self.fsl[id_] = count
 
-    def __count_bi_fan(self):
+    def __count_bi_fan(self, id_: int):
         """
         Counts the number of bi fan (k=4) (x -> w, x -> z, y -> w, y -> z) in the given network.
         O(n^2 * degree^2)
         """
         self.logger.debug('--- bi fan (x -> w, x -> z, y -> w, y -> z) debugging: --- ')
+        self.fsl_fully_mapped[id_] = []
 
         count = 0
         nodes = list(self.network.nodes)
@@ -182,10 +199,10 @@ class SpecificSubGraphs(SubGraphsABC):
                             continue
                         hash_.add(sub_graph)
                         self.logger.debug(f'{x} -> {w}, {x} -> {z}, {y} -> {w}, {y} -> {z}')
+                        self.fsl_fully_mapped[id_].append(sub_graph)
                         count += 1
 
-        self.logger.info(f"bi fan (x -> w, x -> z, y -> w, y -> z): {count}")
-        return count
+        self.fsl[id_] = count
 
-    def get_sub_graphs_fully_mapped(self) -> dict:
-        pass
+    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
+        return self.fsl_fully_mapped
