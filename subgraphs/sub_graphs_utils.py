@@ -33,7 +33,7 @@ three_sub_graphs_ids = {
     MotifName.feed_forward: [38, 44, 104, 134, 194, 200],
     MotifName.cascade: [12, 34, 66, 96, 132, 136],
     MotifName.fan_out: [6, 40, 192],
-    MotifName.fan_in: []  # TODO: add 36?
+    MotifName.fan_in: [36, 72, 130]
 }
 
 four_sub_graphs_ids = {

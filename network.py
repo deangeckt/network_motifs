@@ -55,6 +55,7 @@ class Network:
             self.participating_nodes.add(int(v1))
             self.participating_nodes.add(int(v2))
 
+    # TODO: network new folder with loaders (per type of file...) - returning network?
     def load_polarity_neuronal_file(self, xlsx_path: str, sheet_name: str):
         """
         xlsx files from the paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P.

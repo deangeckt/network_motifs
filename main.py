@@ -1,5 +1,6 @@
 import random
 
+import networkx as nx
 from networkx import DiGraph
 from tabulate import tabulate
 from tqdm import tqdm
@@ -29,15 +30,8 @@ sub_graph_algorithms = {
 def custom_graph_search(graph: DiGraph):
     network = Network()
     network.load_graph(graph)
-    sub_graph_search(network)
-    # TODO: log?
-
-
-def log_motif_details(sub_id: int, network_sub_graphs: dict, network: Network, network_sub_graphs_full: dict):
-    if config.get_boolean_property('run_args', 'log_all_motif_sub_graphs'):
-        logger.info(f'Appearances (edges): {network_sub_graphs_full[sub_id]}')
-        sorted_nodes = network.sort_node_appearances_in_sub_graph(network_sub_graphs_full[sub_id])
-        logger.info(f'Appearances of Nodes in the sub-graph: {sorted_nodes}')
+    motifs = sub_graph_search(network)
+    log_motif_results(motifs)
 
 
 def log_motif_results(motifs: dict[int, Motif]):
@@ -48,29 +42,37 @@ def log_motif_results(motifs: dict[int, Motif]):
             n_real=motif.n_real,
         )
 
-        table.append(
-            [motif.id,
-             motif.name,
-             motif.adj_mat,
-             motif_criteria.is_motif,
-             motif_criteria.n_real,
-             motif_criteria.n_rand,
-             motif_criteria.std,
-             motif_criteria.z_score,
-             motif_criteria.uniq,
-             motif_criteria.is_statistically_significant,
-             motif_criteria.is_motif_frequent,
-             motif_criteria.is_uniq,
-             motif_criteria.is_anti_motif_frequent
-             ]
-        )
-
+        table.append([motif.id,
+                      motif.name,
+                      motif.adj_mat,
+                      motif_criteria.is_motif,
+                      motif_criteria.n_real,
+                      motif_criteria.n_rand,
+                      motif_criteria.std,
+                      motif_criteria.z_score,
+                      motif_criteria.uniq,
+                      motif_criteria.is_statistically_significant,
+                      motif_criteria.is_motif_frequent,
+                      motif_criteria.is_uniq,
+                      motif_criteria.is_anti_motif_frequent
+                      ])
     headers = ['ID', 'Name', 'Adj_mat', 'is-motif', 'N_real', 'N_rand', 'Std', 'Z_score', 'uniq',
                'is-significant', 'is-freq', 'is-uniq', 'is-anti-freq']
 
     col_align = tuple(['center'] * len(headers))
     float_fmt = tuple([".2f"] * len(headers))
     logger.info(tabulate(table, tablefmt="grid", headers=headers, colalign=col_align, floatfmt=float_fmt))
+
+    if not config.get_boolean_property('run_args', 'log_all_motif_sub_graphs'):
+        return
+
+    for motif_id in motifs:
+        motif = motifs[motif_id]
+        if motif.n_real == 0:
+            continue
+        logger.info(f'Motif Id: {motif_id}')
+        logger.info(f'Appearances (edges): {motif.sub_graphs}')
+        logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
 
 
 def sub_graph_search(network: Network) -> dict[int, Motif]:
@@ -177,7 +179,6 @@ if __name__ == "__main__":
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
 
     # custom_graph_search(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
-
     # network = load_network_file(adj_file_path="networks/toy_network.txt", name='toy')
     #
     network = load_network_file(adj_file_path="networks/Uri_Alon_2002/example.txt", name="paper example")
