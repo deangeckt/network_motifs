@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Optional, Union
-from pydantic import BaseModel
+
+import numpy as np
+from pydantic import BaseModel, Field
 
 
 class SubGraphAlgoName(str, Enum):
@@ -43,14 +45,24 @@ class MotifCriteriaResults(BaseModel):
 class Motif(BaseModel):
     name: MotifName  # motif name
     id: int  # motif if / sub graph id
-    adj_mat: str  # adjacency matrix
-
-    # Optional: the motif is found in the real network:
+    adj_mat: np.ndarray  # adjacency matrix
+    role_pattern: list[tuple]  # the adjacency matrix in an edge tuple format: e.g.: (a,b), (a,c)
     n_real: Optional[int] = 0  # number of appearances in the real network
     motif_criteria: Optional[MotifCriteriaResults] = None
     random_network_samples: Optional[list[int]] = []  # number of appearances of this motif id in the random networks
     sub_graphs: Optional[list[tuple]] = []  # all the isomorphic sub graphs appearances - in a tuple-edge format
+    node_roles: Optional[list[tuple]] = []  # list of (role, node) of all nodes participating in all the sub graphs
 
     # a sorted dict of the nodes that appear in this motif
     # the key is either a neuron name or node id
     node_appearances: Optional[dict[Union[int, str], int]] = {}
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class SubGraphSearchResult(BaseModel):
+    # frequent sub graph list: key=motif id, value is the frequency
+    fsl: dict[int, int]
+    # same fsl, the value is the list of sub graphs
+    fsl_fully_mapped: dict[int, list[tuple]]

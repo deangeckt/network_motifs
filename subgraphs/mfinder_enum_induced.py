@@ -8,6 +8,8 @@ import networkx as nx
 from subgraphs.sub_graphs_utils import get_id, graph_to_hashed_graph
 from collections import defaultdict
 
+from utils.types import SubGraphSearchResult
+
 
 class MFinderInduced(SubGraphsABC):
     """
@@ -20,8 +22,9 @@ class MFinderInduced(SubGraphsABC):
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
 
-        self.fsl = defaultdict(int)  # frequent sub graph list - value is the frequency
-        self.fsl_fully_mapped = defaultdict(list)  # same fsl, the value is the list of sub graphs
+        self.fsl = defaultdict(int)
+        self.fsl_fully_mapped = defaultdict(list)
+        self.fsl_node_roles = defaultdict(list)
 
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
@@ -70,7 +73,7 @@ class MFinderInduced(SubGraphsABC):
             for k in in_edges:
                 self.__find_sub_graphs_new_edge(sub_graph, k)
 
-    def search_sub_graphs(self, k: int) -> dict[int, int]:
+    def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
         self.fsl = defaultdict(int)
         self.fsl_fully_mapped = defaultdict(list)
         self.k = k
@@ -81,7 +84,5 @@ class MFinderInduced(SubGraphsABC):
             self.logger.debug(f'Edge: ({i}, {j}):')
             self.__find_sub_graphs(frozenset({i, j}))
 
-        return dict(sorted(self.fsl.items()))
-
-    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
-        return self.fsl_fully_mapped
+        self.fsl = dict(sorted(self.fsl.items()))
+        return SubGraphSearchResult(fsl=self.fsl, fsl_fully_mapped=self.fsl_fully_mapped)

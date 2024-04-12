@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from motif_criteria import MotifCriteria
 from network import Network
+from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_based_on_order_in_sub_graph
 from random_networks.markov_chain_switching import MarkovChainSwitching
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
@@ -44,7 +45,7 @@ def log_motif_results(motifs: dict[int, Motif]):
 
         table.append([motif.id,
                       motif.name,
-                      motif.adj_mat,
+                      str(motif.adj_mat),
                       motif_criteria.is_motif,
                       motif_criteria.n_real,
                       motif_criteria.n_rand,
@@ -71,8 +72,11 @@ def log_motif_results(motifs: dict[int, Motif]):
         if motif.n_real == 0:
             continue
         logger.info(f'\nMotif Id: {motif_id}')
-        logger.info(f'Appearances (edges): {motif.sub_graphs}')
+        logger.info(f'Appearances (all sub-graphs): {motif.sub_graphs}')
         logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
+        logger.info(f'Role pattern: {motif.role_pattern}')
+        for role in motif.node_roles:
+            logger.info(f'Appearances of Nodes in role {role}: {motif.node_roles[role]}')
 
 
 def sub_graph_search(network: Network) -> dict[int, Motif]:
@@ -85,23 +89,24 @@ def sub_graph_search(network: Network) -> dict[int, Motif]:
     logger.info(f'Allow self loops: {allow_self_loops}')
 
     start_time = time.time()
-    network_sub_graphs = sub_graph_algo.search_sub_graphs(k=k)
+    search_result = sub_graph_algo.search_sub_graphs(k=k)
     end_time = time.time()
     logger.info(f'\nSub Graph search timer [Sec]: {round(end_time - start_time, 2)}')
-    network_sub_graphs_full = sub_graph_algo.get_sub_graphs_fully_mapped()
 
-    total_sub_graphs = sum(network_sub_graphs.values())
-    logger.info(f'Motif candidates found: {len(network_sub_graphs)}')
+    total_sub_graphs = sum(search_result.fsl.values())
+    logger.info(f'Motif candidates found: {len(search_result.fsl)}')
     logger.info(f'Total number of {k}-node sub graphs found: {total_sub_graphs}')
 
     motifs = {}
-    for sub_id in network_sub_graphs:
+    for sub_id in search_result.fsl:
         motif = create_base_motif(sub_id=sub_id, k=k)
-
-        motif.n_real = network_sub_graphs[sub_id]
-        motif.node_appearances = network.sort_node_appearances_in_sub_graph(network_sub_graphs_full[sub_id])
-        motif.sub_graphs = network_sub_graphs_full[sub_id]
-
+        motif.n_real = search_result.fsl[sub_id]
+        motif.sub_graphs = search_result.fsl_fully_mapped[sub_id]
+        motif.node_roles = sort_node_based_on_order_in_sub_graph(appearances=motif.sub_graphs,
+                                                                 neuron_names=network.neuron_names,
+                                                                 roles=motif.role_pattern)
+        motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=motif.sub_graphs,
+                                                                    neuron_names=network.neuron_names)
         motifs[sub_id] = motif
 
     return motifs
@@ -128,7 +133,7 @@ def motif_search(network: Network):
 
     motif_criteria = MotifCriteria()
     for sub_id in tqdm(isomorphic_graphs):
-        random_network_samples = [rand_network.get(sub_id, 0) for rand_network in random_network_sub_graphs]
+        random_network_samples = [rand_network.fsl.get(sub_id, 0) for rand_network in random_network_sub_graphs]
 
         motif_candidate: Motif = motif_candidates.get(sub_id, create_base_motif(sub_id=sub_id, k=k))
         motif_candidate.random_network_samples = random_network_samples
@@ -179,10 +184,7 @@ if __name__ == "__main__":
     # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                             name='colinet1_noAuto')
     #
-    # network = load_network_file(adj_file_path="networks/Cook_2019/2020_si_2_herm_chem_synapse_adj_5.txt",
-    #                             neurons_file_path="networks/Cook_2019/2020_si_2_herm_neurons.txt",
-    #                             name="2020_si2_herm_chem_synapse_5"
-    #                             )
+
 
     # network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
     #                             polarity_sheet_name='5. Sign prediction',

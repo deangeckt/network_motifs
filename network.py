@@ -1,4 +1,3 @@
-from collections import defaultdict
 from typing import Union
 
 import networkx as nx
@@ -149,17 +148,6 @@ class Network:
         self.logger.info(f'Out Degree: {self.graph.out_degree[node]}')
         self.logger.info(f'In Degree: {self.graph.in_degree[node]}')
         self.logger.info(f'Clustering coefficient: {round(nx.average_clustering(self.graph, nodes=[node]), 3)}')
-
-    def sort_node_appearances_in_sub_graph(self, appearances: list[tuple]) -> dict[Union[int, str], int]:
-        nodes_count = defaultdict(int)
-        for sub_graph in appearances:
-            graph = nx.DiGraph()
-            graph.add_edges_from(sub_graph)
-            for n in list(graph.nodes):
-                node = self.neuron_names[n] if self.neuron_names else n
-                nodes_count[node] += 1
-
-        return dict(sorted(nodes_count.items(), key=lambda item: item[1], reverse=True))
 
     def __plot_rich_club_coefficient(self):
         un_dir_graph = nx.Graph(self.graph)

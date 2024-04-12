@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 from networkx import DiGraph
 
 from utils.simple_logger import Logger
+from utils.types import SubGraphSearchResult
 
 
 class SubGraphsABC(metaclass=ABCMeta):
@@ -12,18 +13,9 @@ class SubGraphsABC(metaclass=ABCMeta):
         self.logger = Logger()
 
     @abstractmethod
-    def search_sub_graphs(self, k: int) -> dict[int, int]:
+    def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
         """
         :param k: motif size
-        :return: a dict where each key is a sub graph id and value is the frequency of that sub graph
+        :return: SubGraphSearchResult
         """
         pass
-
-    @abstractmethod
-    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
-        """
-        :return: a dict where each key is a sub graph id and value is a list with all sub graphs
-        (list of tuple of edges)
-        """
-        pass
-

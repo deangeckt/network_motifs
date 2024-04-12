@@ -4,8 +4,9 @@ from networkx import DiGraph
 
 from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import HashedGraph
-from utils.simple_logger import LogLvl
 from itertools import combinations
+
+from utils.types import SubGraphSearchResult
 
 
 class SpecificSubGraphs(SubGraphsABC):
@@ -38,7 +39,7 @@ class SpecificSubGraphs(SubGraphsABC):
             4: self.four_sub_graph_search
         }
 
-    def search_sub_graphs(self, k: int) -> dict[int, int]:
+    def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
         self.fsl = {}
         self.fsl_fully_mapped = defaultdict(list)
 
@@ -47,7 +48,7 @@ class SpecificSubGraphs(SubGraphsABC):
         for id_ in sub_graph_searches:
             sub_graph_searches[id_](id_)
 
-        return self.fsl
+        return SubGraphSearchResult(fsl=self.fsl, fsl_fully_mapped=self.fsl_fully_mapped)
 
     def __count_self_loops(self, id_: int):
         """
@@ -203,6 +204,3 @@ class SpecificSubGraphs(SubGraphsABC):
                         count += 1
 
         self.fsl[id_] = count
-
-    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
-        return self.fsl_fully_mapped

@@ -144,8 +144,24 @@ def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
     return nx.number_weakly_connected_components(graph)
 
 
+def get_motif_role_pattern(adj_mat: np.ndarray) -> list[tuple]:
+    """
+    :param adj_mat: the adjacency matrix of the motif
+    :return: list of tuples with roles of the motif, in the format: (a,b), (b,c)
+    """
+    ascii_start = 97
+    roles: list[tuple] = []
+    for src, arr in enumerate(adj_mat):
+        for tar, val in enumerate(arr):
+            if val != 1:
+                continue
+            roles.append((chr(src + ascii_start), chr(tar + ascii_start)))
+    return roles
+
+
 def create_base_motif(sub_id: int, k: int) -> Motif:
     name = get_sub_id_name(sub_id=sub_id, k=k)
     sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
-    adj_mat = str(nx.adjacency_matrix(sub_graph).todense())
-    return Motif(name=name, id=sub_id, adj_mat=adj_mat)
+    adj_mat = nx.adjacency_matrix(sub_graph).todense()
+    role_pattern = get_motif_role_pattern(adj_mat)
+    return Motif(name=name, id=sub_id, adj_mat=adj_mat, role_pattern=role_pattern)

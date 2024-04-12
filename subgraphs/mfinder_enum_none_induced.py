@@ -8,6 +8,8 @@ import networkx as nx
 from subgraphs.sub_graphs_utils import get_id, HashedGraph
 from collections import defaultdict
 
+from utils.types import SubGraphSearchResult
+
 
 class MFinderNoneInduced(SubGraphsABC):
     """
@@ -72,7 +74,7 @@ class MFinderNoneInduced(SubGraphsABC):
             for k in in_edges:
                 self.__find_sub_graphs_new_edge(sub_graph, (k, i))
 
-    def search_sub_graphs(self, k: int) -> dict[int, int]:
+    def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
         self.fsl = defaultdict(int)
         self.k = k
         self.unique = set()
@@ -83,7 +85,5 @@ class MFinderNoneInduced(SubGraphsABC):
             self.logger.debug(f'Edge: ({i}, {j}):')
             self.__find_sub_graphs(((i, j),))
 
-        return dict(sorted(self.fsl.items()))
-
-    def get_sub_graphs_fully_mapped(self) -> dict[int, list[tuple]]:
-        return self.fsl_fully_mapped
+        self.fsl = dict(sorted(self.fsl.items()))
+        return SubGraphSearchResult(fsl=self.fsl, fsl_fully_mapped=self.fsl_fully_mapped)

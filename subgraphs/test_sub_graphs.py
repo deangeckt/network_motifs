@@ -5,17 +5,18 @@ from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs
 from utils.simple_logger import Logger
+from utils.types import SubGraphSearchResult
 
 logger = Logger()
 logger.toggle(False)
 
 
-def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: dict):
-    for sub_id in actual_sub_graphs:
+def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: SubGraphSearchResult):
+    for sub_id in actual_sub_graphs.fsl:
         sub_name = get_sub_id_name(sub_id=sub_id, k=k)
         if sub_name not in expected_sub_graphs:
             continue
-        assert actual_sub_graphs[sub_id] == expected_sub_graphs[sub_name]
+        assert actual_sub_graphs.fsl[sub_id] == expected_sub_graphs[sub_name]
 
 
 paper_example_induced = (r"networks/Uri_Alon_2002/example.txt",
