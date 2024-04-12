@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional, Union
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class SubGraphAlgoName(str, Enum):
@@ -42,6 +42,11 @@ class MotifCriteriaResults(BaseModel):
     is_motif: Optional[MotifType] = MotifType.none
 
 
+class PolarityFrequencies(BaseModel):
+    frequency: int
+    polarity: list[str]
+
+
 class Motif(BaseModel):
     name: MotifName  # motif name
     id: int  # motif if / sub graph id
@@ -50,12 +55,14 @@ class Motif(BaseModel):
     n_real: Optional[int] = 0  # number of appearances in the real network
     motif_criteria: Optional[MotifCriteriaResults] = None
     random_network_samples: Optional[list[int]] = []  # number of appearances of this motif id in the random networks
-    sub_graphs: Optional[list[tuple]] = []  # all the isomorphic sub graphs appearances - in a tuple-edge format
+    sub_graphs: Optional[list[tuple[tuple]]] = []  # all the isomorphic sub graphs appearances - in a tuple-edge format
     node_roles: Optional[list[tuple]] = []  # list of (role, node) of all nodes participating in all the sub graphs
 
     # a sorted dict of the nodes that appear in this motif
     # the key is either a neuron name or node id
     node_appearances: Optional[dict[Union[int, str], int]] = {}
+
+    polarity_frequencies: Optional[list[PolarityFrequencies]] = []
 
     class Config:
         arbitrary_types_allowed = True

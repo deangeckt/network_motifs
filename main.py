@@ -7,13 +7,14 @@ from tqdm import tqdm
 
 from motif_criteria import MotifCriteria
 from network import Network
-from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_based_on_order_in_sub_graph
+from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
+from post_motif_analysis.polarity_counter import get_polarity_frequencies, get_all_sub_graph_polarity
 from random_networks.markov_chain_switching import MarkovChainSwitching
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif, get_sub_graph_from_id
+from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
@@ -72,11 +73,18 @@ def log_motif_results(motifs: dict[int, Motif]):
         if motif.n_real == 0:
             continue
         logger.info(f'\nMotif Id: {motif_id}')
-        logger.info(f'Appearances (all sub-graphs): {motif.sub_graphs}')
+
+        if not network.use_polarity:
+            logger.info(f'Appearances (all sub-graphs): {motif.sub_graphs}')
+        else:
+            logger.info(f'Appearances (all sub-graphs): {get_all_sub_graph_polarity(motif.sub_graphs, network)}')
+
         logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
         logger.info(f'Role pattern: {motif.role_pattern}')
         for role in motif.node_roles:
             logger.info(f'Appearances of Nodes in role {role}: {motif.node_roles[role]}')
+        for pol_freq in motif.polarity_frequencies:
+            logger.info(f'Polarity: {pol_freq.polarity} - frequency: {pol_freq.frequency}')
 
 
 def sub_graph_search(network: Network) -> dict[int, Motif]:
@@ -102,11 +110,14 @@ def sub_graph_search(network: Network) -> dict[int, Motif]:
         motif = create_base_motif(sub_id=sub_id, k=k)
         motif.n_real = search_result.fsl[sub_id]
         motif.sub_graphs = search_result.fsl_fully_mapped[sub_id]
-        motif.node_roles = sort_node_based_on_order_in_sub_graph(appearances=motif.sub_graphs,
-                                                                 neuron_names=network.neuron_names,
-                                                                 roles=motif.role_pattern)
+        motif.node_roles = sort_node_roles_in_sub_graph(appearances=motif.sub_graphs,
+                                                        neuron_names=network.neuron_names,
+                                                        roles=motif.role_pattern)
         motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=motif.sub_graphs,
                                                                     neuron_names=network.neuron_names)
+        motif.polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
+                                                              roles=motif.role_pattern,
+                                                              network=network)
         motifs[sub_id] = motif
 
     return motifs
@@ -134,7 +145,6 @@ def motif_search(network: Network):
     motif_criteria = MotifCriteria()
     for sub_id in tqdm(isomorphic_graphs):
         random_network_samples = [rand_network.fsl.get(sub_id, 0) for rand_network in random_network_sub_graphs]
-
         motif_candidate: Motif = motif_candidates.get(sub_id, create_base_motif(sub_id=sub_id, k=k))
         motif_candidate.random_network_samples = random_network_samples
         motif_candidate.motif_criteria = motif_criteria.is_motif(motif_candidate)
@@ -184,7 +194,6 @@ if __name__ == "__main__":
     # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                             name='colinet1_noAuto')
     #
-
 
     # network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
     #                             polarity_sheet_name='5. Sign prediction',

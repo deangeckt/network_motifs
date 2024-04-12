@@ -8,6 +8,8 @@ import scipy.io as sio
 """
 
 
+# TODO: make this part of the network loader...
+
 def common_adj_mat_formatting(adj_mat: np.ndarray, neuron_names: list[str], output_name: str):
     participating_neurons = set()
     adj_output_file_name = f'{output_name}_adj.txt'
@@ -68,6 +70,7 @@ def convert_durbin_txt(file_path: str, output_name: str, filter_syn_type: str, f
     : param filter_recon: either: one of 'JSH', 'N2U'
     : param filter_joint: relevant for 'chem' synapse only - either True or False
     """
+
     def __append_adj_mat(adj_mat: np.ndarray, v1: int, v2: int, num_of_synapses: int):
         if not np.isnan(adj_mat[v1, v2]):
             adj_mat[v1, v2] += num_of_synapses

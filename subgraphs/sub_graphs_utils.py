@@ -6,8 +6,10 @@ from networkx import DiGraph
 
 from tqdm import tqdm
 
+from utils.common import get_decimal_from_bin_vec, get_bin_vec_from_decimal
 from utils.config import Config
 from utils.types import MotifName, Motif
+from networkx.algorithms import isomorphism
 
 
 class HashedGraph:
@@ -61,22 +63,20 @@ def get_sub_id_name(sub_id: int, k: int) -> MotifName:
     return MotifName.na
 
 
-def get_id(graph: DiGraph) -> int:
+def get_adjacency_matrix(graph: DiGraph) -> np.ndarray:
     nodes = list(graph.nodes)
     nodes.sort()
-    adj_mat = nx.adjacency_matrix(graph, nodelist=nodes).todense()
+    return nx.adjacency_matrix(graph, nodelist=nodes).todense()
+
+
+def get_id(graph: DiGraph) -> int:
+    adj_mat = get_adjacency_matrix(graph)
     vec = adj_mat.flatten()
-    decimal = 0
-    for i, bit in enumerate(vec):
-        decimal += bit * (2 ** i)
-    return decimal
+    return get_decimal_from_bin_vec(list(vec))
 
 
 def get_sub_graph_from_id(decimal: int, k: int) -> DiGraph:
-    bin_digits = [int(d) for d in str(bin(decimal))[2:]]
-    pad_amount = k ** 2 - len(bin_digits)
-    padding = pad_amount * [0]
-    bin_digits = padding + bin_digits
+    bin_digits = get_bin_vec_from_decimal(decimal=decimal, pad_to=k ** 2)
     bin_digits.reverse()
     adj_mat = np.array(bin_digits).reshape(k, k)
     return nx.DiGraph(adj_mat)
@@ -144,7 +144,7 @@ def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
     return nx.number_weakly_connected_components(graph)
 
 
-def get_motif_role_pattern(adj_mat: np.ndarray) -> list[tuple]:
+def get_role_pattern(adj_mat: np.ndarray) -> list[tuple]:
     """
     :param adj_mat: the adjacency matrix of the motif
     :return: list of tuples with roles of the motif, in the format: (a,b), (b,c)
@@ -159,9 +159,27 @@ def get_motif_role_pattern(adj_mat: np.ndarray) -> list[tuple]:
     return roles
 
 
+def get_sub_graph_mapping_to_motif(sub_graph: tuple, motif_roles: list[tuple]) -> dict:
+    """
+    :param sub_graph: tuple of tuples - the edges in the subgraph
+    :param motif_roles: list of tuples with roles of a motif, in the format: (a,b), (b,c)
+    :return: mapping of each role per node: e.g: {'a' : node_id, 'b' : node_id}
+    """
+    graph = nx.DiGraph()
+    graph.add_edges_from(sub_graph)
+
+    motif_graph = nx.DiGraph()
+    motif_graph.add_edges_from(motif_roles)
+
+    matcher = isomorphism.GraphMatcher(motif_graph, graph)
+    if not (matcher.is_isomorphic()):
+        raise Exception('The sub graph is not isomorphic to the motif')
+    return dict(matcher.mapping)
+
+
 def create_base_motif(sub_id: int, k: int) -> Motif:
     name = get_sub_id_name(sub_id=sub_id, k=k)
     sub_graph = get_sub_graph_from_id(decimal=sub_id, k=k)
     adj_mat = nx.adjacency_matrix(sub_graph).todense()
-    role_pattern = get_motif_role_pattern(adj_mat)
+    role_pattern = get_role_pattern(adj_mat)
     return Motif(name=name, id=sub_id, adj_mat=adj_mat, role_pattern=role_pattern)

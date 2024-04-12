@@ -28,6 +28,7 @@ class Network:
         self.participating_nodes = set()
 
         # polarity configuration
+        self.use_polarity = False
         self.p_src_col = int(config.get_property('polarity', 'src_col'))
         self.p_tar_col = int(config.get_property('polarity', 'tar_col'))
         self.p_weight_col = int(config.get_property('polarity', 'weight_col'))
@@ -43,23 +44,27 @@ class Network:
     def load_graph(self, graph: DiGraph):
         self.graph = graph
 
-    def __load_synapse(self, v1, v2, w):
+    def __load_synapse(self, v1, v2, num_of_synapse, polarity=None):
         self.participating_neurons.add(int(v1))
         self.participating_neurons.add(int(v2))
-        self.amount_of_synapses_in_total += int(w)
+        self.amount_of_synapses_in_total += int(num_of_synapse)
 
-        if int(w) >= self.synapse_amount_threshold:
-            self.amount_of_synapses_in_graph += int(w)
-            self.graph.add_edge(int(v1), int(v2))
+        if int(num_of_synapse) >= self.synapse_amount_threshold:
+            self.amount_of_synapses_in_graph += int(num_of_synapse)
+            if polarity is not None:
+                self.graph.add_edge(int(v1), int(v2), polarity=polarity)
+            else:
+                self.graph.add_edge(int(v1), int(v2))
             self.participating_nodes.add(int(v1))
             self.participating_nodes.add(int(v2))
 
-    # TODO: network new folder with loaders (per type of file...) - returning network?
+    # TODO: network new folder (networks -> data/, loaders/) load per type of file... remove main code there too
     def load_polarity_neuronal_file(self, xlsx_path: str, sheet_name: str):
         """
         xlsx files from the paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P.
         Synaptic polarity and sign-balance prediction using gene expression data in the Caenorhabditis elegans chemical synapse neuronal connectome network
         """
+        self.use_polarity = True
         xls = pd.ExcelFile(xlsx_path)
         df = xls.parse(sheet_name, header=None)
 
@@ -71,15 +76,15 @@ class Network:
 
         src_neurons_names = df.iloc[:, self.p_src_col]
         tar_neurons_names = df.iloc[:, self.p_tar_col]
-        edge_weights = df.iloc[:, self.p_weight_col]
-        # polarity = df.iloc[:, self.p_polarity_col]
-        # primary_neurotransmitter = df.iloc[:, self.p_prim_nt_col]
+        edge_weights = df.iloc[:, self.p_weight_col]  # these are the amount of synapses
+        polarity = df.iloc[:, self.p_polarity_col]
 
         self.neuron_names = list(set(src_neurons_names) | set(tar_neurons_names))
         neurons_indices = {ss: i for i, ss in enumerate(self.neuron_names)}
-
-        for v1, v2, w in zip(src_neurons_names, tar_neurons_names, edge_weights):
-            self.__load_synapse(neurons_indices[v1], neurons_indices[v2], w)
+        self.neuron_names = []
+        for v1, v2, w, p in zip(src_neurons_names, tar_neurons_names, edge_weights, polarity):
+            polarity_edge = 1 if p == '+' else -1
+            self.__load_synapse(neurons_indices[v1], neurons_indices[v2], w, polarity_edge)
 
     def load_adj_neuronal_file(self, adj_file_path: str, neurons_file_path: str):
         """

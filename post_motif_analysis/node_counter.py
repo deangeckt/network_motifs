@@ -4,10 +4,11 @@ from typing import Union
 
 import networkx as nx
 
+from subgraphs.sub_graphs_utils import get_sub_graph_mapping_to_motif
 from utils.common import sort_dict_freq
 
 
-def sort_node_appearances_in_sub_graph(appearances: list[tuple], neuron_names: list) -> dict[Union[int, str], int]:
+def sort_node_appearances_in_sub_graph(appearances: list[tuple[tuple]], neuron_names: list) -> dict[Union[int, str], int]:
     """
     :param appearances: the sub graphs appearances of a given motif
     :param neuron_names: list of neurons names for neural network or an empty list otherwise
@@ -24,9 +25,9 @@ def sort_node_appearances_in_sub_graph(appearances: list[tuple], neuron_names: l
     return sort_dict_freq(nodes_count)
 
 
-def sort_node_based_on_order_in_sub_graph(appearances: list[tuple],
-                                          neuron_names: list,
-                                          roles: list[tuple]) -> dict[list]:
+def sort_node_roles_in_sub_graph(appearances: list[tuple[tuple]],
+                                 neuron_names: list,
+                                 roles: list[tuple]) -> dict[list]:
     """
     :param appearances: the sub graphs appearances of a given motif
     :param neuron_names: list of neurons names for neural network or an empty list otherwise
@@ -35,12 +36,8 @@ def sort_node_based_on_order_in_sub_graph(appearances: list[tuple],
     """
     node_roles = defaultdict(list)
     for sub_graph in appearances:
-        neurons_in_sub_graph = {}
-        for (src, tar), (role1, role2) in zip(sub_graph, roles):
-            neurons_in_sub_graph[role1] = src
-            neurons_in_sub_graph[role2] = tar
-
-        for role, n in neurons_in_sub_graph.items():
+        nodes_in_sub_graph = get_sub_graph_mapping_to_motif(sub_graph, roles)
+        for role, n in nodes_in_sub_graph.items():
             node = neuron_names[n] if neuron_names else n
             node_roles[role].append(node)
 
