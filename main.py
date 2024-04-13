@@ -8,7 +8,7 @@ from tqdm import tqdm
 from motif_criteria import MotifCriteria
 from network import Network
 from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
-from post_motif_analysis.polarity_counter import get_polarity_frequencies, get_all_sub_graph_polarity
+from post_motif_analysis.polarity_counter import get_polarity_frequencies, get_all_sub_graph_polarities
 from random_networks.markov_chain_switching import MarkovChainSwitching
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
@@ -77,7 +77,7 @@ def log_motif_results(motifs: dict[int, Motif]):
         if not network.use_polarity:
             logger.info(f'Appearances (all sub-graphs): {motif.sub_graphs}')
         else:
-            logger.info(f'Appearances (all sub-graphs): {get_all_sub_graph_polarity(motif.sub_graphs, network)}')
+            logger.info(f'Appearances (all sub-graphs): {get_all_sub_graph_polarities(motif.sub_graphs, network.graph)}')
 
         logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
         logger.info(f'Role pattern: {motif.role_pattern}')
@@ -115,9 +115,10 @@ def sub_graph_search(network: Network) -> dict[int, Motif]:
                                                         roles=motif.role_pattern)
         motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=motif.sub_graphs,
                                                                     neuron_names=network.neuron_names)
-        motif.polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
-                                                              roles=motif.role_pattern,
-                                                              network=network)
+        if network.use_polarity:
+            motif.polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
+                                                                  roles=motif.role_pattern,
+                                                                  graph=network.graph)
         motifs[sub_id] = motif
 
     return motifs
@@ -189,13 +190,13 @@ if __name__ == "__main__":
     # custom_graph_search(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
     # network = load_network_file(adj_file_path="networks/toy_network.txt", name='toy')
     #
-    network = load_network_file(adj_file_path="networks/Uri_Alon_2002/example.txt", name="paper example")
+    # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/example.txt", name="paper example")
     #
     # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                             name='colinet1_noAuto')
     #
 
-    # network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
-    #                             polarity_sheet_name='5. Sign prediction',
-    #                             name="polarity 2020 SI 1")
+    network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
+                                polarity_sheet_name='5. Sign prediction',
+                                name="polarity 2020 SI 1")
     motif_search(network=network)

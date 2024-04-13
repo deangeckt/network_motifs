@@ -81,7 +81,7 @@ class Network:
 
         self.neuron_names = list(set(src_neurons_names) | set(tar_neurons_names))
         neurons_indices = {ss: i for i, ss in enumerate(self.neuron_names)}
-        self.neuron_names = []
+
         for v1, v2, w, p in zip(src_neurons_names, tar_neurons_names, edge_weights, polarity):
             polarity_edge = 1 if p == '+' else -1
             self.__load_synapse(neurons_indices[v1], neurons_indices[v2], w, polarity_edge)
