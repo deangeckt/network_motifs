@@ -8,7 +8,7 @@ from utils.config import Config
 
 
 class MarkovChainSwitching(NetworkRandomizer):
-    def __init__(self, network: DiGraph):
+    def __init__(self, network: DiGraph, use_polarity=False):
         super().__init__(network)
 
         config = Config()
@@ -16,6 +16,8 @@ class MarkovChainSwitching(NetworkRandomizer):
         self.switch_factor = int(config.get_property('random', 'markov_chain_switch_factor'))
         self.markov_chain_num_iterations = network.number_of_edges() * self.switch_factor
         self.success_switch = 0
+
+        self.switch_foo = self.__switch_with_polarity if use_polarity else self.__switch
 
     def generate(self, amount: int) -> list[DiGraph]:
         self.logger.info('\nRandomizer: using markov chain switching algorithm')
@@ -33,6 +35,17 @@ class MarkovChainSwitching(NetworkRandomizer):
         network.remove_edge(x2, y2)
         network.add_edge(x1, y2)
         network.add_edge(x2, y1)
+
+    @staticmethod
+    def __switch_with_polarity(network: DiGraph, x1: int, y1: int, x2: int, y2: int):
+        e1_polarity = network.edges[x1, y1]['polarity']
+        e2_polarity = network.edges[x2, y2]['polarity']
+
+        network.remove_edge(x1, y1)
+        network.remove_edge(x2, y2)
+
+        network.add_edge(x1, y2, polarity=e1_polarity)
+        network.add_edge(x2, y1, polarity=e2_polarity)
 
     def __markov_chain(self) -> DiGraph:
         """
@@ -56,6 +69,6 @@ class MarkovChainSwitching(NetworkRandomizer):
                 continue
 
             self.success_switch += 1
-            self.__switch(network, x1, y1, x2, y2)
+            self.switch_foo(network, x1, y1, x2, y2)
 
         return network

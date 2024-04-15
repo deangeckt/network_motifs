@@ -1,10 +1,12 @@
 import random
+from typing import Any
+
+from networkx import DiGraph
 from tabulate import tabulate
 from tqdm import tqdm
 
 from motif_criteria import MotifCriteria
 from networks.loaders.network_loader import NetworkLoader
-from networks.network import Network
 from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
 from post_motif_analysis.polarity_counter import get_polarity_frequencies, get_all_sub_graph_polarities
 from random_networks.markov_chain_switching import MarkovChainSwitching
@@ -17,7 +19,7 @@ from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
 
-from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults
+from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults, SubGraphSearchResult
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
@@ -26,34 +28,39 @@ sub_graph_algorithms = {
 }
 
 
-def log_motif_results(motifs: dict[int, Motif]):
+def log_motifs_table(motifs: dict[Any, Motif]):
     table = []
     for motif_id in motifs:
         motif = motifs[motif_id]
-        motif_criteria = motif.motif_criteria if motif.motif_criteria is not None else MotifCriteriaResults(
+        motif_criteria_res = motif.motif_criteria if motif.motif_criteria is not None else MotifCriteriaResults(
             n_real=motif.n_real,
         )
 
         table.append([motif.id,
                       motif.name,
                       str(motif.adj_mat),
-                      motif_criteria.is_motif,
-                      motif_criteria.n_real,
-                      motif_criteria.n_rand,
-                      motif_criteria.std,
-                      motif_criteria.z_score,
-                      motif_criteria.uniq,
-                      motif_criteria.is_statistically_significant,
-                      motif_criteria.is_motif_frequent,
-                      motif_criteria.is_uniq,
-                      motif_criteria.is_anti_motif_frequent
+                      motif_criteria_res.is_motif,
+                      motif_criteria_res.n_real,
+                      motif_criteria_res.n_rand,
+                      motif_criteria_res.std,
+                      motif_criteria_res.z_score,
+                      motif_criteria_res.uniq,
+                      motif_criteria_res.is_statistically_significant,
+                      motif_criteria_res.is_motif_frequent,
+                      motif_criteria_res.is_uniq,
+                      motif_criteria_res.is_anti_motif_frequent
                       ])
+
     headers = ['ID', 'Name', 'Adj_mat', 'is-motif', 'N_real', 'N_rand', 'Std', 'Z_score', 'uniq',
                'is-significant', 'is-freq', 'is-uniq', 'is-anti-freq']
 
     col_align = tuple(['center'] * len(headers))
     float_fmt = tuple([".2f"] * len(headers))
     logger.info(tabulate(table, tablefmt="grid", headers=headers, colalign=col_align, floatfmt=float_fmt))
+
+
+def log_motif_results(motifs: dict[int, Motif]):
+    log_motifs_table(motifs)
 
     if not config.get_boolean_property('run_args', 'log_all_motif_sub_graphs'):
         return
@@ -74,11 +81,14 @@ def log_motif_results(motifs: dict[int, Motif]):
         logger.info(f'Role pattern: {motif.role_pattern}')
         for role in motif.node_roles:
             logger.info(f'Appearances of Nodes in role {role}: {motif.node_roles[role]}')
-        for pol_freq in motif.polarity_frequencies:
-            logger.info(f'Polarity: {pol_freq.polarity} - frequency: {pol_freq.frequency}')
+
+        if not config.get_boolean_property('run_args', 'run_motif_criteria'):
+            for pol_freq in motif.polarity_frequencies:
+                if pol_freq.frequency:
+                    logger.info(f'Polarity: {pol_freq.polarity} - frequency: {pol_freq.frequency}')
 
 
-def sub_graph_search(network: Network) -> dict[int, Motif]:
+def sub_graph_search() -> dict[int, Motif]:
     sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network.graph, isomorphic_mapping)
 
     logger.info(f'Sub Graph search using Algorithm: {algo}')
@@ -97,10 +107,10 @@ def sub_graph_search(network: Network) -> dict[int, Motif]:
     logger.info(f'Total number of {k}-node sub graphs found: {total_sub_graphs}')
 
     motifs = {}
-    for sub_id in search_result.fsl:
+    for sub_id in isomorphic_graphs:
         motif = create_base_motif(sub_id=sub_id, k=k)
-        motif.n_real = search_result.fsl[sub_id]
-        motif.sub_graphs = search_result.fsl_fully_mapped[sub_id]
+        motif.n_real = search_result.fsl.get(sub_id, 0)
+        motif.sub_graphs = search_result.fsl_fully_mapped.get(sub_id, [])
         motif.node_roles = sort_node_roles_in_sub_graph(appearances=motif.sub_graphs,
                                                         neuron_names=network.neuron_names,
                                                         roles=motif.role_pattern)
@@ -115,34 +125,81 @@ def sub_graph_search(network: Network) -> dict[int, Motif]:
     return motifs
 
 
-def motif_search(network: Network):
+def motif_search():
     if not config.get_boolean_property('run_args', 'run_sub_graph_search'):
         return
 
-    motif_candidates = sub_graph_search(network)
+    motif_candidates = sub_graph_search()
 
     if not config.get_boolean_property('run_args', 'run_motif_criteria'):
         log_motif_results(motif_candidates)
         return
 
-    randomizer = MarkovChainSwitching(network.graph)
+    randomizer = MarkovChainSwitching(network.graph, use_polarity=network.use_polarity)
     random_network_amount = int(config.get_property('random', 'network_amount'))
     random_networks = randomizer.generate(amount=random_network_amount)
 
-    random_network_sub_graphs = []
+    random_network_sub_graph_results = []
     for rand_network in tqdm(random_networks):
         sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](rand_network, isomorphic_mapping)
-        random_network_sub_graphs.append(sub_graph_algo.search_sub_graphs(k=k))
+        random_network_sub_graph_results.append(sub_graph_algo.search_sub_graphs(k=k))
 
-    motif_criteria = MotifCriteria()
-    for sub_id in tqdm(isomorphic_graphs):
-        random_network_samples = [rand_network.fsl.get(sub_id, 0) for rand_network in random_network_sub_graphs]
-        motif_candidate: Motif = motif_candidates.get(sub_id, create_base_motif(sub_id=sub_id, k=k))
+    for sub_id in tqdm(motif_candidates):
+        random_network_samples = [rand_network.fsl.get(sub_id, 0) for rand_network in random_network_sub_graph_results]
+        motif_candidate: Motif = motif_candidates[sub_id]
         motif_candidate.random_network_samples = random_network_samples
         motif_candidate.motif_criteria = motif_criteria.is_motif(motif_candidate)
         motif_candidates[sub_id] = motif_candidate
 
     log_motif_results(motif_candidates)
+
+    polarity_motif_search(motif_candidates, random_networks, random_network_sub_graph_results)
+
+
+def polarity_motif_search(motif_candidates: dict[int, Motif],
+                          random_networks: list[DiGraph],
+                          random_network_sub_graph_results: list[SubGraphSearchResult]):
+    if not network.use_polarity:
+        return
+
+    for sub_id in motif_candidates:
+        polarity_motifs = {}
+        motif = motif_candidates[sub_id]
+
+        if not motif.polarity_frequencies:
+            continue
+
+        # count polarity frequencies in random networks
+        random_network_polarity_frequencies = []
+        for rand_net_idx, rand_network_res in enumerate(random_network_sub_graph_results):
+            random_network_polarity_frequencies.append(
+                get_polarity_frequencies(appearances=rand_network_res.fsl_fully_mapped.get(sub_id, []),
+                                         roles=motif.role_pattern,
+                                         graph=random_networks[rand_net_idx]))
+
+        for motif_pol_freq in motif.polarity_frequencies:
+            polarity_motif_id = f'{sub_id} {str(motif_pol_freq.polarity)}'
+            polarity_motif = create_base_motif(sub_id=sub_id, k=k)
+            polarity_motif.id = polarity_motif_id
+            polarity_motif.n_real = motif_pol_freq.frequency
+
+            if polarity_motif.n_real == 0:
+                continue
+
+            random_network_samples: list[int] = []
+            for rand_network_pol_freq in random_network_polarity_frequencies:
+                for rand_pol_freq in rand_network_pol_freq:
+                    if rand_pol_freq.polarity == motif_pol_freq.polarity:
+                        random_network_samples.append(rand_pol_freq.frequency)
+                        break
+
+            polarity_motif.random_network_samples = random_network_samples
+            polarity_motif.motif_criteria = motif_criteria.is_motif(polarity_motif)
+
+            polarity_motifs[polarity_motif_id] = polarity_motif
+
+        if polarity_motifs:
+            log_motifs_table(polarity_motifs)
 
 
 if __name__ == "__main__":
@@ -154,6 +211,7 @@ if __name__ == "__main__":
     k = int(config.get_property('run_args', 'k'))
     algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
+    motif_criteria = MotifCriteria()
 
     # network = loader.load_graph(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
 
@@ -176,11 +234,11 @@ if __name__ == "__main__":
     # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                                    name='colinet1_noAuto')
 
-    # network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
-    #                                    polarity_sheet_name='5. Sign prediction',
-    #                                    name="polarity 2020 SI 1")
+    network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
+                                       polarity_sheet_name='5. Sign prediction',
+                                       name="polarity 2020 SI 1")
 
-    network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
-                                       name='durbin network')
+    # network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
+    #                                    name='durbin network')
 
-    motif_search(network=network)
+    motif_search()
