@@ -18,10 +18,8 @@ Implemented random networks algorithms:
  - **Simple Markov-Chain**: R. Kannan, P. Tetali, S. Vempala, Random Struct. Algorithms 14, 293 (1999).
 
 ##
-Network format:
-<br/>
-Supporting the following formats:
-- simple txt format: (v1, v2, w) per line
-- worm wiring xlsx format: https://wormwiring.org/pages/adjacency.html
-- polarity xlsx format from the paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P. "Synaptic polarity and sign-balance prediction using gene expression data in the Caenorhabditis elegans chemical synapse neuronal connectome network"
-- Durbin 1986 - https://www.wormatlas.org/neuronalwiring.html
+Supporting the following network formats:
+- **simple** txt format: (v1, v2, w) per line
+- **worm wiring** xlsx format: https://wormwiring.org/pages/adjacency.html
+- **polarity** xlsx format from the paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P. "Synaptic polarity and sign-balance prediction using gene expression data in the Caenorhabditis elegans chemical synapse neuronal connectome network"
+- **Durbin** 1986 - https://www.wormatlas.org/neuronalwiring.html

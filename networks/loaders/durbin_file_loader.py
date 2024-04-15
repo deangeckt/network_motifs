@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
 from networks.network import Network
@@ -18,10 +17,10 @@ class DurbinFileLoader(NetworkLoaderStrategy):
         config = Config()
 
         # 'chem', 'gap', 'all
-        self.filter_syn_type: str = 'chem'
+        self.filter_syn_type = config.get_property('durbin', 'filter_syn_type')
 
         # 'JSH: L4 male', 'N2U: hermaphrodite adult'
-        self.filter_recon: str = 'N2U'
+        self.filter_recon = config.get_property('durbin', 'filter_recon')
 
         self.logger.info(f'\nFiltering Neurons of: {self.filter_recon}')
         self.logger.info(f'Filtering Synapses of type: {self.filter_syn_type}')

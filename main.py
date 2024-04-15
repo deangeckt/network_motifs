@@ -1,7 +1,4 @@
 import random
-
-import networkx as nx
-from networkx import DiGraph
 from tabulate import tabulate
 from tqdm import tqdm
 
@@ -186,4 +183,4 @@ if __name__ == "__main__":
     network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
                                        name='durbin network')
 
-    # motif_search(network=network)
+    motif_search(network=network)
