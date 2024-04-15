@@ -1,6 +1,6 @@
 import pytest
 
-from network import Network
+from networks.network import Network
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs
@@ -19,16 +19,16 @@ def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: SubGraphSear
         assert actual_sub_graphs.fsl[sub_id] == expected_sub_graphs[sub_name]
 
 
-paper_example_induced = (r"networks/Uri_Alon_2002/example.txt",
+paper_example_induced = (r"networks/data/Uri_Alon_2002/example.txt",
                          {MotifName.cascade: 10, MotifName.fan_out: 3, MotifName.feed_forward: 5}
                          )
-paper_ecoli_induced = (r"networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
+paper_ecoli_induced = (r"networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
                        {MotifName.cascade: 162, MotifName.fan_out: 226, MotifName.feed_forward: 40}
                        )
-paper_example_none_induced = (r"networks/Uri_Alon_2002/example.txt",
+paper_example_none_induced = (r"networks/data/Uri_Alon_2002/example.txt",
                               {MotifName.cascade: 15, MotifName.fan_out: 8, MotifName.feed_forward: 5}
                               )
-paper_ecoli_none_induced = (r"networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
+paper_ecoli_none_induced = (r"networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
                             {MotifName.cascade: 202, MotifName.fan_out: 266, MotifName.feed_forward: 40}
                             )
 

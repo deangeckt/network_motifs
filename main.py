@@ -6,7 +6,8 @@ from tabulate import tabulate
 from tqdm import tqdm
 
 from motif_criteria import MotifCriteria
-from network import Network
+from networks.loaders.network_loader import NetworkLoader
+from networks.network import Network
 from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
 from post_motif_analysis.polarity_counter import get_polarity_frequencies, get_all_sub_graph_polarities
 from random_networks.markov_chain_switching import MarkovChainSwitching
@@ -18,7 +19,6 @@ from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
-from typing import Optional
 
 from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults
 
@@ -27,13 +27,6 @@ sub_graph_algorithms = {
     SubGraphAlgoName.mfinder_induced: MFinderInduced,
     SubGraphAlgoName.mfinder_none_induced: MFinderNoneInduced
 }
-
-
-def custom_graph_search(graph: DiGraph):
-    network = Network()
-    network.load_graph(graph)
-    motifs = sub_graph_search(network)
-    log_motif_results(motifs)
 
 
 def log_motif_results(motifs: dict[int, Motif]):
@@ -77,7 +70,8 @@ def log_motif_results(motifs: dict[int, Motif]):
         if not network.use_polarity:
             logger.info(f'Appearances (all sub-graphs): {motif.sub_graphs}')
         else:
-            logger.info(f'Appearances (all sub-graphs): {get_all_sub_graph_polarities(motif.sub_graphs, network.graph)}')
+            logger.info(
+                f'Appearances (all sub-graphs): {get_all_sub_graph_polarities(motif.sub_graphs, network.graph)}')
 
         logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
         logger.info(f'Role pattern: {motif.role_pattern}')
@@ -154,49 +148,42 @@ def motif_search(network: Network):
     log_motif_results(motif_candidates)
 
 
-def load_network_file(
-        name: str,
-        adj_file_path: Optional[str] = None,
-        neurons_file_path: Optional[str] = None,
-        polarity_xlsx_file_path: Optional[str] = None,
-        polarity_sheet_name: Optional[str] = None,
-) -> Network:
-    logger.info(f'Network name: {name}')
-    network = Network()
-
-    if adj_file_path and neurons_file_path:
-        network.load_adj_neuronal_file(adj_file_path=adj_file_path, neurons_file_path=neurons_file_path)
-    elif adj_file_path:
-        network.load_adj_file(file_path=adj_file_path)
-    elif polarity_xlsx_file_path and polarity_sheet_name:
-        network.load_polarity_neuronal_file(xlsx_path=polarity_xlsx_file_path, sheet_name=polarity_sheet_name)
-    else:
-        logger.info('Error reading input file')
-        exit(-1)
-
-    network.properties()
-    return network
-
-
 if __name__ == "__main__":
     random.seed(42)
     logger = Logger(LogLvl.info)
     config = Config()
+    loader = NetworkLoader()
 
     k = int(config.get_property('run_args', 'k'))
     algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
 
-    # custom_graph_search(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
-    # network = load_network_file(adj_file_path="networks/toy_network.txt", name='toy')
-    #
-    # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/example.txt", name="paper example")
-    #
-    # network = load_network_file(adj_file_path="networks/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
-    #                             name='colinet1_noAuto')
-    #
+    # network = loader.load_graph(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
 
-    network = load_network_file(polarity_xlsx_file_path="networks/polarity_2020/s1_data.xlsx",
-                                polarity_sheet_name='5. Sign prediction',
-                                name="polarity 2020 SI 1")
-    motif_search(network=network)
+    # network = loader.load_network_file(
+    #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx",
+    #     worm_wiring_sheet_name='herm chem synapse adjacency',  # herm gap jn synapse adjacency'
+    #     name="2020_si_2_herm_chem_synapse",
+    #     )
+
+    # network = loader.load_network_file(
+    #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July "
+    #                                "2020.xlsx",
+    #     worm_wiring_sheet_name='hermaphrodite chemical',
+    #     name="2020_si_5_herm_chem_synapse",
+    # )
+
+    # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/example.txt",
+    #                                    name="paper example")
+
+    # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
+    #                                    name='colinet1_noAuto')
+
+    # network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
+    #                                    polarity_sheet_name='5. Sign prediction',
+    #                                    name="polarity 2020 SI 1")
+
+    network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
+                                       name='durbin network')
+
+    # motif_search(network=network)
