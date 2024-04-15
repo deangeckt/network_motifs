@@ -20,4 +20,8 @@ Implemented random networks algorithms:
 ##
 Network format:
 <br/>
-We work with a simple network format - a txt file where each line is a tupple: (v1, v2, w), spereted by spaces.
+Supporting the following formats:
+- simple txt format: (v1, v2, w) per line
+- worm wiring xlsx format: https://wormwiring.org/pages/adjacency.html
+- polarity xlsx format from the paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P. "Synaptic polarity and sign-balance prediction using gene expression data in the Caenorhabditis elegans chemical synapse neuronal connectome network"
+- Durbin 1986 - https://www.wormatlas.org/neuronalwiring.html
