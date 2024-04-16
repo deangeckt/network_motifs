@@ -130,6 +130,7 @@ def motif_search():
         return
 
     motif_candidates = sub_graph_search()
+    motif_criteria = MotifCriteria()
 
     if not config.get_boolean_property('run_args', 'run_motif_criteria'):
         log_motif_results(motif_candidates)
@@ -161,6 +162,8 @@ def polarity_motif_search(motif_candidates: dict[int, Motif],
                           random_network_sub_graph_results: list[SubGraphSearchResult]):
     if not network.use_polarity:
         return
+    logger.info('\nPolarity Motif results:')
+    motif_criteria = MotifCriteria()
 
     for sub_id in motif_candidates:
         polarity_motifs = {}
@@ -211,7 +214,6 @@ if __name__ == "__main__":
     k = int(config.get_property('run_args', 'k'))
     algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
-    motif_criteria = MotifCriteria()
 
     # network = loader.load_graph(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
 

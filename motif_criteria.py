@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+from singleton_decorator import singleton
 
 from subgraphs.sub_graphs_utils import get_number_of_disjoint_group_nodes
 from utils.config import Config
@@ -7,6 +8,7 @@ from utils.simple_logger import Logger
 from utils.types import MotifCriteriaResults, MotifType, Motif
 
 
+@singleton
 class MotifCriteria:
     def __init__(self):
         self.logger = Logger()
