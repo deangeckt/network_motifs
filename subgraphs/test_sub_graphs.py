@@ -1,5 +1,6 @@
 import pytest
 
+from networks.loaders.network_loader import NetworkLoader
 from networks.network import Network
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
@@ -36,8 +37,9 @@ paper_ecoli_none_induced = (r"networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.
 @pytest.mark.parametrize("network_file,expected", [paper_example_induced, paper_ecoli_induced])
 def test_three_sub_graphs_induced(network_file, expected):
     k = 3
-    network = Network()
-    network.load_adj_file(network_file)
+    loader = NetworkLoader()
+
+    network = loader.load_network_file(name='', adj_file_path=network_file)
     isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
     mfinder = MFinderInduced(network.graph, isomorphic_mapping)
@@ -48,8 +50,8 @@ def test_three_sub_graphs_induced(network_file, expected):
 @pytest.mark.parametrize("network_file,expected", [paper_example_none_induced, paper_ecoli_none_induced])
 def test_three_sub_graphs_none_induced(network_file, expected):
     k = 3
-    network = Network()
-    network.load_adj_file(network_file)
+    loader = NetworkLoader()
+    network = loader.load_network_file(name='', adj_file_path=network_file)
     isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
     mfinder = MFinderNoneInduced(network.graph, isomorphic_mapping)
