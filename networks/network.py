@@ -26,6 +26,7 @@ class Network:
 
         # polarity configuration
         self.use_polarity = False
+        self.polarity_ratio = 1  # E/I (+/-) ratio
 
     def properties(self):
         self.logger.info(f'Network properties:')
@@ -41,11 +42,14 @@ class Network:
         self.logger.info(f'  - Edges: {len(self.graph.edges)}')
         self.logger.info(f'  - Average clustering coefficient: {round(nx.average_clustering(self.graph), 3)}')
 
+        avg_degree = sum(dict(self.graph.degree).values()) / len(self.graph)
+        self.logger.info(f'  - Average degree: {round(avg_degree, 3)}')
+
         un_dir_graph = nx.Graph(self.graph)
         avg_short_path_len = np.mean([nx.average_shortest_path_length(un_dir_graph.subgraph(c).copy()) for c in
                                       nx.connected_components(un_dir_graph)])
-
         self.logger.info(f'  - Average shortest path (undirected): {round(avg_short_path_len, 3)}')
+
         self.logger.info(f'  - Density: {round(nx.density(self.graph), 3)}')
 
         max_node, max_degree = sorted(list(self.graph.out_degree), key=lambda x: x[1], reverse=True)[0]
@@ -55,8 +59,11 @@ class Network:
         max_node, max_degree = sorted(list(self.graph.in_degree), key=lambda x: x[1], reverse=True)[0]
         max_node = self.neuron_names[max_node] if self.neuron_names else max_node
         self.logger.info(f'  - Max in degree of Node {max_node}: {max_degree}')
-        self.logger.info('')
 
+        if self.use_polarity:
+            self.logger.info(f'  - Polarity E/I ratio: {round(self.polarity_ratio, 3)}')
+
+        self.logger.info('')
         self.plot_properties()
 
     def node_properties(self, node: Union[str, int]):

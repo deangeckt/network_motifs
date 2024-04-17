@@ -31,8 +31,8 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
             sub_graph_polarity[edge_idx] = polarity
 
         polarity_vec = list(sub_graph_polarity.values())
-        polarity_vec = list(map(lambda x: x if x == 1 else 0, polarity_vec))
-        polarity_id = get_decimal_from_bin_vec(polarity_vec)
+        polarity_bin_vec = list(map(lambda x: 1 if x == '+' else 0, polarity_vec))
+        polarity_id = get_decimal_from_bin_vec(polarity_bin_vec)
         freq_list[polarity_id] += 1
 
     polarity_frequencies = []

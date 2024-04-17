@@ -3,21 +3,22 @@ import random
 from networkx import DiGraph
 from tqdm import tqdm
 
+from networks.network import Network
 from random_networks.network_randomizer_abc import NetworkRandomizer
 from utils.config import Config
 
 
 class MarkovChainSwitching(NetworkRandomizer):
-    def __init__(self, network: DiGraph, use_polarity=False):
+    def __init__(self, network: Network):
         super().__init__(network)
 
         config = Config()
 
         self.switch_factor = int(config.get_property('random', 'markov_chain_switch_factor'))
-        self.markov_chain_num_iterations = network.number_of_edges() * self.switch_factor
+        self.markov_chain_num_iterations = network.graph.number_of_edges() * self.switch_factor
         self.success_switch = 0
 
-        self.switch_foo = self.__switch_with_polarity if use_polarity else self.__switch
+        self.switch_foo = self.__switch_with_polarity if network.use_polarity else self.__switch
 
     def generate(self, amount: int) -> list[DiGraph]:
         self.logger.info('\nRandomizer: using markov chain switching algorithm')
@@ -55,20 +56,20 @@ class MarkovChainSwitching(NetworkRandomizer):
             * Degree constrain is saved
             * Mutual / Double edges (number) is NOT saved
         """
-        network: DiGraph = self.network.copy()
+        graph: DiGraph = self.network.graph.copy()
 
         for _ in range(self.markov_chain_num_iterations):
-            e1, e2 = random.sample(network.edges, 2)
+            e1, e2 = random.sample(graph.edges, 2)
             x1, y1 = e1
             x2, y2 = e2
 
             if x1 == x2 or x1 == y2 or x2 == y1 or y1 == y2:
                 continue
 
-            if network.has_edge(x1, y2) or network.has_edge(x2, y1):
+            if graph.has_edge(x1, y2) or graph.has_edge(x2, y1):
                 continue
 
             self.success_switch += 1
-            self.switch_foo(network, x1, y1, x2, y2)
+            self.switch_foo(graph, x1, y1, x2, y2)
 
-        return network
+        return graph

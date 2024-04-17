@@ -9,6 +9,7 @@ from motif_criteria import MotifCriteria
 from networks.loaders.network_loader import NetworkLoader
 from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
 from post_motif_analysis.polarity_counter import get_polarity_frequencies, get_all_sub_graph_polarities
+from random_networks.erdos_renyi_forced_edges import ErdosRenyiForcedEdges
 from random_networks.markov_chain_switching import MarkovChainSwitching
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
@@ -19,12 +20,17 @@ from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
 
-from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults, SubGraphSearchResult
+from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults, SubGraphSearchResult, RandomGeneratorAlgoName
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
     SubGraphAlgoName.mfinder_induced: MFinderInduced,
     SubGraphAlgoName.mfinder_none_induced: MFinderNoneInduced
+}
+
+random_generator_algorithms = {
+    RandomGeneratorAlgoName.markov_chain_switching: MarkovChainSwitching,
+    RandomGeneratorAlgoName.erdos_renyi: ErdosRenyiForcedEdges
 }
 
 
@@ -89,9 +95,9 @@ def log_motif_results(motifs: dict[int, Motif]):
 
 
 def sub_graph_search() -> dict[int, Motif]:
-    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](network.graph, isomorphic_mapping)
+    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[sub_graph_algo_choice](network.graph, isomorphic_mapping)
 
-    logger.info(f'Sub Graph search using Algorithm: {algo}')
+    logger.info(f'Sub Graph search using Algorithm: {sub_graph_algo_choice}')
     logger.info(f'Sub Graph search using k: {k}')
     logger.info(f'Amount of isomorphic sub graphs of size k={k} is: {len(isomorphic_graphs)}')
     allow_self_loops = config.get_boolean_property('run_args', 'allow_self_loops')
@@ -136,13 +142,13 @@ def motif_search():
         log_motif_results(motif_candidates)
         return
 
-    randomizer = MarkovChainSwitching(network.graph, use_polarity=network.use_polarity)
+    randomizer = random_generator_algorithms[random_generator_algo_choice](network)
     random_network_amount = int(config.get_property('random', 'network_amount'))
     random_networks = randomizer.generate(amount=random_network_amount)
 
     random_network_sub_graph_results = []
     for rand_network in tqdm(random_networks):
-        sub_graph_algo: SubGraphsABC = sub_graph_algorithms[algo](rand_network, isomorphic_mapping)
+        sub_graph_algo: SubGraphsABC = sub_graph_algorithms[sub_graph_algo_choice](rand_network, isomorphic_mapping)
         random_network_sub_graph_results.append(sub_graph_algo.search_sub_graphs(k=k))
 
     for sub_id in tqdm(motif_candidates):
@@ -212,7 +218,8 @@ if __name__ == "__main__":
     loader = NetworkLoader()
 
     k = int(config.get_property('run_args', 'k'))
-    algo = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
+    sub_graph_algo_choice = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
+    random_generator_algo_choice = RandomGeneratorAlgoName(config.get_property('random', 'randomizer'))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
 
     # network = loader.load_graph(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))

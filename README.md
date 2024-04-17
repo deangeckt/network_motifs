@@ -16,7 +16,7 @@ Implemented enumeration algorithms:
 ##
 Implemented random networks algorithms:
  - **Simple Markov-Chain**: R. Kannan, P. Tetali, S. Vempala, Random Struct. Algorithms 14, 293 (1999).
-
+ - **Erdos Renyi**: with probability p such that the average |E| of all random networks ~= |E| of the original network
 ##
 Supporting the following network formats:
 - **simple** txt format: (v1, v2, w) per line

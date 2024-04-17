@@ -3,6 +3,7 @@ import pandas as pd
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
 from networks.network import Network
 from utils.config import Config
+import collections
 
 
 class NeuronalPolarityLoader(NetworkLoaderStrategy):
@@ -45,11 +46,16 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         edge_weights = df.iloc[:, self.weight_col]  # these are the amount of synapses
         polarity = df.iloc[:, self.polarity_col]
 
+        polarity_frequencies = collections.Counter(polarity)
+        polarity_options = set(polarity_frequencies.keys())
+        if polarity_options != {'+', '-'}:
+            raise Exception(f'Polarity {polarity_options} not supported!')
+        self.polarity_ratio = polarity_frequencies['+'] / polarity_frequencies['-']
+
         self.neuron_names = list(set(src_neurons_names) | set(tar_neurons_names))
         neurons_indices = {ss: i for i, ss in enumerate(self.neuron_names)}
 
         for v1, v2, w, p in zip(src_neurons_names, tar_neurons_names, edge_weights, polarity):
-            polarity_edge = 1 if p == '+' else -1
-            self._load_synapse(neurons_indices[v1], neurons_indices[v2], w, polarity_edge)
+            self._load_synapse(neurons_indices[v1], neurons_indices[v2], w, p)
 
         return self._copy_network_params()

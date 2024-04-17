@@ -22,6 +22,7 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
 
         # polarity configuration
         self.use_polarity = False
+        self.polarity_ratio = 0
 
     def _load_synapse(self, v1, v2, num_of_synapse, polarity=None):
         self.participating_neurons.add(int(v1))
@@ -47,6 +48,7 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
 
         # polarity configuration
         network.use_polarity = self.use_polarity
+        network.polarity_ratio = self.polarity_ratio
         return network
 
     @abstractmethod

@@ -11,6 +11,11 @@ class SubGraphAlgoName(str, Enum):
     mfinder_none_induced = 'mfinder_ni'
 
 
+class RandomGeneratorAlgoName(str, Enum):
+    markov_chain_switching = 'markov_chain'
+    erdos_renyi = 'er'
+
+
 class MotifType(str, Enum):
     motif = 'motif'
     anti_motif = 'anti-motif'

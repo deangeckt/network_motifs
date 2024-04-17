@@ -1,0 +1,53 @@
+import random
+
+import networkx as nx
+from networkx import DiGraph
+from tqdm import tqdm
+
+from networks.network import Network
+from random_networks.network_randomizer_abc import NetworkRandomizer
+
+
+class ErdosRenyiForcedEdges(NetworkRandomizer):
+    """
+    Erdos Renyi algorithm with forced (average) number of edges:
+    - there are # n choose 2 possible edges. (times 2 for directed graphs)
+    - regular ER graph has an average of (n choose 2 * p) edges; n(n-1)/2 * p. (times 2 for directed graphs)
+    - to generate a graph with average |E| edges (given by the real network), we need to set p = |E| / (n(n-1))
+    """
+
+    def __init__(self, network: Network):
+        super().__init__(network)
+
+        graph = network.graph
+        n = len(graph)
+        e = len(graph.edges)
+        p = e / (n * (n - 1))
+
+        self.n = n
+        self.e = e
+        self.p = p
+
+        self.generate_foo = self.__generate_with_polarity if network.use_polarity else self.__generate
+        self.inhibitory_polarity_prob = 1 / network.polarity_ratio
+
+    def generate(self, amount: int) -> list[DiGraph]:
+        self.logger.info('\nRandomizer: using erdos renyi algorithm')
+        self.logger.info(f'Randomizer: generating {amount} random networks')
+        self.logger.info(f'probability for edge creation: {round(self.p, 4)}')
+
+        random_networks = [self.generate_foo() for _ in tqdm(range(amount))]
+        avg_edges = sum([len(rand_network.edges) for rand_network in random_networks]) / amount
+        self.logger.info(f'average edge number of all random networks: {round(avg_edges, 3)}')
+
+        return random_networks
+
+    def __generate(self) -> DiGraph:
+        return nx.erdos_renyi_graph(n=self.n, p=self.p, directed=True)
+
+    def __generate_with_polarity(self) -> DiGraph:
+        graph = self.__generate()
+        for edge in graph.edges:
+            polarity = '-' if random.random() < self.inhibitory_polarity_prob else '+'
+            nx.set_edge_attributes(graph, {edge: {"polarity": polarity}})
+        return graph
