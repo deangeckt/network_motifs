@@ -9,6 +9,15 @@ from utils.config import Config
 
 
 class MarkovChainSwitching(NetworkRandomizer):
+    """
+    - R. Kannan, P. Tetali, S. Vempala, Random Struct. Algorithms 14, 293 (1999).
+    - R. Milo,1, 2 N. Kashtan,2, 3 S. Itzkovitz,1, 2 M. E. J. Newman,4 and U. Alon1,
+        "On the uniform generation of random graphs with prescribed degree sequences"
+        * Degree constrain is saved
+        * Mutual / Double edges (number) is NOT saved
+        * polarity ratio is NOT saved
+    """
+
     def __init__(self, network: Network):
         super().__init__(network)
 
@@ -49,13 +58,6 @@ class MarkovChainSwitching(NetworkRandomizer):
         network.add_edge(x2, y1, polarity=e2_polarity)
 
     def __markov_chain(self) -> DiGraph:
-        """
-        - R. Kannan, P. Tetali, S. Vempala, Random Struct. Algorithms 14, 293 (1999).
-        - R. Milo,1, 2 N. Kashtan,2, 3 S. Itzkovitz,1, 2 M. E. J. Newman,4 and U. Alon1,
-            "On the uniform generation of random graphs with prescribed degree sequences"
-            * Degree constrain is saved
-            * Mutual / Double edges (number) is NOT saved
-        """
         graph: DiGraph = self.network.graph.copy()
 
         for _ in range(self.markov_chain_num_iterations):

@@ -14,6 +14,12 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
     - there are # n choose 2 possible edges. (times 2 for directed graphs)
     - regular ER graph has an average of (n choose 2 * p) edges; n(n-1)/2 * p. (times 2 for directed graphs)
     - to generate a graph with average |E| edges (given by the real network), we need to set p = |E| / (n(n-1))
+        * Degree constrain is NOT saved
+        * Mutual / Double edges (number) is NOT saved
+        * polarity ratio is  saved
+    - Note: it's best to keep the actual values of the network nodes as a sequence: (0 .. n-1)
+            i.e.: a network with only "4->5" edge might generate something like "0 -> 1" - those different names
+            might later be counted differently by the sub graph counting algorithm.
     """
 
     def __init__(self, network: Network):

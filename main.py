@@ -237,15 +237,15 @@ if __name__ == "__main__":
     #     name="2020_si_5_herm_chem_synapse",
     # )
 
-    network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/example.txt",
-                                       name="paper example")
+    # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/example.txt",
+    #                                    name="paper example")
 
     # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                                    name='colinet1_noAuto')
 
-    # network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
-    #                                    polarity_sheet_name='5. Sign prediction',
-    #                                    name="polarity 2020 SI 1")
+    network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
+                                       polarity_sheet_name='5. Sign prediction',
+                                       name="polarity 2020 SI 1")
 
     # network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
     #                                    name='durbin network')
