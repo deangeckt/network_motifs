@@ -22,7 +22,7 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
 
         # polarity configuration
         self.use_polarity = False
-        self.polarity_ratio = 0
+        self.polarity_ratio = 1
 
     def _load_synapse(self, v1, v2, num_of_synapse, polarity=None):
         self.participating_neurons.add(int(v1))
