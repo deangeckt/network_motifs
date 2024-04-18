@@ -221,6 +221,8 @@ if __name__ == "__main__":
     sub_graph_algo_choice = SubGraphAlgoName(config.get_property('run_args', 'sub_graph_algorithm'))
     random_generator_algo_choice = RandomGeneratorAlgoName(config.get_property('random', 'randomizer'))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
+    for g in isomorphic_graphs:
+        print(g, isomorphic_graphs[g])
 
     # network = loader.load_graph(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
 
@@ -243,11 +245,11 @@ if __name__ == "__main__":
     # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                                    name='colinet1_noAuto')
 
-    network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
-                                       polarity_sheet_name='5. Sign prediction',
-                                       name="polarity 2020 SI 1")
+    # network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
+    #                                    polarity_sheet_name='5. Sign prediction',
+    #                                    name="polarity 2020 SI 1")
 
     # network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
     #                                    name='durbin network')
 
-    motif_search()
+    # motif_search()

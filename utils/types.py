@@ -30,6 +30,7 @@ class MotifName(str, Enum):
     cascade = 'cascade'
     feed_forward = 'feed_forward'
     bi_fan = 'bi_fan'
+    bi_parallel = 'bi_parallel'
     na = 'n/a'
 
 

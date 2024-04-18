@@ -15,7 +15,7 @@ class MarkovChainSwitching(NetworkRandomizer):
         "On the uniform generation of random graphs with prescribed degree sequences"
         * Degree constrain is saved
         * Mutual / Double edges (number) is NOT saved
-        * polarity ratio is NOT saved
+        * polarity ratio is saved
     """
 
     def __init__(self, network: Network):

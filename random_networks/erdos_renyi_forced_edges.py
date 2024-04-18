@@ -54,6 +54,7 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
     def __generate_with_polarity(self) -> DiGraph:
         graph = self.__generate()
         for edge in graph.edges:
+            # TODO: dont randomize - can get the excat the ratio ...
             polarity = '-' if random.random() < self.inhibitory_polarity_prob else '+'
             nx.set_edge_attributes(graph, {edge: {"polarity": polarity}})
         return graph

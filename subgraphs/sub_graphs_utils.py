@@ -43,7 +43,8 @@ three_sub_graphs_ids = {
 }
 
 four_sub_graphs_ids = {
-    MotifName.bi_fan: [204, 2448, 2570, 13056, 20560, 24582]
+    MotifName.bi_fan: [204, 2448, 2570, 13056, 20560, 24582],
+    MotifName.bi_parallel: [904, 2136, 2182, 4544, 6672, 8716, 10498, 12356, 16458, 16532, 20994, 24848]
 }
 
 sub_graphs_ids_per_k = {
@@ -183,3 +184,7 @@ def create_base_motif(sub_id: int, k: int) -> Motif:
     adj_mat = nx.adjacency_matrix(sub_graph).todense()
     role_pattern = get_role_pattern(adj_mat)
     return Motif(name=name, id=sub_id, adj_mat=adj_mat, role_pattern=role_pattern)
+
+
+
+print(get_id(nx.DiGraph([(0, 1), (0, 2), (1,3), (2,3)])))
