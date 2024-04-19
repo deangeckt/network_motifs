@@ -184,7 +184,3 @@ def create_base_motif(sub_id: int, k: int) -> Motif:
     adj_mat = nx.adjacency_matrix(sub_graph).todense()
     role_pattern = get_role_pattern(adj_mat)
     return Motif(name=name, id=sub_id, adj_mat=adj_mat, role_pattern=role_pattern)
-
-
-
-print(get_id(nx.DiGraph([(0, 1), (0, 2), (1,3), (2,3)])))

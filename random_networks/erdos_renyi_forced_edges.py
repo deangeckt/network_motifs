@@ -16,7 +16,7 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
     - to generate a graph with average |E| edges (given by the real network), we need to set p = |E| / (n(n-1))
         * Degree constrain is NOT saved
         * Mutual / Double edges (number) is NOT saved
-        * polarity ratio is  saved
+        * polarity ratio is saved
     - Note: it's best to keep the actual values of the network nodes as a sequence: (0 .. n-1)
             i.e.: a network with only "4->5" edge might generate something like "0 -> 1" - those different names
             might later be counted differently by the sub graph counting algorithm.
@@ -35,7 +35,7 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
         self.p = p
 
         self.generate_foo = self.__generate_with_polarity if network.use_polarity else self.__generate
-        self.inhibitory_polarity_prob = 1 / network.polarity_ratio
+        self.inhibitory_polarity_ratio = 1 / network.polarity_ratio
 
     def generate(self, amount: int) -> list[DiGraph]:
         self.logger.info('\nRandomizer: using erdos renyi algorithm')
@@ -53,8 +53,16 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
 
     def __generate_with_polarity(self) -> DiGraph:
         graph = self.__generate()
-        for edge in graph.edges:
-            # TODO: dont randomize - can get the excat the ratio ...
-            polarity = '-' if random.random() < self.inhibitory_polarity_prob else '+'
-            nx.set_edge_attributes(graph, {edge: {"polarity": polarity}})
+        inhibitory_edges = round(self.inhibitory_polarity_ratio * len(graph.edges))
+        excitatory_edges = len(graph.edges) - inhibitory_edges
+
+        all_edges = list(graph.edges)
+        random.shuffle(all_edges)
+
+        for ex_idx in range(excitatory_edges):
+            edge = all_edges[ex_idx]
+            nx.set_edge_attributes(graph, {edge: {"polarity": '+'}})
+        for in_idx in range(excitatory_edges, len(all_edges)):
+            edge = all_edges[in_idx]
+            nx.set_edge_attributes(graph, {edge: {"polarity": '-'}})
         return graph
