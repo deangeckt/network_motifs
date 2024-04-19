@@ -4,6 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 
+from utils.common import basic_plot
 from utils.config import Config
 from utils.simple_logger import Logger
 
@@ -42,15 +43,15 @@ class Network:
         self.logger.info(f'  - Edges: {len(self.graph.edges)}')
         self.logger.info(f'  - Average clustering coefficient: {round(nx.average_clustering(self.graph), 3)}')
 
-        avg_degree = sum(dict(self.graph.degree).values()) / len(self.graph)
-        self.logger.info(f'  - Average degree: {round(avg_degree, 3)}')
-
         un_dir_graph = nx.Graph(self.graph)
         avg_short_path_len = np.mean([nx.average_shortest_path_length(un_dir_graph.subgraph(c).copy()) for c in
                                       nx.connected_components(un_dir_graph)])
         self.logger.info(f'  - Average shortest path (undirected): {round(avg_short_path_len, 3)}')
 
         self.logger.info(f'  - Density: {round(nx.density(self.graph), 3)}')
+
+        avg_degree = sum(dict(self.graph.degree).values()) / len(self.graph)
+        self.logger.info(f'  - Average degree: {round(avg_degree, 3)}')
 
         max_node, max_degree = sorted(list(self.graph.out_degree), key=lambda x: x[1], reverse=True)[0]
         max_node = self.neuron_names[max_node] if self.neuron_names else max_node
@@ -81,13 +82,39 @@ class Network:
         un_dir_graph = nx.Graph(self.graph)
         un_dir_graph.remove_edges_from(nx.selfloop_edges(un_dir_graph))
         rc = nx.rich_club_coefficient(un_dir_graph, normalized=False, seed=42)
+        data = list(rc.keys()), list(rc.values())
+        basic_plot(data=data,
+                   title='Rich Club Coefficient',
+                   xlabel='Degree (k)',
+                   ylabel='Rich Club Coefficient',
+                   plot_func=plt.scatter)
 
-        plt.figure()
-        plt.title('Rich Club Coefficient')
-        plt.xlabel('Degree (k)')
-        plt.ylabel('Rich Club Coefficient')
-        plt.scatter(list(rc.keys()), list(rc.values()))
-        plt.show()
+    def __plot_degree_dist(self):
+        degree_sequence = sorted((d for n, d in self.graph.degree()), reverse=True)
+        data = np.unique(degree_sequence, return_counts=True)
+        basic_plot(data=data,
+                   title='Degree Distribution',
+                   xlabel='Degree',
+                   ylabel='# of Nodes',
+                   plot_func=plt.bar)
+
+    def __plot_degree_in_dist(self):
+        degree_sequence = sorted((d for n, d in self.graph.in_degree), reverse=True)
+        data = np.unique(degree_sequence, return_counts=True)
+        basic_plot(data=data,
+                   title='Degree In Distribution',
+                   xlabel='Degree in',
+                   ylabel='# of Nodes',
+                   plot_func=plt.bar)
+
+    def __plot_degree_out_dist(self):
+        degree_sequence = sorted((d for n, d in self.graph.out_degree), reverse=True)
+        data = np.unique(degree_sequence, return_counts=True)
+        basic_plot(data=data,
+                   title='Degree Out Distribution',
+                   xlabel='Degree out',
+                   ylabel='# of Nodes',
+                   plot_func=plt.bar)
 
     def plot_properties(self):
         if not self.plot:
@@ -99,8 +126,11 @@ class Network:
         else:
             plot_g = self.graph
 
-        plt.figure()
-        nx.draw_networkx(plot_g, with_labels=True, node_size=600, node_color='lightgreen')
-        plt.show()
+        # plt.figure()
+        # nx.draw_networkx(plot_g, with_labels=True, node_size=600, node_color='lightgreen')
+        # plt.show()
 
+        self.__plot_degree_dist()
+        self.__plot_degree_in_dist()
+        self.__plot_degree_out_dist()
         self.__plot_rich_club_coefficient()

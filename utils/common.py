@@ -1,3 +1,8 @@
+from typing import Any
+
+import matplotlib.pyplot as plt
+
+
 def sort_dict_freq(d: dict) -> dict:
     return dict(sorted(d.items(), key=lambda item: item[1], reverse=True))
 
@@ -15,3 +20,15 @@ def get_bin_vec_from_decimal(decimal: int, pad_to: int) -> list[int]:
     padding = pad_amount * [0]
     bin_digits = padding + bin_digits
     return bin_digits
+
+
+def basic_plot(data: Any, title: str, xlabel: str, ylabel: str, plot_func: Any):
+    plt.figure()
+
+    plot_func(*data)
+
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    plt.show()
