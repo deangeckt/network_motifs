@@ -9,6 +9,7 @@ class SubGraphAlgoName(str, Enum):
     specific = 'specific'
     mfinder_induced = 'mfinder_i'
     mfinder_none_induced = 'mfinder_ni'
+    fanmod_esu = 'fanmod'
 
 
 class RandomGeneratorAlgoName(str, Enum):

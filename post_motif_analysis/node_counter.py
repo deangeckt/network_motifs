@@ -27,12 +27,12 @@ def sort_node_appearances_in_sub_graph(appearances: list[tuple[tuple]], neuron_n
 
 def sort_node_roles_in_sub_graph(appearances: list[tuple[tuple]],
                                  neuron_names: list,
-                                 roles: list[tuple]) -> dict[list]:
+                                 roles: list[tuple]) -> dict[str, dict]:
     """
     :param appearances: the sub graphs appearances of a given motif
     :param neuron_names: list of neurons names for neural network or an empty list otherwise
     :param roles: list of tuples with the pattern of roles of the motif
-    :return: dict, where each key is role, and the value is a sorted list based on appearances of that role
+    :return: dict, where each key is role, and the value is a sorted dict based on appearances of that role
     """
     node_roles = defaultdict(list)
     for sub_graph in appearances:
@@ -43,6 +43,7 @@ def sort_node_roles_in_sub_graph(appearances: list[tuple[tuple]],
 
     freq_node_roles = {}
     for role in node_roles:
-        freq_node_roles[role] = sort_dict_freq(dict(collections.Counter(node_roles[role])))
+        freq_node_roles[str(role)] = sort_dict_freq(dict(collections.Counter(node_roles[role])))
 
     return freq_node_roles
+

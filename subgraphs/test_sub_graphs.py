@@ -1,7 +1,6 @@
 import pytest
 
 from networks.loaders.network_loader import NetworkLoader
-from networks.network import Network
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs

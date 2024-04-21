@@ -24,7 +24,6 @@ class MFinderInduced(SubGraphsABC):
 
         self.fsl = defaultdict(int)
         self.fsl_fully_mapped = defaultdict(list)
-        self.fsl_node_roles = defaultdict(list)
 
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited

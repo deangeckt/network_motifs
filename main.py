@@ -1,6 +1,7 @@
 import random
 from typing import Any
 
+import networkx as nx
 from networkx import DiGraph
 from tabulate import tabulate
 from tqdm import tqdm
@@ -11,6 +12,7 @@ from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph,
 from post_motif_analysis.polarity_counter import get_polarity_frequencies, get_all_sub_graph_polarities
 from random_networks.erdos_renyi_forced_edges import ErdosRenyiForcedEdges
 from random_networks.markov_chain_switching import MarkovChainSwitching
+from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.specific_subgraphs import SpecificSubGraphs
@@ -25,7 +27,8 @@ from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults, SubGraphS
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
     SubGraphAlgoName.mfinder_induced: MFinderInduced,
-    SubGraphAlgoName.mfinder_none_induced: MFinderNoneInduced
+    SubGraphAlgoName.mfinder_none_induced: MFinderNoneInduced,
+    SubGraphAlgoName.fanmod_esu: FanmodESU
 }
 
 random_generator_algorithms = {
@@ -213,7 +216,7 @@ def polarity_motif_search(motif_candidates: dict[int, Motif],
 
 if __name__ == "__main__":
     random.seed(42)
-    logger = Logger(LogLvl.info)
+    logger = Logger(LogLvl.info, 'mfinder_fix.txt')
     config = Config()
     loader = NetworkLoader()
 
@@ -222,7 +225,9 @@ if __name__ == "__main__":
     random_generator_algo_choice = RandomGeneratorAlgoName(config.get_property('random', 'randomizer'))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=k)
 
-    # network = loader.load_graph(nx.DiGraph([(1, 0), (2, 0), (1, 2)]))
+    # network = loader.load_graph(nx.DiGraph([(1, 2), (2, 3), (1, 3), (3,4), (3,5)]))
+    # network = loader.load_graph(nx.DiGraph([(4, 3), (6, 3)]))
+
 
     # network = loader.load_network_file(
     #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx",
@@ -239,15 +244,15 @@ if __name__ == "__main__":
 
     # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/example.txt",
     #                                    name="paper example")
-
+    #
     # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
     #                                    name='colinet1_noAuto')
 
-    network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
-                                       polarity_sheet_name='5. Sign prediction',
-                                       name="polarity 2020 SI 1")
+    # network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
+    #                                    polarity_sheet_name='5. Sign prediction',
+    #                                    name="polarity 2020 SI 1")
 
-    # network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
-    #                                    name='durbin network')
+    network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
+                                       name='durbin network')
 
     motif_search()
