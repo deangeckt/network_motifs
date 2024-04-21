@@ -49,16 +49,15 @@ class FanmodESU(SubGraphsABC):
                 self.unique.add(graph_to_hashed_graph(graph))
                 self.__inc_count_w_canonical_label(graph)
         else:
-            extension_set = set(extension)
-            while len(extension_set) > 0:
-                w = random.sample(extension_set, 1)[0]
-                extension_set.remove(w)
+            while len(extension) > 0:
+                w = random.sample(extension, 1)[0]
+                extension.remove(w)
 
                 w_neighbors = set(self.undirected_network.neighbors(w))
                 excl_neighbors = w_neighbors.difference(sub_graph)
                 v_ext_new = set([u for u in excl_neighbors if u > v])
 
-                new_extension = extension_set.union(v_ext_new)
+                new_extension = extension.union(v_ext_new)
                 self.__extend_sub_graphs(sub_graph.union({w}), new_extension, v)
 
     def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
