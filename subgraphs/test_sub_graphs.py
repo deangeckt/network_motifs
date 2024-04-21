@@ -1,6 +1,7 @@
 import pytest
 
 from networks.loaders.network_loader import NetworkLoader
+from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs
@@ -44,6 +45,10 @@ def test_three_sub_graphs_induced(network_file, expected):
     mfinder = MFinderInduced(network.graph, isomorphic_mapping)
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
     __compare(k, expected, mfinder_sub_graphs)
+
+    fanmod = FanmodESU(network.graph, isomorphic_mapping)
+    fanmod_sub_graphs = fanmod.search_sub_graphs(k=k)
+    __compare(k, expected, fanmod_sub_graphs)
 
 
 @pytest.mark.parametrize("network_file,expected", [paper_example_none_induced, paper_ecoli_none_induced])
