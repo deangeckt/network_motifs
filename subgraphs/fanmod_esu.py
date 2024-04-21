@@ -14,6 +14,7 @@ from utils.types import SubGraphSearchResult
 class FanmodESU(SubGraphsABC):
     """
     FanMOD / ESU
+    S. Wernicke, “Efficient detection of network motifs,” 2006
     pseudocode: Ribeiro, Pedro and Silva, Fernando and Kaiser, Marcus: "Strategies for Network Motifs Discovery"
     """
 
