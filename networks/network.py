@@ -16,7 +16,8 @@ class Network:
         self.graph = nx.DiGraph()
 
         # general configuration
-        self.plot = config.get_boolean_property('run_args', 'plot_properties')
+        self.plot_props = config.get_boolean_property('run_args', 'plot_properties')
+        self.plot_full_graph = config.get_boolean_property('run_args', 'plot_full_graph')
 
         # neurons configuration
         self.neuron_names: list[str] = []
@@ -66,6 +67,7 @@ class Network:
 
         self.logger.info('')
         self.plot_properties()
+        self.plot_graph()
 
     def node_properties(self, node: Union[str, int]):
         self.logger.info(f'Node {node} properties:')
@@ -98,6 +100,22 @@ class Network:
                    ylabel='# of Nodes',
                    plot_func=plt.bar)
 
+    def __plot_degree_dist_log(self, normalized=True):
+        y = nx.degree_histogram(self.graph)
+        x = np.arange(0, len(y)).tolist()
+        n = self.graph.number_of_nodes()
+
+        if normalized:
+            for i in range(len(y)):
+                y[i] = y[i] / n
+
+        basic_plot(data=(x, y, 'o'),
+                   title='Degree Distribution (log-log scale)',
+                   xlabel='Degree (log scale)',
+                   ylabel='# of Nodes (log scale)',
+                   plot_func=plt.plot,
+                   log_scale=True)
+
     def __plot_degree_in_dist(self):
         degree_sequence = sorted((d for n, d in self.graph.in_degree), reverse=True)
         data = np.unique(degree_sequence, return_counts=True)
@@ -117,8 +135,19 @@ class Network:
                    plot_func=plt.bar)
 
     def plot_properties(self):
-        if not self.plot:
+        if not self.plot_props:
             return
+
+        self.__plot_degree_dist()
+        self.__plot_degree_dist_log()
+        self.__plot_degree_in_dist()
+        self.__plot_degree_out_dist()
+        self.__plot_rich_club_coefficient()
+
+    def plot_graph(self):
+        if not self.plot_full_graph:
+            return
+
         # TODO: need better plotting tools / motif plotting
         if self.neuron_names:
             mapping = {i: n for i, n in enumerate(self.neuron_names)}
@@ -126,11 +155,6 @@ class Network:
         else:
             plot_g = self.graph
 
-        # plt.figure()
-        # nx.draw_networkx(plot_g, with_labels=True, node_size=600, node_color='lightgreen')
-        # plt.show()
-
-        self.__plot_degree_dist()
-        self.__plot_degree_in_dist()
-        self.__plot_degree_out_dist()
-        self.__plot_rich_club_coefficient()
+        plt.figure()
+        nx.draw_networkx(plot_g, with_labels=True, node_size=600, node_color='lightgreen')
+        plt.show()

@@ -228,19 +228,18 @@ if __name__ == "__main__":
     # network = loader.load_graph(nx.DiGraph([(1, 2), (2, 3), (1, 3), (3,4), (3,5)]))
     # network = loader.load_graph(nx.DiGraph([(4, 3), (6, 3)]))
 
-
     # network = loader.load_network_file(
     #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx",
     #     worm_wiring_sheet_name='herm chem synapse adjacency',  # herm gap jn synapse adjacency'
     #     name="2020_si_2_herm_chem_synapse",
     #     )
 
-    # network = loader.load_network_file(
-    #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July "
-    #                                "2020.xlsx",
-    #     worm_wiring_sheet_name='hermaphrodite chemical',
-    #     name="2020_si_5_herm_chem_synapse",
-    # )
+    network = loader.load_network_file(
+        worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July "
+                                   "2020.xlsx",
+        worm_wiring_sheet_name='hermaphrodite chemical',
+        name="2020_si_5_herm_chem_synapse",
+    )
 
     # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/example.txt",
     #                                    name="paper example")

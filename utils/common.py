@@ -22,13 +22,18 @@ def get_bin_vec_from_decimal(decimal: int, pad_to: int) -> list[int]:
     return bin_digits
 
 
-def basic_plot(data: Any, title: str, xlabel: str, ylabel: str, plot_func: Any):
+def basic_plot(data: Any, title: str, xlabel: str, ylabel: str, plot_func: Any, log_scale=False):
     plt.figure()
+
+    if log_scale:
+        plt.yscale("log")
+        plt.xscale("log")
 
     plot_func(*data)
 
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+
 
     plt.show()

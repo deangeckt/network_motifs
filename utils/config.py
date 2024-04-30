@@ -19,3 +19,6 @@ class Config:
     def get_string_list(self, section: str, prop: str) -> list[str]:
         str_ = self.config[section][prop]
         return ast.literal_eval(str_)
+
+    def set_property(self, section: str, prop: str, value: str):
+        self.config[section][prop] = value
