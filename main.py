@@ -18,6 +18,7 @@ from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif
+from subgraphs.triadic_census import TriadicCensus
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
@@ -28,7 +29,8 @@ sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
     SubGraphAlgoName.mfinder_induced: MFinderInduced,
     SubGraphAlgoName.mfinder_none_induced: MFinderNoneInduced,
-    SubGraphAlgoName.fanmod_esu: FanmodESU
+    SubGraphAlgoName.fanmod_esu: FanmodESU,
+    SubGraphAlgoName.triadic_census: TriadicCensus
 }
 
 random_generator_algorithms = {
@@ -234,23 +236,23 @@ if __name__ == "__main__":
     #     name="2020_si_2_herm_chem_synapse",
     #     )
 
-    network = loader.load_network_file(
-        worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July "
-                                   "2020.xlsx",
-        worm_wiring_sheet_name='hermaphrodite chemical',
-        name="2020_si_5_herm_chem_synapse",
-    )
+    # network = loader.load_network_file(
+    #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July "
+    #                                "2020.xlsx",
+    #     worm_wiring_sheet_name='hermaphrodite chemical',
+    #     name="2020_si_5_herm_chem_synapse",
+    # )
 
     # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/example.txt",
     #                                    name="paper example")
     #
-    # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
-    #                                    name='colinet1_noAuto')
+    network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
+                                       name='colinet1_noAuto')
 
     # network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
     #                                    polarity_sheet_name='5. Sign prediction',
     #                                    name="polarity 2020 SI 1")
 
-    network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
-                                       name='durbin network')
+    # network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
+    #                                    name='durbin network')
     motif_search()

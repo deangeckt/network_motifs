@@ -5,6 +5,7 @@ from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs
+from subgraphs.triadic_census import TriadicCensus
 from utils.simple_logger import Logger
 from utils.types import SubGraphSearchResult
 
@@ -49,6 +50,10 @@ def test_three_sub_graphs_induced(network_file, expected):
     fanmod = FanmodESU(network.graph, isomorphic_mapping)
     fanmod_sub_graphs = fanmod.search_sub_graphs(k=k)
     __compare(k, expected, fanmod_sub_graphs)
+
+    triadic_census = TriadicCensus(network.graph, isomorphic_mapping)
+    triadic_census_sub_graphs = triadic_census.search_sub_graphs(k=k)
+    __compare(k, expected, triadic_census_sub_graphs)
 
 
 @pytest.mark.parametrize("network_file,expected", [paper_example_none_induced, paper_ecoli_none_induced])
