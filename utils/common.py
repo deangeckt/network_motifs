@@ -35,5 +35,4 @@ def basic_plot(data: Any, title: str, xlabel: str, ylabel: str, plot_func: Any, 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
-
     plt.show()

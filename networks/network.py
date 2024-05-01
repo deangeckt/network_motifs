@@ -1,9 +1,11 @@
+import collections
 from typing import Union
 
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 
+from post_motif_analysis.polarity_counter import count_network_polarity_ratio
 from utils.common import basic_plot
 from utils.config import Config
 from utils.simple_logger import Logger
@@ -30,40 +32,54 @@ class Network:
         self.use_polarity = False
         self.polarity_ratio = 1  # E/I (+/-) ratio
 
+    def calc_polarity_ratio(self):
+        """
+        should be called after the graph has been loaded
+        """
+        polarities = []
+        for s, t in self.graph.edges:
+            if 'polarity' not in self.graph[s][t]:
+                return
+            polarities.append(self.graph.get_edge_data(s, t)['polarity'])
+
+        self.polarity_ratio = count_network_polarity_ratio(polarities)
+        self.use_polarity = True
+
+    def __degree_stats(self, degree_data: dict, title: str):
+        max_node, max_degree = sorted(list(degree_data), key=lambda x: x[1], reverse=True)[0]
+        max_node = self.neuron_names[max_node] if self.neuron_names else max_node
+        values = np.array(list(dict(degree_data).values()))
+        self.logger.info(f'\t{title}: Mean: {round(np.mean(values), 3)} '
+                         f'Std: {round(np.std(values), 3)} '
+                         f'Median: {round(np.median(values), 3)} '
+                         f'Max: {max_degree} (node: {max_node})')
+
     def properties(self):
         self.logger.info(f'Network properties:')
         if self.neuron_names:
-            self.logger.info(f'  - Neurons: {len(self.neuron_names)}')
-            self.logger.info(f'  - Neurons with a Synapse: {len(self.participating_neurons)}')
-            self.logger.info(f'  - Synapses in the network: {self.amount_of_synapses_in_total}')
-            self.logger.info(f'\n  - Participating Nodes are neurons in a tuple with at least:'
+            self.logger.info(f'\tNeurons: {len(self.neuron_names)}')
+            self.logger.info(f'\tNeurons with a Synapse: {len(self.participating_neurons)}')
+            self.logger.info(f'\tSynapses in the network: {self.amount_of_synapses_in_total}')
+            self.logger.info(f'\n\tParticipating Nodes are neurons in a tuple with at least:'
                              f' {self.synapse_amount_threshold} synapses')
-            self.logger.info(f'  - Synapses in the graph: {self.amount_of_synapses_in_graph}')
+            self.logger.info(f'\tSynapses in the graph: {self.amount_of_synapses_in_graph}')
 
-        self.logger.info(f'  - Nodes: {len(self.graph)}')
-        self.logger.info(f'  - Edges: {len(self.graph.edges)}')
-        self.logger.info(f'  - Average clustering coefficient: {round(nx.average_clustering(self.graph), 3)}')
+        self.logger.info(f'\tNodes: {len(self.graph)}')
+        self.logger.info(f'\tEdges: {len(self.graph.edges)}')
+        self.logger.info(f'\tAverage clustering coefficient: {round(nx.average_clustering(self.graph), 3)}')
 
         un_dir_graph = nx.Graph(self.graph)
         avg_short_path_len = np.mean([nx.average_shortest_path_length(un_dir_graph.subgraph(c).copy()) for c in
                                       nx.connected_components(un_dir_graph)])
-        self.logger.info(f'  - Average shortest path (undirected): {round(avg_short_path_len, 3)}')
+        self.logger.info(f'\tAverage shortest path (undirected): {round(avg_short_path_len, 3)}')
 
-        self.logger.info(f'  - Density: {round(nx.density(self.graph), 3)}')
-
-        avg_degree = sum(dict(self.graph.degree).values()) / len(self.graph)
-        self.logger.info(f'  - Average degree: {round(avg_degree, 3)}')
-
-        max_node, max_degree = sorted(list(self.graph.out_degree), key=lambda x: x[1], reverse=True)[0]
-        max_node = self.neuron_names[max_node] if self.neuron_names else max_node
-        self.logger.info(f'  - Max out degree of Node {max_node}: {max_degree}')
-
-        max_node, max_degree = sorted(list(self.graph.in_degree), key=lambda x: x[1], reverse=True)[0]
-        max_node = self.neuron_names[max_node] if self.neuron_names else max_node
-        self.logger.info(f'  - Max in degree of Node {max_node}: {max_degree}')
-
+        self.logger.info(f'\tDensity: {round(nx.density(self.graph), 3)}')
         if self.use_polarity:
-            self.logger.info(f'  - Polarity E/I ratio: {round(self.polarity_ratio, 3)}')
+            self.logger.info(f'\tPolarity E/I ratio: {round(self.polarity_ratio, 3)}')
+
+        self.__degree_stats(self.graph.degree, 'Degree')
+        self.__degree_stats(self.graph.in_degree, 'In-Degree')
+        self.__degree_stats(self.graph.out_degree, 'Out-Degree')
 
         self.logger.info('')
         self.plot_properties()
@@ -142,7 +158,7 @@ class Network:
         self.__plot_degree_dist_log()
         self.__plot_degree_in_dist()
         self.__plot_degree_out_dist()
-        self.__plot_rich_club_coefficient()
+        # self.__plot_rich_club_coefficient()
 
     def plot_graph(self):
         if not self.plot_full_graph:

@@ -57,6 +57,7 @@ class NetworkLoader:
     def load_graph(self, graph: nx.DiGraph) -> Network:
         network = Network()
         network.graph = graph
+        network.calc_polarity_ratio()
         network.properties()
         self.network = network
         return network

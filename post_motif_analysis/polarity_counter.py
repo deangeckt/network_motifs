@@ -1,8 +1,19 @@
+import collections
+
 import networkx as nx
 from networkx import DiGraph
 from subgraphs.sub_graphs_utils import get_sub_graph_mapping_to_motif
 from utils.common import get_decimal_from_bin_vec, get_bin_vec_from_decimal
 from utils.types import PolarityFrequencies
+
+
+def count_network_polarity_ratio(polarity: list[str]):
+    polarity_frequencies = collections.Counter(polarity)
+    polarity_options = set(polarity_frequencies.keys())
+    if polarity_options != {'+', '-'}:
+        raise Exception(f'Polarity {polarity_options} not supported!')
+    polarity_ratio = polarity_frequencies['+'] / polarity_frequencies['-']
+    return polarity_ratio
 
 
 def get_polarity_frequencies(appearances: list[tuple[tuple]],

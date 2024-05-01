@@ -2,8 +2,8 @@ import pandas as pd
 
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
 from networks.network import Network
+from post_motif_analysis.polarity_counter import count_network_polarity_ratio
 from utils.config import Config
-import collections
 
 
 class NeuronalPolarityLoader(NetworkLoaderStrategy):
@@ -31,7 +31,6 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
 
     def load(self, *args) -> Network:
         xlsx_path, sheet_name = args
-        self.use_polarity = True
         xls = pd.ExcelFile(xlsx_path)
         df = xls.parse(sheet_name, header=None)
 
@@ -46,11 +45,8 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         edge_weights = df.iloc[:, self.weight_col]  # these are the amount of synapses
         polarity = df.iloc[:, self.polarity_col]
 
-        polarity_frequencies = collections.Counter(polarity)
-        polarity_options = set(polarity_frequencies.keys())
-        if polarity_options != {'+', '-'}:
-            raise Exception(f'Polarity {polarity_options} not supported!')
-        self.polarity_ratio = polarity_frequencies['+'] / polarity_frequencies['-']
+        self.use_polarity = True
+        self.polarity_ratio = count_network_polarity_ratio(polarity)
 
         self.neuron_names = list(set(src_neurons_names) | set(tar_neurons_names))
         neurons_indices = {ss: i for i, ss in enumerate(self.neuron_names)}
