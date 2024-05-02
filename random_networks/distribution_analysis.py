@@ -14,7 +14,7 @@ def graph_generators_comparison():
     p = e / (n * (n - 1))
     er_graph = nx.erdos_renyi_graph(n=n, p=p, directed=True)  # random
 
-    # small world (high clustering coefficient), but not scale free (power law).
+    # small world (high clustering coefficient), but not scale free (power law) i.e: no hubs.
     # undirected. with |E| = n * k/2
     ws_graph = nx.DiGraph(nx.watts_strogatz_graph(n=n, k=10, p=0))
 

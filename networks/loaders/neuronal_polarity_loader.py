@@ -49,7 +49,7 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
 
         self.use_polarity = True
         full_graph_polarity_ratio = count_network_polarity_ratio(polarity)
-        self.logger.info(f'Polarity E/I ratio (before filtering)\n: {round(full_graph_polarity_ratio, 3)}')
+        self.logger.info(f'Polarity E/I ratio (before filtering): {round(full_graph_polarity_ratio, 3)}\n')
 
         self.neuron_names = list(set(src_neurons_names) | set(tar_neurons_names))
         neurons_indices = {ss: i for i, ss in enumerate(self.neuron_names)}

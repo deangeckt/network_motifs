@@ -219,9 +219,9 @@ def polarity_motif_search(motif_candidates: dict[int, Motif],
 
 if __name__ == "__main__":
     random.seed(42)
-    logger = Logger(LogLvl.info, 'polarity_2020_5syn_markov_chain_ACh.txt')
+    logger = Logger(LogLvl.info)
     config = Config()
-    config.set_property("polarity", "filter_prim_nt", "['ACh']")
+    # config.set_property("polarity", "filter_prim_nt", "['Glu']")
 
     loader = NetworkLoader()
 

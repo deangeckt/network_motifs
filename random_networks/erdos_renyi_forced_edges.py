@@ -1,5 +1,3 @@
-import random
-
 import networkx as nx
 from networkx import DiGraph
 from tqdm import tqdm
