@@ -1,5 +1,4 @@
-import random
-
+import math
 import networkx as nx
 from networkx import DiGraph
 from tqdm import tqdm
@@ -8,12 +7,12 @@ from networks.network import Network
 from random_networks.network_randomizer_abc import NetworkRandomizer
 
 
-class ErdosRenyiForcedEdges(NetworkRandomizer):
+class BarabasiAlbertForcedEdges(NetworkRandomizer):
     """
-    Erdos Renyi algorithm with forced (average) number of edges:
-    - there are # n choose 2 possible edges. (times 2 for directed graphs)
-    - regular ER graph has an average of (n choose 2 * p) edges; n(n-1)/2 * p. (times 2 for directed graphs)
-    - to generate a graph with average |E| edges (given by the real network), we need to set p = |E| / (n(n-1))
+    Barabási–Albert model with forced (average) number of edges:
+    - the generated graph by the model is undirected one with |E| = n * m, thus m = ciel(e|/n)
+    and remove the extra edges
+    - We will convert it to directed by choosing randomly a direction for each edge
         * Degree constrain is NOT saved
         * Mutual / Double edges (number) is NOT saved
         * polarity ratio is saved
@@ -28,18 +27,18 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
         graph = network.graph
         n = len(graph)
         e = len(graph.edges)
-        p = e / (n * (n - 1))
+        m = math.ceil(e / n)
 
         self.n = n
         self.e = e
-        self.p = p
+        self.m = m
 
         self.generate_foo = self.__generate_with_polarity if network.use_polarity else self.__generate
 
     def generate(self, amount: int) -> list[DiGraph]:
-        self.logger.info('\nRandomizer: using erdos renyi algorithm')
+        self.logger.info('\nRandomizer: using Barabási–Albert algorithm')
         self.logger.info(f'Randomizer: generating {amount} random networks')
-        self.logger.info(f'probability for edge creation: {round(self.p, 4)}')
+        self.logger.info(f'm (# of edges to attach): {self.m}')
 
         random_networks = [self.generate_foo() for _ in tqdm(range(amount))]
         self._log_avg_num_of_generated_edges(random_networks, amount)
@@ -47,10 +46,13 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
         return random_networks
 
     def __generate(self) -> DiGraph:
-        return nx.erdos_renyi_graph(n=self.n, p=self.p, directed=True)
+        undirected_graph = nx.barabasi_albert_graph(n=self.n, m=self.m)
+        remove_edges_amount = len(undirected_graph.edges) - self.e
+        self._remove_random_edges(undirected_graph, remove_edges_amount)
+        # TODO: this kills the clustering coef
+        return self._assign_direction(undirected_graph)
 
     def __generate_with_polarity(self) -> DiGraph:
         graph = self.__generate()
         self._assign_polarity(graph)
         return graph
-

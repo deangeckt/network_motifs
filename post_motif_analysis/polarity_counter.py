@@ -11,7 +11,7 @@ def count_network_polarity_ratio(polarity: list[str]):
     polarity_frequencies = collections.Counter(polarity)
     polarity_options = set(polarity_frequencies.keys())
     if polarity_options != {'+', '-'}:
-        raise Exception(f'Polarity {polarity_options} not supported!')
+        raise Exception(f'Polarity {str(polarity_options)} not supported!')
     polarity_ratio = polarity_frequencies['+'] / polarity_frequencies['-']
     return polarity_ratio
 

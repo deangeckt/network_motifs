@@ -37,8 +37,10 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         # filter
         self.logger.info(f'\nFiltering Neurons with polarity: {self.filter_polarity}')
         df = df[df[self.polarity_col].isin(self.filter_polarity)]
-        self.logger.info(f'Filtering Neurons with primary neurotransmitter: {self.filter_prim_nt}\n')
+        self.logger.info(f'Filtering Neurons with primary neurotransmitter: {self.filter_prim_nt}')
         df = df[df[self.prim_nt_col].isin(self.filter_prim_nt)]
+        if not len(df):
+            raise Exception('Filtering results with an empty data')
 
         src_neurons_names = df.iloc[:, self.src_col]
         tar_neurons_names = df.iloc[:, self.tar_col]
@@ -46,12 +48,16 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         polarity = df.iloc[:, self.polarity_col]
 
         self.use_polarity = True
-        self.polarity_ratio = count_network_polarity_ratio(polarity)
+        full_graph_polarity_ratio = count_network_polarity_ratio(polarity)
+        self.logger.info(f'Polarity E/I ratio (before filtering)\n: {round(full_graph_polarity_ratio, 3)}')
 
         self.neuron_names = list(set(src_neurons_names) | set(tar_neurons_names))
         neurons_indices = {ss: i for i, ss in enumerate(self.neuron_names)}
 
         for v1, v2, w, p in zip(src_neurons_names, tar_neurons_names, edge_weights, polarity):
             self._load_synapse(neurons_indices[v1], neurons_indices[v2], w, p)
+
+        polarities = [(self.graph.get_edge_data(s, t)['polarity']) for s, t in self.graph.edges]
+        self.polarity_ratio = count_network_polarity_ratio(polarities)
 
         return self._copy_network_params()

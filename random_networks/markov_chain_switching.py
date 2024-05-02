@@ -35,8 +35,11 @@ class MarkovChainSwitching(NetworkRandomizer):
         self.logger.info(f'Markov chain switch factor: {self.switch_factor}')
         self.logger.info(f'Markov chain iterations: {self.markov_chain_num_iterations}')
         random_networks = [self.__markov_chain() for _ in tqdm(range(amount))]
-        self.logger.info(
-            f'Markov chain success ratio: {round(self.success_switch / (self.markov_chain_num_iterations * amount), 5)}')
+
+        self.logger.info(f'Markov chain success ratio: '
+                         f'{round(self.success_switch / (self.markov_chain_num_iterations * amount), 5)}')
+        self._log_avg_num_of_generated_edges(random_networks, amount)
+
         return random_networks
 
     @staticmethod
