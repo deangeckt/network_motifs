@@ -11,7 +11,6 @@ class DurbinFileLoader(NetworkLoaderStrategy):
         https://www.wormatlas.org/neuronalwiring.html - Neuronal Connectivity I: by R. Durbin 1986
         : param filter_syn_type: either 'chem', 'gap', 'all
         : param filter_recon: either: one of 'JSH', 'N2U'
-        : param filter_joint: relevant for 'chem' synapse only - either True or False
         """
         super().__init__()
         config = Config()

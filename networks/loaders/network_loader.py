@@ -1,14 +1,15 @@
+import os
 from typing import Optional
 
 import networkx as nx
 
 from networks.loaders.durbin_file_loader import DurbinFileLoader
-from networks.loaders.neuronal_adj_file_loader import NeuronalAdjFileLoader
 from networks.loaders.neuronal_polarity_loader import NeuronalPolarityLoader
 from networks.loaders.simple_adj_file_loader import SimpleAdjFileLoader
 from networks.loaders.worm_wiring_loader import WormWiringLoader
 from networks.network import Network
 from utils.simple_logger import Logger
+from utils.types import NetworkInputType
 
 
 class NetworkLoader:
@@ -16,40 +17,27 @@ class NetworkLoader:
         self.logger = Logger()
         self.network = Network()
 
-    def load_network_file(
-            self,
-            name: str,
-            adj_file_path: Optional[str] = None,
-            neurons_file_path: Optional[str] = None,
-            worm_wiring_xlsx_file_path: Optional[str] = None,
-            worm_wiring_sheet_name: Optional[str] = None,
-            polarity_xlsx_file_path: Optional[str] = None,
-            polarity_sheet_name: Optional[str] = None,
-            durbin_file_path: Optional[str] = None
-    ) -> Network:
-
-        self.logger.info(f'Network name: {name}')
-
-        if adj_file_path and neurons_file_path:
-            loader = NeuronalAdjFileLoader()
-            network = loader.load(adj_file_path, neurons_file_path)
-        elif adj_file_path:
+    def load_network_file(self,
+                          input_type: NetworkInputType,
+                          file_path: str,
+                          sheet_name: Optional[str] = None) -> Network:
+        if input_type == NetworkInputType.simple_adj_txt:
             loader = SimpleAdjFileLoader()
-            network = loader.load(adj_file_path)
-        elif worm_wiring_xlsx_file_path and worm_wiring_sheet_name:
+        elif input_type == NetworkInputType.worm_wiring_xlsx:
             loader = WormWiringLoader()
-            network = loader.load(worm_wiring_xlsx_file_path, worm_wiring_sheet_name)
-        elif polarity_xlsx_file_path and polarity_sheet_name:
+        elif input_type == NetworkInputType.polarity_xlsx:
             loader = NeuronalPolarityLoader()
-            network = loader.load(polarity_xlsx_file_path, polarity_sheet_name)
-        elif durbin_file_path:
+        elif input_type == NetworkInputType.durbin_txt:
             loader = DurbinFileLoader()
-            network = loader.load(durbin_file_path)
         else:
-            err = 'Error reading input file'
+            err = f'Error reading network input file: {input_type}'
             self.logger.info(err)
             raise Exception(err)
 
+        name = os.path.basename(file_path)
+        self.logger.info(f'Network name: {name}')
+
+        network = loader.load(file_path, sheet_name)
         network.properties()
         self.network = network
         return network

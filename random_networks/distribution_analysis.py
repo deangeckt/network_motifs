@@ -4,7 +4,7 @@ from networks.loaders.network_loader import NetworkLoader
 from random_networks.barabasi_albert_forced_edges import BarabasiAlbertForcedEdges
 from random_networks.markov_chain_switching import MarkovChainSwitching
 from utils.config import Config
-
+# TODO: mv to notebook
 
 def graph_generators_comparison():
     loader = NetworkLoader()

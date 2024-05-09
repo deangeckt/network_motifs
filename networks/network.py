@@ -25,7 +25,7 @@ class Network:
         self.neuron_names: list[str] = []
         self.amount_of_synapses_in_graph = 0
         self.amount_of_synapses_in_total = 0
-        self.synapse_amount_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
+        self.synapse_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
         self.participating_neurons = set()
 
         # polarity configuration
@@ -61,7 +61,7 @@ class Network:
             self.logger.info(f'\tNeurons with a Synapse: {len(self.participating_neurons)}')
             self.logger.info(f'\tSynapses in the network: {self.amount_of_synapses_in_total}')
             self.logger.info(f'\n\tParticipating Nodes are neurons in a tuple with at least:'
-                             f' {self.synapse_amount_threshold} synapses')
+                             f' {self.synapse_threshold} synapses')
             self.logger.info(f'\tSynapses in the graph: {self.amount_of_synapses_in_graph}')
 
         self.logger.info(f'\tNodes: {len(self.graph)}')

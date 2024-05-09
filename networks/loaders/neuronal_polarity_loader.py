@@ -25,9 +25,9 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         self.prim_nt_col = 1
 
         # polarity options [+, -, no pred, complex]
-        self.filter_polarity = config.get_string_list('polarity', 'filter_polarity')
+        self.filter_polarity: list[str] = config.get_string_list('polarity', 'filter_polarity')
         # primary neurotransmitter options [GABA, Glu, ACh, 0] (0 is an int)
-        self.filter_prim_nt = config.get_string_list('polarity', 'filter_prim_nt')
+        self.filter_prim_nt: list[str] = config.get_string_list('polarity', 'filter_prim_nt')
 
     def load(self, *args) -> Network:
         xlsx_path, sheet_name = args

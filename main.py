@@ -22,6 +22,7 @@ from subgraphs.triadic_census import TriadicCensus
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
+import argparse
 
 from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults, SubGraphSearchResult, RandomGeneratorAlgoName
 
@@ -221,7 +222,6 @@ if __name__ == "__main__":
     random.seed(42)
     logger = Logger(LogLvl.info)
     config = Config()
-    # config.set_property("polarity", "filter_prim_nt", "['Glu']")
 
     loader = NetworkLoader()
 
@@ -233,29 +233,4 @@ if __name__ == "__main__":
     # network = loader.load_graph(nx.DiGraph([(1, 2), (2, 3), (1, 3), (3,4), (3,5)]))
     # network = loader.load_graph(nx.DiGraph([(4, 3), (6, 3)]))
 
-    # network = loader.load_network_file(
-    #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx",
-    #     worm_wiring_sheet_name='herm chem synapse adjacency',  # herm gap jn synapse adjacency'
-    #     name="2020_si_2_herm_chem_synapse",
-    #     )
-
-    # network = loader.load_network_file(
-    #     worm_wiring_xlsx_file_path="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July "
-    #                                "2020.xlsx",
-    #     worm_wiring_sheet_name='hermaphrodite chemical',
-    #     name="2020_si_5_herm_chem_synapse",
-    # )
-
-    # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/example.txt",
-    #                                    name="paper example")
-    #
-    # network = loader.load_network_file(adj_file_path="networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.txt",
-    #                                    name='colinet1_noAuto')
-
-    network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
-                                       polarity_sheet_name='5. Sign prediction',
-                                       name="polarity 2020 SI 1")
-
-    # network = loader.load_network_file(durbin_file_path="networks/data/Durbin_1986/neurodata.txt",
-    #                                    name='durbin network')
     motif_search()

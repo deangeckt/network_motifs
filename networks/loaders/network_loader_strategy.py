@@ -17,7 +17,7 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
         self.neuron_names: list[str] = []
         self.amount_of_synapses_in_graph = 0
         self.amount_of_synapses_in_total = 0
-        self.synapse_amount_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
+        self.synapse_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
         self.participating_neurons = set()
 
         # polarity configuration
@@ -29,7 +29,7 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
         self.participating_neurons.add(int(v2))
         self.amount_of_synapses_in_total += int(num_of_synapse)
 
-        if int(num_of_synapse) >= self.synapse_amount_threshold:
+        if int(num_of_synapse) >= self.synapse_threshold:
             self.amount_of_synapses_in_graph += int(num_of_synapse)
             if polarity is not None:
                 self.graph.add_edge(int(v1), int(v2), polarity=polarity)

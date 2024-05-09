@@ -5,17 +5,25 @@ import numpy as np
 from pydantic import BaseModel
 
 
+class NetworkInputType(str, Enum):
+    simple_adj_txt = 'simple_adj_txt'
+    worm_wiring_xlsx = 'worm_wiring_xlsx'
+    polarity_xlsx = 'polarity_xlsx'
+    durbin_txt = 'durbin_txt'
+    graph = 'graph'
+
+
 class SubGraphAlgoName(str, Enum):
     specific = 'specific'
     mfinder_induced = 'mfinder_i'
     mfinder_none_induced = 'mfinder_ni'
     fanmod_esu = 'fanmod'
-    triadic_census = 'tc'
+    triadic_census = 'triadic_census'
 
 
 class RandomGeneratorAlgoName(str, Enum):
     markov_chain_switching = 'markov_chain'
-    erdos_renyi = 'er'
+    erdos_renyi = 'erdos_renyi'
 
 
 class MotifType(str, Enum):
