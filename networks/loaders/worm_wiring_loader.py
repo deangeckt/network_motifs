@@ -6,8 +6,8 @@ from networks.network import Network
 
 
 class WormWiringLoader(NetworkLoaderStrategy):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, args):
+        super().__init__(args)
         self.amount = 272
 
     def load(self, *args) -> Network:

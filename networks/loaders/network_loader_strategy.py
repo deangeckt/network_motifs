@@ -3,21 +3,20 @@ from abc import ABCMeta, abstractmethod
 import networkx as nx
 
 from networks.network import Network
-from utils.config import Config
 from utils.simple_logger import Logger
 
 
 class NetworkLoaderStrategy(metaclass=ABCMeta):
-    def __init__(self):
-        config = Config()
+    def __init__(self, args):
         self.logger = Logger()
         self.graph = nx.DiGraph()
+        self.args = args
 
         # neurons configuration
         self.neuron_names: list[str] = []
         self.amount_of_synapses_in_graph = 0
         self.amount_of_synapses_in_total = 0
-        self.synapse_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
+        self.synapse_threshold = args.synapse_threshold
         self.participating_neurons = set()
 
         # polarity configuration
@@ -37,7 +36,7 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
                 self.graph.add_edge(int(v1), int(v2))
 
     def _copy_network_params(self) -> Network:
-        network = Network()
+        network = Network(self.args.synapse_threshold)
         network.graph = self.graph
 
         # neurons configuration

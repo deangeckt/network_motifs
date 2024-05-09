@@ -7,7 +7,6 @@ from networkx import DiGraph
 from tqdm import tqdm
 
 from utils.common import get_decimal_from_bin_vec, get_bin_vec_from_decimal
-from utils.config import Config
 from utils.types import MotifName, Motif
 from networkx.algorithms import isomorphism
 
@@ -83,8 +82,9 @@ def get_sub_graph_from_id(decimal: int, k: int) -> DiGraph:
     return nx.DiGraph(adj_mat)
 
 
-def generate_isomorphic_k_sub_graphs(k: int) -> tuple[dict, dict]:
+def generate_isomorphic_k_sub_graphs(k: int, allow_self_loops=False) -> tuple[dict, dict]:
     """
+    :param allow_self_loops: edges from a node to itself
     :param k: motif / sub graph size
     :return: isomorphic_mapping: a dict where each key is a motif / sub graph id and
     the value is the smallest motif id of the same isomorphic set of sub graphs.
@@ -94,9 +94,6 @@ def generate_isomorphic_k_sub_graphs(k: int) -> tuple[dict, dict]:
     not scalable for k >= 5.
     In case we are NOT looking for Anti Motifs - this isn't mandatory for mfinder.
     """
-    config = Config()
-    allow_self_loops = config.get_boolean_property('run_args', 'allow_self_loops')
-
     isomorphic = defaultdict(dict)
 
     possible_options = (2 ** (k ** 2))

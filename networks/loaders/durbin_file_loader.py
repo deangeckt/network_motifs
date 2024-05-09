@@ -2,26 +2,24 @@ import numpy as np
 
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
 from networks.network import Network
-from utils.config import Config
 
 
 class DurbinFileLoader(NetworkLoaderStrategy):
-    def __init__(self):
+    def __init__(self, args):
         """
         https://www.wormatlas.org/neuronalwiring.html - Neuronal Connectivity I: by R. Durbin 1986
         : param filter_syn_type: either 'chem', 'gap', 'all
         : param filter_recon: either: one of 'JSH', 'N2U'
         """
-        super().__init__()
-        config = Config()
+        super().__init__(args)
 
         # 'chem', 'gap', 'all
-        self.filter_syn_type = config.get_property('durbin', 'filter_syn_type')
+        self.filter_syn_type = args.durbin_filter_syn_type
 
         # 'JSH: L4 male', 'N2U: hermaphrodite adult'
-        self.filter_recon = config.get_property('durbin', 'filter_recon')
+        self.filter_recon = args.durbin_filter_recon
 
-        self.logger.info(f'\nFiltering Neurons of: {self.filter_recon}')
+        self.logger.info(f'Filtering Neurons of: {self.filter_recon}')
         self.logger.info(f'Filtering Synapses of type: {self.filter_syn_type}')
 
     @staticmethod

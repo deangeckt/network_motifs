@@ -22,7 +22,6 @@ from subgraphs.triadic_census import TriadicCensus
 from utils.config import Config
 from utils.simple_logger import Logger, LogLvl
 import time
-import argparse
 
 from utils.types import SubGraphAlgoName, Motif, MotifCriteriaResults, SubGraphSearchResult, RandomGeneratorAlgoName
 

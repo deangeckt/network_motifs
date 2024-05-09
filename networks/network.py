@@ -1,4 +1,3 @@
-import collections
 from typing import Union
 
 import networkx as nx
@@ -7,25 +6,24 @@ import numpy as np
 
 from post_motif_analysis.polarity_counter import count_network_polarity_ratio
 from utils.common import basic_plot
-from utils.config import Config
 from utils.simple_logger import Logger
 
 
 class Network:
-    def __init__(self):
-        config = Config()
+    def __init__(self, synapse_threshold: int):
         self.logger = Logger()
         self.graph = nx.DiGraph()
 
         # general configuration
-        self.plot_props = config.get_boolean_property('run_args', 'plot_properties')
-        self.plot_full_graph = config.get_boolean_property('run_args', 'plot_full_graph')
+        # TODO: mv plots to notebook
+        self.plot_props = False
+        self.plot_full_graph = False
 
         # neurons configuration
         self.neuron_names: list[str] = []
         self.amount_of_synapses_in_graph = 0
         self.amount_of_synapses_in_total = 0
-        self.synapse_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
+        self.synapse_threshold = synapse_threshold
         self.participating_neurons = set()
 
         # polarity configuration

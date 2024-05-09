@@ -65,11 +65,8 @@ def my_input_files():
 
 
 def parse_graph(input_: str) -> DiGraph:
-    try:
-        tuple_list = [tuple(element.replace(' ', '')) for element in input_]
-        return nx.DiGraph(tuple_list)
-    except:
-        raise argparse.ArgumentTypeError(f'parse graph failed, input should be in the format: "1 2", "2 3"')
+    tuple_list = [tuple(element.replace(' ', '')) for element in input_]
+    return nx.DiGraph(tuple_list)
 
 
 def parse_args():
@@ -83,17 +80,16 @@ def parse_args():
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
-                        help="file type of the input network",
-                        default='graph',
+                        help="the type of the input network",
+                        default='durbin_txt',
                         choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'graph'],
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/Durbin_1986/neurodata.txt"
-                        )
+                        default="networks/data/Durbin_1986/neurodata.txt")
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of tuples where each is an edge. in the format: "1 2" "2 3"...',
-                        default=['1 2', '1 3'],
+                        default=None,
                         nargs='+'
                         )
     parser.add_argument("-sn", "--sheet_name",
@@ -170,13 +166,9 @@ def parse_args():
                         help="whether to use the uniqueness test",
                         default=False)
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # for arg in vars(args):
-    #     print(arg, getattr(args, arg))
     # TODO: log config / args function - nicely
-
-    return args
 
 
 if __name__ == "__main__":
@@ -186,14 +178,14 @@ if __name__ == "__main__":
     sub_graph_algo_choice = SubGraphAlgoName(args.sub_graph_algorithm)
     random_generator_algo_choice = RandomGeneratorAlgoName(args.randomizer)
 
-    loader = NetworkLoader()
+    loader = NetworkLoader(args=args)
 
     input_type = NetworkInputType(args.input_type)
-
     if input_type == NetworkInputType.graph:
         graph = parse_graph(args.input_network_graph)
         network = loader.load_graph(graph)
     else:
-        network = loader.load_network_file(input_type=NetworkInputType(args.input_type),
-                                           file_path=args.input_network,
+        network = loader.load_network_file(input_type=input_type,
+                                           file_path=args.input_network_file,
                                            sheet_name=args.sheet_name)
+

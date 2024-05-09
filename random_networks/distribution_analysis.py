@@ -3,11 +3,18 @@ import networkx as nx
 from networks.loaders.network_loader import NetworkLoader
 from random_networks.barabasi_albert_forced_edges import BarabasiAlbertForcedEdges
 from random_networks.markov_chain_switching import MarkovChainSwitching
-from utils.config import Config
+from utils.types import NetworkInputType
+
+
 # TODO: mv to notebook
+class SimpleArgs:
+    synapse_threshold = 5
+    filter_polarity = ['+', '-']
+    filter_prim_nt = ['GABA', 'Glu', 'ACh', 0]
+
 
 def graph_generators_comparison():
-    loader = NetworkLoader()
+    loader = NetworkLoader(SimpleArgs())
 
     n = 1000
     e = 4000
@@ -35,11 +42,11 @@ def graph_generators_comparison():
 
 
 def compare_to_orig_network():
-    loader = NetworkLoader()
 
-    network = loader.load_network_file(polarity_xlsx_file_path="networks/data/polarity_2020/s1_data.xlsx",
-                                       polarity_sheet_name='5. Sign prediction',
-                                       name="polarity 2020 SI 1")
+    loader = NetworkLoader(SimpleArgs())
+    network = loader.load_network_file(file_path="networks/data/polarity_2020/s1_data.xlsx",
+                                       sheet_name='5. Sign prediction',
+                                       input_type=NetworkInputType.polarity_xlsx)
 
     markov_chain = MarkovChainSwitching(network)
     loader.load_graph(markov_chain.generate(amount=1)[0])
@@ -49,11 +56,5 @@ def compare_to_orig_network():
 
 
 if __name__ == "__main__":
-    config = Config()
-    config.set_property("run_args", "plot_properties", "false")
-    config.set_property("run_args", "plot_full_graph", "false")
-    config.set_property("run_args", "run_sub_graph_search", "false")
-    config.set_property("run_args", "run_motif_criteria", "false")
-
-    graph_generators_comparison()
-    # compare_to_orig_network()
+    # graph_generators_comparison()
+    compare_to_orig_network()

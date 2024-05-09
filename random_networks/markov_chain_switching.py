@@ -5,7 +5,6 @@ from tqdm import tqdm
 
 from networks.network import Network
 from random_networks.network_randomizer_abc import NetworkRandomizer
-from utils.config import Config
 
 
 class MarkovChainSwitching(NetworkRandomizer):
@@ -18,13 +17,11 @@ class MarkovChainSwitching(NetworkRandomizer):
         * polarity ratio is saved
     """
 
-    def __init__(self, network: Network):
+    def __init__(self, network: Network, switch_factor: int):
         super().__init__(network)
 
-        config = Config()
-
-        self.switch_factor = int(config.get_property('random', 'markov_chain_switch_factor'))
-        self.markov_chain_num_iterations = network.graph.number_of_edges() * self.switch_factor
+        self.switch_factor = switch_factor
+        self.markov_chain_num_iterations = network.graph.number_of_edges() * switch_factor
         self.success_switch = 0
 
         self.switch_foo = self.__switch_with_polarity if network.use_polarity else self.__switch

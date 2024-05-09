@@ -3,18 +3,16 @@ import pandas as pd
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
 from networks.network import Network
 from post_motif_analysis.polarity_counter import count_network_polarity_ratio
-from utils.config import Config
 
 
 class NeuronalPolarityLoader(NetworkLoaderStrategy):
-    def __init__(self):
+    def __init__(self, args):
         """
         xlsx files from the paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P.
         Synaptic polarity and sign-balance prediction using gene expression data in the Caenorhabditis elegans chemical
         synapse neuronal connectome network
         """
-        super().__init__()
-        config = Config()
+        super().__init__(args)
 
         # polarity configuration
         self.src_col = 0
@@ -25,9 +23,9 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         self.prim_nt_col = 1
 
         # polarity options [+, -, no pred, complex]
-        self.filter_polarity: list[str] = config.get_string_list('polarity', 'filter_polarity')
+        self.filter_polarity: list[str] = args.filter_polarity
         # primary neurotransmitter options [GABA, Glu, ACh, 0] (0 is an int)
-        self.filter_prim_nt: list[str] = config.get_string_list('polarity', 'filter_prim_nt')
+        self.filter_prim_nt: list[str] = args.filter_prim_nt
 
     def load(self, *args) -> Network:
         xlsx_path, sheet_name = args
@@ -35,7 +33,7 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         df = xls.parse(sheet_name, header=None)
 
         # filter
-        self.logger.info(f'\nFiltering Neurons with polarity: {self.filter_polarity}')
+        self.logger.info(f'Filtering Neurons with polarity: {self.filter_polarity}')
         df = df[df[self.polarity_col].isin(self.filter_polarity)]
         self.logger.info(f'Filtering Neurons with primary neurotransmitter: {self.filter_prim_nt}')
         df = df[df[self.prim_nt_col].isin(self.filter_prim_nt)]

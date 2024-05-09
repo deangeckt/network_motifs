@@ -13,40 +13,43 @@ from utils.types import NetworkInputType
 
 
 class NetworkLoader:
-    def __init__(self):
+    def __init__(self, args):
         self.logger = Logger()
-        self.network = Network()
+        self.network = Network(synapse_threshold=args.synapse_threshold)
+        self.args = args
 
     def load_network_file(self,
                           input_type: NetworkInputType,
                           file_path: str,
                           sheet_name: Optional[str] = None) -> Network:
         if input_type == NetworkInputType.simple_adj_txt:
-            loader = SimpleAdjFileLoader()
+            loader = SimpleAdjFileLoader(self.args)
         elif input_type == NetworkInputType.worm_wiring_xlsx:
-            loader = WormWiringLoader()
+            loader = WormWiringLoader(self.args)
         elif input_type == NetworkInputType.polarity_xlsx:
-            loader = NeuronalPolarityLoader()
+            loader = NeuronalPolarityLoader(self.args)
         elif input_type == NetworkInputType.durbin_txt:
-            loader = DurbinFileLoader()
+            loader = DurbinFileLoader(self.args)
         else:
             err = f'Error reading network input file: {input_type}'
             self.logger.info(err)
             raise Exception(err)
 
         name = os.path.basename(file_path)
-        self.logger.info(f'Network name: {name}')
+        self.logger.info(f'Network file name: {name}')
 
         network = loader.load(file_path, sheet_name)
         network.properties()
+
         self.network = network
         return network
 
     def load_graph(self, graph: nx.DiGraph) -> Network:
-        network = Network()
+        network = Network(synapse_threshold=self.args.synapse_threshold)
         network.graph = graph
         network.calc_polarity_ratio()
         network.properties()
+
         self.network = network
         return network
 

@@ -3,8 +3,8 @@ from networks.network import Network
 
 
 class SimpleAdjFileLoader(NetworkLoaderStrategy):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, args):
+        super().__init__(args)
 
     def load(self, *args) -> Network:
         """
