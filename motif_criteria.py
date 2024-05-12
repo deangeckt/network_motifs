@@ -1,28 +1,24 @@
 import numpy as np
 import scipy
-from singleton_decorator import singleton
 
 from subgraphs.sub_graphs_utils import get_number_of_disjoint_group_nodes
-from utils.config import Config
 from utils.simple_logger import Logger
-from utils.types import MotifCriteriaResults, MotifType, Motif
+from utils.types import MotifCriteriaResults, MotifType, Motif, MotifCriteriaArgs
 
 
-@singleton
 class MotifCriteria:
-    def __init__(self):
+    def __init__(self, args: MotifCriteriaArgs):
         self.logger = Logger()
-        config = Config()
 
-        self.alpha = float(config.get_property('motif_criteria', 'alpha'))
+        self.alpha = args.alpha
 
         # The uniqueness value is the number of times a subgraph appears in the
         # network with completely disjoint groups of nodes
-        self.uniqueness_threshold = int(config.get_property('motif_criteria', 'uniqueness_threshold'))
-        self.use_uniqueness = config.get_boolean_property('motif_criteria', 'use_uniq_criteria')
+        self.uniqueness_threshold = args.uniqueness_threshold
+        self.use_uniqueness = args.use_uniq_criteria
 
         # Mfactor in the original paper
-        self.frequency_threshold = float(config.get_property('motif_criteria', 'frequency_threshold'))
+        self.frequency_threshold = args.frequency_threshold
 
         self.logger.info(f'\nMotif criteria:')
         self.logger.info(f'\talpha: {self.alpha}')

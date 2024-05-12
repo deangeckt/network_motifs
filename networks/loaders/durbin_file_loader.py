@@ -1,11 +1,11 @@
 import numpy as np
 
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
-from networks.network import Network
+from utils.types import NetworkLoaderArgs
 
 
 class DurbinFileLoader(NetworkLoaderStrategy):
-    def __init__(self, args):
+    def __init__(self, args: NetworkLoaderArgs):
         """
         https://www.wormatlas.org/neuronalwiring.html - Neuronal Connectivity I: by R. Durbin 1986
         : param filter_syn_type: either 'chem', 'gap', 'all
@@ -29,7 +29,7 @@ class DurbinFileLoader(NetworkLoaderStrategy):
         else:
             adj_mat[v1, v2] = num_of_synapses
 
-    def load(self, *args) -> Network:
+    def load(self, *args):
         neurons_names = set()
         data = []
         file_path = args[0]
@@ -63,8 +63,8 @@ class DurbinFileLoader(NetworkLoaderStrategy):
             neurons_names.add(n1)
             neurons_names.add(n2)
 
-        self.neuron_names = list(neurons_names)
-        neurons = {n: i for i, n in enumerate(self.neuron_names)}
+        self.network.neuron_names = list(neurons_names)
+        neurons = {n: i for i, n in enumerate(self.network.neuron_names)}
         N = len(neurons)
         adj_mat = np.empty((N, N))
         adj_mat.fill(np.nan)
@@ -88,5 +88,3 @@ class DurbinFileLoader(NetworkLoaderStrategy):
                 if np.isnan(synapses) or synapses == 0:
                     continue
                 self._load_synapse(i, j, num_of_synapse=synapses, polarity=None)
-
-        return self._copy_network_params()

@@ -6,11 +6,11 @@ from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs
 from subgraphs.triadic_census import TriadicCensus
-from utils.simple_logger import Logger
-from utils.types import SubGraphSearchResult
+from utils.types import SubGraphSearchResult, NetworkInputType, NetworkLoaderArgs
 
-logger = Logger()
-logger.toggle(False)
+simple_input_args = NetworkLoaderArgs(
+    synapse_threshold=5
+)
 
 
 def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: SubGraphSearchResult):
@@ -38,9 +38,10 @@ paper_ecoli_none_induced = (r"networks/data/Uri_Alon_2002/coliInterNoAutoRegVec.
 @pytest.mark.parametrize("network_file,expected", [paper_example_induced, paper_ecoli_induced])
 def test_three_sub_graphs_induced(network_file, expected):
     k = 3
-    loader = NetworkLoader()
+    loader = NetworkLoader(simple_input_args)
+    network = loader.load_network_file(file_path=network_file,
+                                       input_type=NetworkInputType.simple_adj_txt)
 
-    network = loader.load_network_file(name='', adj_file_path=network_file)
     isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
     mfinder = MFinderInduced(network.graph, isomorphic_mapping)
@@ -59,8 +60,9 @@ def test_three_sub_graphs_induced(network_file, expected):
 @pytest.mark.parametrize("network_file,expected", [paper_example_none_induced, paper_ecoli_none_induced])
 def test_three_sub_graphs_none_induced(network_file, expected):
     k = 3
-    loader = NetworkLoader()
-    network = loader.load_network_file(name='', adj_file_path=network_file)
+    loader = NetworkLoader(simple_input_args)
+    network = loader.load_network_file(file_path=network_file,
+                                       input_type=NetworkInputType.simple_adj_txt)
     isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
     mfinder = MFinderNoneInduced(network.graph, isomorphic_mapping)

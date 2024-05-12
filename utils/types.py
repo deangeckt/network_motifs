@@ -13,6 +13,14 @@ class NetworkInputType(str, Enum):
     graph = 'graph'
 
 
+class NetworkLoaderArgs(BaseModel):
+    synapse_threshold: int
+    filter_polarity: Optional[list[str]] = ['+', '-']
+    filter_prim_nt: Optional[list[Union[str, int]]] = ['GABA', 'Glu', 'ACh', 0]
+    durbin_filter_syn_type: Optional[str] = 'chem'
+    durbin_filter_recon: Optional[str] = 'N2U'
+
+
 class SubGraphAlgoName(str, Enum):
     specific = 'specific'
     mfinder_induced = 'mfinder_i'
@@ -24,6 +32,7 @@ class SubGraphAlgoName(str, Enum):
 class RandomGeneratorAlgoName(str, Enum):
     markov_chain_switching = 'markov_chain'
     erdos_renyi = 'erdos_renyi'
+    barabasi = 'barabasi'
 
 
 class MotifType(str, Enum):
@@ -42,6 +51,13 @@ class MotifName(str, Enum):
     bi_fan = 'bi_fan'
     bi_parallel = 'bi_parallel'
     na = 'n/a'
+
+
+class MotifCriteriaArgs(BaseModel):
+    alpha: float
+    uniqueness_threshold: int
+    use_uniq_criteria: bool
+    frequency_threshold: float
 
 
 class MotifCriteriaResults(BaseModel):

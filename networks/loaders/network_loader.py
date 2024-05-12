@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, Union
 
 import networkx as nx
 
@@ -9,11 +9,11 @@ from networks.loaders.simple_adj_file_loader import SimpleAdjFileLoader
 from networks.loaders.worm_wiring_loader import WormWiringLoader
 from networks.network import Network
 from utils.simple_logger import Logger
-from utils.types import NetworkInputType
+from utils.types import NetworkInputType, NetworkLoaderArgs
 
 
 class NetworkLoader:
-    def __init__(self, args):
+    def __init__(self, args: NetworkLoaderArgs):
         self.logger = Logger()
         self.network = Network(synapse_threshold=args.synapse_threshold)
         self.args = args
@@ -38,11 +38,12 @@ class NetworkLoader:
         name = os.path.basename(file_path)
         self.logger.info(f'Network file name: {name}')
 
-        network = loader.load(file_path, sheet_name)
-        network.properties()
+        loader.load(file_path, sheet_name)
 
-        self.network = network
-        return network
+        self.network = loader.network
+        self.network.properties()
+
+        return self.network
 
     def load_graph(self, graph: nx.DiGraph) -> Network:
         network = Network(synapse_threshold=self.args.synapse_threshold)

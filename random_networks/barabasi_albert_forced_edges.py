@@ -49,7 +49,8 @@ class BarabasiAlbertForcedEdges(NetworkRandomizer):
         undirected_graph = nx.barabasi_albert_graph(n=self.n, m=self.m)
         remove_edges_amount = len(undirected_graph.edges) - self.e
         self._remove_random_edges(undirected_graph, remove_edges_amount)
-        # TODO: this kills the clustering coef
+
+        # this kills the clustering coefficients properties of the original network
         return self._assign_direction(undirected_graph)
 
     def __generate_with_polarity(self) -> DiGraph:

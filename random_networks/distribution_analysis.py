@@ -3,18 +3,18 @@ import networkx as nx
 from networks.loaders.network_loader import NetworkLoader
 from random_networks.barabasi_albert_forced_edges import BarabasiAlbertForcedEdges
 from random_networks.markov_chain_switching import MarkovChainSwitching
-from utils.types import NetworkInputType
-
+from utils.types import NetworkInputType, NetworkLoaderArgs
 
 # TODO: mv to notebook
-class SimpleArgs:
-    synapse_threshold = 5
-    filter_polarity = ['+', '-']
-    filter_prim_nt = ['GABA', 'Glu', 'ACh', 0]
+simple_input_args = NetworkLoaderArgs(
+    synapse_threshold=5,
+    filter_polarity=['+', '-'],
+    filter_prim_nt=['GABA', 'Glu', 'ACh', 0]
+)
 
 
 def graph_generators_comparison():
-    loader = NetworkLoader(SimpleArgs())
+    loader = NetworkLoader(simple_input_args)
 
     n = 1000
     e = 4000
@@ -42,13 +42,12 @@ def graph_generators_comparison():
 
 
 def compare_to_orig_network():
-
-    loader = NetworkLoader(SimpleArgs())
+    loader = NetworkLoader(simple_input_args)
     network = loader.load_network_file(file_path="networks/data/polarity_2020/s1_data.xlsx",
                                        sheet_name='5. Sign prediction',
                                        input_type=NetworkInputType.polarity_xlsx)
 
-    markov_chain = MarkovChainSwitching(network)
+    markov_chain = MarkovChainSwitching(network, switch_factor=10)
     loader.load_graph(markov_chain.generate(amount=1)[0])
 
     barabasi_albert = BarabasiAlbertForcedEdges(network)

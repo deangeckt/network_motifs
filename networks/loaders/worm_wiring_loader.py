@@ -2,15 +2,15 @@ import numpy as np
 import pandas as pd
 
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
-from networks.network import Network
+from utils.types import NetworkLoaderArgs
 
 
 class WormWiringLoader(NetworkLoaderStrategy):
-    def __init__(self, args):
+    def __init__(self, args: NetworkLoaderArgs):
         super().__init__(args)
         self.amount = 272
 
-    def load(self, *args) -> Network:
+    def load(self, *args):
         """
         https://wormwiring.org/pages/adjacency.html xlsx format
         Cook, (2019). Whole-animal connectomes of both Caenorhabditis elegans sexes.
@@ -32,7 +32,7 @@ class WormWiringLoader(NetworkLoaderStrategy):
         if not neurons_row == neurons_col:
             raise Exception(f'invalid xlsx file or indices')
 
-        self.neuron_names = neurons_col
+        self.network.neuron_names = neurons_col
 
         for i in range(len(adj_mat)):
             for j in range(len(adj_mat)):
@@ -41,4 +41,3 @@ class WormWiringLoader(NetworkLoaderStrategy):
                     continue
                 self._load_synapse(i, j, num_of_synapse=synapses, polarity=None)
 
-        return self._copy_network_params()
