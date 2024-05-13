@@ -55,8 +55,7 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
     return polarity_frequencies
 
 
-def get_all_sub_graph_polarities(sub_graphs: list[tuple[tuple]],
-                                 graph: nx.DiGraph) -> list:
+def get_all_sub_graph_polarities(sub_graphs: list[tuple[tuple]], graph: nx.DiGraph) -> list:
     """
     attaching the polarity to each edge in the sub graph
     """

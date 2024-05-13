@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 
 from subgraphs.sub_graphs_utils import get_number_of_disjoint_group_nodes
+from utils.logs import log_motif_criteria_args
 from utils.simple_logger import Logger
 from utils.types import MotifCriteriaResults, MotifType, Motif, MotifCriteriaArgs
 
@@ -20,11 +21,7 @@ class MotifCriteria:
         # Mfactor in the original paper
         self.frequency_threshold = args.frequency_threshold
 
-        self.logger.info(f'\nMotif criteria:')
-        self.logger.info(f'\talpha: {self.alpha}')
-        self.logger.info(f'\tuse uniqueness: {self.use_uniqueness}')
-        self.logger.info(f'\tuniqueness threshold: {self.uniqueness_threshold}')
-        self.logger.info(f'\tfrequency threshold: {self.frequency_threshold}')
+        log_motif_criteria_args(args)
 
     def __calculate_statistics(self, n_real: int,
                                random_network_samples: list[int]) -> MotifCriteriaResults:

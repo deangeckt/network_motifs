@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from motif_criteria import MotifCriteria
 from networks.loaders.network_loader import NetworkLoader
+from networks.network import Network
 from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
 from post_motif_analysis.polarity_counter import get_polarity_frequencies
 from random_networks.barabasi_albert_forced_edges import BarabasiAlbertForcedEdges
@@ -18,15 +19,16 @@ from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif
 from subgraphs.triadic_census import TriadicCensus
-from utils.logs import log_motif_results, log_motifs_table
+from utils.export_import import export_results
+from utils.logs import log_motif_results, log_motifs_table, log_sub_graph_args, log_randomizer_args
 from utils.simple_logger import Logger
 import time
 import argparse
+from argparse import Namespace
+
 
 from utils.types import SubGraphAlgoName, RandomGeneratorAlgoName, NetworkInputType, NetworkLoaderArgs, \
-    MotifCriteriaArgs, Motif, SubGraphSearchResult
-
-logger = Logger()
+    MotifCriteriaArgs, Motif, SubGraphSearchResult, BinaryFile
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
@@ -78,7 +80,7 @@ def parse_args():
 
     # [Output files]
     parser.add_argument("-lf", "--log_file", help="file path to save log results", default=None)
-    parser.add_argument("-bf", "--bin_file", help="file path to save binary results", default=None)
+    parser.add_argument("-bf", "--bin_file", help="file path to save binary results", default='tst.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -124,7 +126,7 @@ def parse_args():
     # [Neuronal]
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
-                        default=10)
+                        default=20)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -155,7 +157,8 @@ def parse_args():
                         choices=['markov_chain', 'erdos_renyi', 'barabasi'])
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
-                        default=10)
+                        type=int,
+                        default=2)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         default=10)
@@ -228,22 +231,15 @@ def polarity_motif_search(
             log_motifs_table(polarity_motifs)
 
 
-def sub_graph_search(args) -> dict[int, Motif]:
-    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[sub_graph_algo_choice](network.graph, isomorphic_mapping)
+def sub_graph_search(args: Namespace) -> dict[int, Motif]:
+    log_sub_graph_args(args)
 
-    logger.info(f'Sub Graph search using Algorithm: {sub_graph_algo_choice}')
-    logger.info(f'Sub Graph search using k: {args.k}')
-    logger.info(f'Amount of isomorphic sub graphs of size k={args.k} is: {len(isomorphic_graphs)}')
-    logger.info(f'Allow self loops: {args.allow_self_loops}')
+    sub_graph_algo: SubGraphsABC = sub_graph_algorithms[sub_graph_algo_choice](network.graph, isomorphic_mapping)
 
     start_time = time.time()
     search_result = sub_graph_algo.search_sub_graphs(k=args.k)
     end_time = time.time()
-    logger.info(f'\nSub Graph search timer [Sec]: {round(end_time - start_time, 2)}')
-
-    total_sub_graphs = sum(search_result.fsl.values())
-    logger.info(f'Motif candidates found: {len(search_result.fsl)}')
-    logger.info(f'Total number of {args.k}-node sub graphs found: {total_sub_graphs}')
+    logger.info(f'Sub Graph search timer [Sec]: {round(end_time - start_time, 2)}')
 
     motifs = {}
     for sub_id in isomorphic_graphs:
@@ -264,7 +260,7 @@ def sub_graph_search(args) -> dict[int, Motif]:
     return motifs
 
 
-def motif_search(args):
+def motif_search(args: Namespace):
     if not args.run_sub_graph_search:
         return
 
@@ -272,9 +268,12 @@ def motif_search(args):
 
     if not args.run_motif_criteria:
         log_motif_results(motif_candidates, network)
-        # TODO: save to bin
+        if args.bin_file:
+            export_results(BinaryFile(args=args, motifs=motif_candidates))
         return
 
+    log_randomizer_args(args)
+    random_generator_algo_choice = RandomGeneratorAlgoName(args.randomizer)
     if random_generator_algo_choice == RandomGeneratorAlgoName.markov_chain_switching:
         randomizer = MarkovChainSwitching(network, switch_factor=args.switch_factor)
     else:
@@ -296,17 +295,12 @@ def motif_search(args):
         motif_candidates[sub_id] = motif_candidate
 
     log_motif_results(motif_candidates, network)
-
+    if args.bin_file:
+        export_results(BinaryFile(args=args, motifs=motif_candidates))
     polarity_motif_search(args.k, motif_candidates, random_networks, random_network_sub_graph_results)
 
 
-if __name__ == "__main__":
-    args = parse_args()
-
-    random.seed(args.random_seed)
-    sub_graph_algo_choice = SubGraphAlgoName(args.sub_graph_algorithm)
-    random_generator_algo_choice = RandomGeneratorAlgoName(args.randomizer)
-
+def load_network_from_args(args: Namespace) -> Network:
     loader = NetworkLoader(args=NetworkLoaderArgs(**vars(args)))
 
     input_type = NetworkInputType(args.input_type)
@@ -317,7 +311,20 @@ if __name__ == "__main__":
         network = loader.load_network_file(input_type=input_type,
                                            file_path=args.input_network_file,
                                            sheet_name=args.sheet_name)
+    return network
 
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    logger = Logger()
+    if args.log_file:
+        logger.change_file(args.log_file)
+
+    random.seed(args.random_seed)
+    sub_graph_algo_choice = SubGraphAlgoName(args.sub_graph_algorithm)
+
+    network = load_network_from_args(args)
     motif_criteria = MotifCriteria(MotifCriteriaArgs(**vars(args)))
     isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=args.k)
     motif_search(args)

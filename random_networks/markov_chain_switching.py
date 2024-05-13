@@ -27,9 +27,6 @@ class MarkovChainSwitching(NetworkRandomizer):
         self.switch_foo = self.__switch_with_polarity if network.use_polarity else self.__switch
 
     def generate(self, amount: int) -> list[DiGraph]:
-        self.logger.info('\nRandomizer: using markov chain switching algorithm')
-        self.logger.info(f'Randomizer: generating {amount} random networks')
-        self.logger.info(f'Markov chain switch factor: {self.switch_factor}')
         self.logger.info(f'Markov chain iterations: {self.markov_chain_num_iterations}')
         random_networks = [self.__markov_chain() for _ in tqdm(range(amount))]
 

@@ -1,5 +1,6 @@
+from argparse import Namespace
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional, Union, TypedDict
 
 import numpy as np
 from pydantic import BaseModel
@@ -105,3 +106,8 @@ class SubGraphSearchResult(BaseModel):
     fsl: dict[int, int]
     # same fsl, the value is the list of sub graphs
     fsl_fully_mapped: dict[int, list[tuple]]
+
+
+class BinaryFile(TypedDict):
+    args: Namespace
+    motifs: dict[int, Motif]

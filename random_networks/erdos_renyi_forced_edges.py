@@ -35,8 +35,6 @@ class ErdosRenyiForcedEdges(NetworkRandomizer):
         self.generate_foo = self.__generate_with_polarity if network.use_polarity else self.__generate
 
     def generate(self, amount: int) -> list[DiGraph]:
-        self.logger.info('\nRandomizer: using erdos renyi algorithm')
-        self.logger.info(f'Randomizer: generating {amount} random networks')
         self.logger.info(f'probability for edge creation: {round(self.p, 4)}')
 
         random_networks = [self.generate_foo() for _ in tqdm(range(amount))]

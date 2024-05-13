@@ -14,10 +14,7 @@ class Network:
         self.logger = Logger()
         self.graph = nx.DiGraph()
 
-        # general configuration
         # TODO: mv plots to notebook
-        self.plot_props = False
-        self.plot_full_graph = False
 
         # neurons configuration
         self.neuron_names: list[str] = []
@@ -53,7 +50,7 @@ class Network:
                          f'Max: {max_degree} (node: {max_node})')
 
     def properties(self):
-        self.logger.info(f'Network properties:')
+        self.logger.info(f'\nNetwork properties:')
         if self.neuron_names:
             self.logger.info(f'\tNeurons: {len(self.neuron_names)}')
             self.logger.info(f'\tNeurons with a Synapse: {len(self.participating_neurons)}')
@@ -78,10 +75,6 @@ class Network:
         self.__degree_stats(self.graph.degree, 'Degree')
         self.__degree_stats(self.graph.in_degree, 'In-Degree')
         self.__degree_stats(self.graph.out_degree, 'Out-Degree')
-
-        self.logger.info('')
-        self.plot_properties()
-        self.plot_graph()
 
     def node_properties(self, node: Union[str, int]):
         self.logger.info(f'Node {node} properties:')
@@ -149,9 +142,6 @@ class Network:
                    plot_func=plt.bar)
 
     def plot_properties(self):
-        if not self.plot_props:
-            return
-
         self.__plot_degree_dist()
         self.__plot_degree_dist_log()
         self.__plot_degree_in_dist()
@@ -159,9 +149,6 @@ class Network:
         # self.__plot_rich_club_coefficient()
 
     def plot_graph(self):
-        if not self.plot_full_graph:
-            return
-
         # TODO: need better plotting tools / motif plotting
         if self.neuron_names:
             mapping = {i: n for i, n in enumerate(self.neuron_names)}
