@@ -20,12 +20,12 @@ from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif
 from subgraphs.triadic_census import TriadicCensus
 from utils.export_import import export_results
-from utils.logs import log_motif_results, log_motifs_table, log_sub_graph_args, log_randomizer_args
+from utils.logs import log_motif_results, log_sub_graph_args, log_randomizer_args, \
+    log_polarity_motif_results
 from utils.simple_logger import Logger
 import time
 import argparse
 from argparse import Namespace
-
 
 from utils.types import SubGraphAlgoName, RandomGeneratorAlgoName, NetworkInputType, NetworkLoaderArgs, \
     MotifCriteriaArgs, Motif, SubGraphSearchResult, BinaryFile
@@ -77,7 +77,6 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-rs", "--random_seed", help="random seed for the entire program", default=42)
-
     # [Output files]
     parser.add_argument("-lf", "--log_file", help="file path to save log results", default=None)
     parser.add_argument("-bf", "--bin_file", help="file path to save binary results", default='tst.bin')
@@ -185,12 +184,10 @@ def polarity_motif_search(
         motif_candidates: dict[int, Motif],
         random_networks: list[DiGraph],
         random_network_sub_graph_results: list[SubGraphSearchResult]):
-
     if not network.use_polarity:
         return
 
-    logger.info('\nPolarity Motif results:')
-
+    all_polarity_motifs = {}
     for sub_id in motif_candidates:
         polarity_motifs = {}
         motif = motif_candidates[sub_id]
@@ -224,11 +221,17 @@ def polarity_motif_search(
 
             polarity_motif.random_network_samples = random_network_samples
             polarity_motif.motif_criteria = motif_criteria.is_motif(polarity_motif)
+            # polarity_motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=motif.sub_graphs,
+            #                                                                      neuron_names=network.neuron_names)
 
             polarity_motifs[polarity_motif_id] = polarity_motif
 
         if polarity_motifs:
-            log_motifs_table(polarity_motifs)
+            all_polarity_motifs[sub_id] = polarity_motifs
+
+    log_polarity_motif_results(all_polarity_motifs)
+    if args.bin_file:
+        export_results(BinaryFile(args=args, motifs=motif_candidates, polarity_motifs=all_polarity_motifs))
 
 
 def sub_graph_search(args: Namespace) -> dict[int, Motif]:
@@ -269,7 +272,7 @@ def motif_search(args: Namespace):
     if not args.run_motif_criteria:
         log_motif_results(motif_candidates, network)
         if args.bin_file:
-            export_results(BinaryFile(args=args, motifs=motif_candidates))
+            export_results(BinaryFile(args=args, motifs=motif_candidates, polarity_motifs=None))
         return
 
     log_randomizer_args(args)
@@ -295,8 +298,10 @@ def motif_search(args: Namespace):
         motif_candidates[sub_id] = motif_candidate
 
     log_motif_results(motif_candidates, network)
-    if args.bin_file:
-        export_results(BinaryFile(args=args, motifs=motif_candidates))
+
+    if args.bin_file and not network.use_polarity:
+        export_results(BinaryFile(args=args, motifs=motif_candidates, polarity_motifs=None))
+
     polarity_motif_search(args.k, motif_candidates, random_networks, random_network_sub_graph_results)
 
 

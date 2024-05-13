@@ -11,6 +11,8 @@ logger = Logger()
 
 
 def log_motifs_table(motifs: dict[Any, Motif]):
+    if not motifs:
+        return
     table = []
     for motif_id in motifs:
         motif = motifs[motif_id]
@@ -68,6 +70,13 @@ def log_motif_results(motifs: dict[int, Motif], network: Network):
         for pol_freq in motif.polarity_frequencies:
             if pol_freq.frequency:
                 logger.info(f'Polarity: {pol_freq.polarity} - frequency: {pol_freq.frequency}')
+
+
+def log_polarity_motif_results(polarity_motifs: dict[int, dict[str, Motif]]):
+    if polarity_motifs:
+        logger.info('\nPolarity Motif results:')
+        for polarity_motif in polarity_motifs.values():
+            log_motifs_table(polarity_motif)
 
 
 def log_motif_criteria_args(args: MotifCriteriaArgs):

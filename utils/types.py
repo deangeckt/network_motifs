@@ -111,3 +111,4 @@ class SubGraphSearchResult(BaseModel):
 class BinaryFile(TypedDict):
     args: Namespace
     motifs: dict[int, Motif]
+    polarity_motifs: Optional[dict[int, dict[str, Motif]]]
