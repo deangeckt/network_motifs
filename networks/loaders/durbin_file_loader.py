@@ -1,28 +1,25 @@
 import numpy as np
 
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
-from networks.network import Network
-from utils.config import Config
+from utils.types import NetworkLoaderArgs
 
 
 class DurbinFileLoader(NetworkLoaderStrategy):
-    def __init__(self):
+    def __init__(self, args: NetworkLoaderArgs):
         """
         https://www.wormatlas.org/neuronalwiring.html - Neuronal Connectivity I: by R. Durbin 1986
         : param filter_syn_type: either 'chem', 'gap', 'all
         : param filter_recon: either: one of 'JSH', 'N2U'
-        : param filter_joint: relevant for 'chem' synapse only - either True or False
         """
-        super().__init__()
-        config = Config()
+        super().__init__(args)
 
         # 'chem', 'gap', 'all
-        self.filter_syn_type = config.get_property('durbin', 'filter_syn_type')
+        self.filter_syn_type = args.durbin_filter_syn_type
 
         # 'JSH: L4 male', 'N2U: hermaphrodite adult'
-        self.filter_recon = config.get_property('durbin', 'filter_recon')
+        self.filter_recon = args.durbin_filter_recon
 
-        self.logger.info(f'\nFiltering Neurons of: {self.filter_recon}')
+        self.logger.info(f'Filtering Neurons of: {self.filter_recon}')
         self.logger.info(f'Filtering Synapses of type: {self.filter_syn_type}')
 
     @staticmethod
@@ -32,7 +29,7 @@ class DurbinFileLoader(NetworkLoaderStrategy):
         else:
             adj_mat[v1, v2] = num_of_synapses
 
-    def load(self, *args) -> Network:
+    def load(self, *args):
         neurons_names = set()
         data = []
         file_path = args[0]
@@ -66,8 +63,8 @@ class DurbinFileLoader(NetworkLoaderStrategy):
             neurons_names.add(n1)
             neurons_names.add(n2)
 
-        self.neuron_names = list(neurons_names)
-        neurons = {n: i for i, n in enumerate(self.neuron_names)}
+        self.network.neuron_names = list(neurons_names)
+        neurons = {n: i for i, n in enumerate(self.network.neuron_names)}
         N = len(neurons)
         adj_mat = np.empty((N, N))
         adj_mat.fill(np.nan)
@@ -91,5 +88,3 @@ class DurbinFileLoader(NetworkLoaderStrategy):
                 if np.isnan(synapses) or synapses == 0:
                     continue
                 self._load_synapse(i, j, num_of_synapse=synapses, polarity=None)
-
-        return self._copy_network_params()

@@ -31,6 +31,7 @@ class FanmodESU(SubGraphsABC):
         return graph_to_hashed_graph(sub_graph) not in self.unique
 
     def __inc_count_w_canonical_label(self, sub_graph: DiGraph):
+        # TODO: mv to super + support a case where u didnt get the iso mapping - test with k=2 with self loops
         sub_id = get_id(sub_graph)
         if sub_id not in self.isomorphic_mapping:
             return

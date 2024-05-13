@@ -1,8 +1,25 @@
+from argparse import Namespace
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional, Union, TypedDict
 
 import numpy as np
 from pydantic import BaseModel
+
+
+class NetworkInputType(str, Enum):
+    simple_adj_txt = 'simple_adj_txt'
+    worm_wiring_xlsx = 'worm_wiring_xlsx'
+    polarity_xlsx = 'polarity_xlsx'
+    durbin_txt = 'durbin_txt'
+    graph = 'graph'
+
+
+class NetworkLoaderArgs(BaseModel):
+    synapse_threshold: int
+    filter_polarity: Optional[list[str]] = ['+', '-']
+    filter_prim_nt: Optional[list[Union[str, int]]] = ['GABA', 'Glu', 'ACh', 0]
+    durbin_filter_syn_type: Optional[str] = 'chem'
+    durbin_filter_recon: Optional[str] = 'N2U'
 
 
 class SubGraphAlgoName(str, Enum):
@@ -10,12 +27,13 @@ class SubGraphAlgoName(str, Enum):
     mfinder_induced = 'mfinder_i'
     mfinder_none_induced = 'mfinder_ni'
     fanmod_esu = 'fanmod'
-    triadic_census = 'tc'
+    triadic_census = 'triadic_census'
 
 
 class RandomGeneratorAlgoName(str, Enum):
     markov_chain_switching = 'markov_chain'
-    erdos_renyi = 'er'
+    erdos_renyi = 'erdos_renyi'
+    barabasi = 'barabasi'
 
 
 class MotifType(str, Enum):
@@ -34,6 +52,13 @@ class MotifName(str, Enum):
     bi_fan = 'bi_fan'
     bi_parallel = 'bi_parallel'
     na = 'n/a'
+
+
+class MotifCriteriaArgs(BaseModel):
+    alpha: float
+    uniqueness_threshold: int
+    use_uniq_criteria: bool
+    frequency_threshold: float
 
 
 class MotifCriteriaResults(BaseModel):
@@ -81,3 +106,8 @@ class SubGraphSearchResult(BaseModel):
     fsl: dict[int, int]
     # same fsl, the value is the list of sub graphs
     fsl_fully_mapped: dict[int, list[tuple]]
+
+
+class BinaryFile(TypedDict):
+    args: Namespace
+    motifs: dict[int, Motif]

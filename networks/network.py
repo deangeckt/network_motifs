@@ -1,4 +1,3 @@
-import collections
 from typing import Union
 
 import networkx as nx
@@ -7,25 +6,21 @@ import numpy as np
 
 from post_motif_analysis.polarity_counter import count_network_polarity_ratio
 from utils.common import basic_plot
-from utils.config import Config
 from utils.simple_logger import Logger
 
 
 class Network:
-    def __init__(self):
-        config = Config()
+    def __init__(self, synapse_threshold: int):
         self.logger = Logger()
         self.graph = nx.DiGraph()
 
-        # general configuration
-        self.plot_props = config.get_boolean_property('run_args', 'plot_properties')
-        self.plot_full_graph = config.get_boolean_property('run_args', 'plot_full_graph')
+        # TODO: mv plots to notebook
 
         # neurons configuration
         self.neuron_names: list[str] = []
         self.amount_of_synapses_in_graph = 0
         self.amount_of_synapses_in_total = 0
-        self.synapse_amount_threshold = int(config.get_property('neuronal', 'synapse_amount_threshold'))
+        self.synapse_threshold = synapse_threshold
         self.participating_neurons = set()
 
         # polarity configuration
@@ -55,13 +50,13 @@ class Network:
                          f'Max: {max_degree} (node: {max_node})')
 
     def properties(self):
-        self.logger.info(f'Network properties:')
+        self.logger.info(f'\nNetwork properties:')
         if self.neuron_names:
             self.logger.info(f'\tNeurons: {len(self.neuron_names)}')
             self.logger.info(f'\tNeurons with a Synapse: {len(self.participating_neurons)}')
             self.logger.info(f'\tSynapses in the network: {self.amount_of_synapses_in_total}')
             self.logger.info(f'\n\tParticipating Nodes are neurons in a tuple with at least:'
-                             f' {self.synapse_amount_threshold} synapses')
+                             f' {self.synapse_threshold} synapses')
             self.logger.info(f'\tSynapses in the graph: {self.amount_of_synapses_in_graph}')
 
         self.logger.info(f'\tNodes: {len(self.graph)}')
@@ -80,10 +75,6 @@ class Network:
         self.__degree_stats(self.graph.degree, 'Degree')
         self.__degree_stats(self.graph.in_degree, 'In-Degree')
         self.__degree_stats(self.graph.out_degree, 'Out-Degree')
-
-        self.logger.info('')
-        self.plot_properties()
-        self.plot_graph()
 
     def node_properties(self, node: Union[str, int]):
         self.logger.info(f'Node {node} properties:')
@@ -151,9 +142,6 @@ class Network:
                    plot_func=plt.bar)
 
     def plot_properties(self):
-        if not self.plot_props:
-            return
-
         self.__plot_degree_dist()
         self.__plot_degree_dist_log()
         self.__plot_degree_in_dist()
@@ -161,9 +149,6 @@ class Network:
         # self.__plot_rich_club_coefficient()
 
     def plot_graph(self):
-        if not self.plot_full_graph:
-            return
-
         # TODO: need better plotting tools / motif plotting
         if self.neuron_names:
             mapping = {i: n for i, n in enumerate(self.neuron_names)}
