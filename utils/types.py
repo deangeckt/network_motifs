@@ -90,7 +90,7 @@ class Motif(BaseModel):
     random_network_samples: Optional[list[int]] = []  # number of appearances of this motif id in the random networks
     sub_graphs: Optional[list[tuple[tuple]]] = []  # all the isomorphic sub graphs appearances - in a tuple-edge format
     # dict of dicts, key=role. value = dict where keys are node name and value are their freq.
-    node_roles: Optional[dict, dict] = {}
+    node_roles: Optional[dict] = {}
 
     # a sorted dict of the nodes that appear in this motif
     # the key is either a neuron name or node id

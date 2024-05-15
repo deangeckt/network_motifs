@@ -104,31 +104,29 @@ def parse_args():
                         help="sheet name of an xlsx input network file")
 
     # [Run args]
-    parser.add_argument("-rsg", "--run_sub_graph_search",
-                        help="run the sub graph search",
-                        default=True)
     parser.add_argument("-rmc", "--run_motif_criteria",
                         help="run full motif search with motif criteria tests",
-                        default=True)
+                        action='store_true',
+                        default=False)
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif",
-                        default=4)
+                        type=int,
+                        default=3)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
                         default='mfinder_i',
                         choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'specific'])
-    parser.add_argument("-la", "--log_all_motif_sub_graphs",
-                        help="log all motifs sub graphs found",
-                        default=True)
     # TODO: add bool flag to use iso mapping sub-graphs search
     # implications: without it - you won't get anti-motifs!
     parser.add_argument("-asl", "--allow_self_loops",
                         help="allow self loops in the (pre motif search) isomorphic sub-graphs search",
+                        action='store_true',
                         default=False)
 
     # [Neuronal]
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
+                        type=int,
                         default=26)
 
     # [Polarity]
@@ -161,23 +159,28 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=2)
+                        default=1000)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
+                        type=int,
                         default=10)
 
     # [Motif criteria]
     parser.add_argument("-a", "--alpha",
                         help="motif criteria alpha for testing p value significance",
+                        type=float,
                         default=0.01)
     parser.add_argument("-ft", "--frequency_threshold",
                         help="motif criteria frequency threshold test",
+                        type=float,
                         default=0.1)
     parser.add_argument("-ut", "--uniqueness_threshold",
                         help="motif criteria uniqueness threshold test",
+                        type=int,
                         default=3)
     parser.add_argument("-uut", "--use_uniq_criteria",
                         help="whether to use the uniqueness test",
+                        action='store_true',
                         default=False)
 
     return parser.parse_args()
@@ -268,9 +271,6 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
 
 
 def motif_search(args: Namespace):
-    if not args.run_sub_graph_search:
-        return
-
     motif_candidates = sub_graph_search(args)
 
     if not args.run_motif_criteria:
