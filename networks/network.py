@@ -1,11 +1,9 @@
 from typing import Union
 
 import networkx as nx
-import matplotlib.pyplot as plt
 import numpy as np
 
 from post_motif_analysis.polarity_counter import count_network_polarity_ratio
-from utils.common import basic_plot
 from utils.simple_logger import Logger
 
 
@@ -13,8 +11,6 @@ class Network:
     def __init__(self, synapse_threshold: int):
         self.logger = Logger()
         self.graph = nx.DiGraph()
-
-        # TODO: mv plots to notebook
 
         # neurons configuration
         self.neuron_names: list[str] = []
@@ -86,76 +82,3 @@ class Network:
         self.logger.info(f'Out Degree: {self.graph.out_degree[node]}')
         self.logger.info(f'In Degree: {self.graph.in_degree[node]}')
         self.logger.info(f'Clustering coefficient: {round(nx.average_clustering(self.graph, nodes=[node]), 3)}')
-
-    def __plot_rich_club_coefficient(self):
-        un_dir_graph = nx.Graph(self.graph)
-        un_dir_graph.remove_edges_from(nx.selfloop_edges(un_dir_graph))
-        rc = nx.rich_club_coefficient(un_dir_graph, normalized=False, seed=42)
-        data = list(rc.keys()), list(rc.values())
-        basic_plot(data=data,
-                   title='Rich Club Coefficient',
-                   xlabel='Degree (k)',
-                   ylabel='Rich Club Coefficient',
-                   plot_func=plt.scatter)
-
-    def __plot_degree_dist(self):
-        degree_sequence = sorted((d for n, d in self.graph.degree()), reverse=True)
-        data = np.unique(degree_sequence, return_counts=True)
-        basic_plot(data=data,
-                   title='Degree Distribution',
-                   xlabel='Degree',
-                   ylabel='# of Nodes',
-                   plot_func=plt.bar)
-
-    def __plot_degree_dist_log(self, normalized=True):
-        y = nx.degree_histogram(self.graph)
-        x = np.arange(0, len(y)).tolist()
-        n = self.graph.number_of_nodes()
-
-        if normalized:
-            for i in range(len(y)):
-                y[i] = y[i] / n
-
-        basic_plot(data=(x, y, 'o'),
-                   title='Degree Distribution (log-log scale)',
-                   xlabel='Degree (log scale)',
-                   ylabel='# of Nodes (log scale)',
-                   plot_func=plt.plot,
-                   log_scale=True)
-
-    def __plot_degree_in_dist(self):
-        degree_sequence = sorted((d for n, d in self.graph.in_degree), reverse=True)
-        data = np.unique(degree_sequence, return_counts=True)
-        basic_plot(data=data,
-                   title='Degree In Distribution',
-                   xlabel='Degree in',
-                   ylabel='# of Nodes',
-                   plot_func=plt.bar)
-
-    def __plot_degree_out_dist(self):
-        degree_sequence = sorted((d for n, d in self.graph.out_degree), reverse=True)
-        data = np.unique(degree_sequence, return_counts=True)
-        basic_plot(data=data,
-                   title='Degree Out Distribution',
-                   xlabel='Degree out',
-                   ylabel='# of Nodes',
-                   plot_func=plt.bar)
-
-    def plot_properties(self):
-        self.__plot_degree_dist()
-        self.__plot_degree_dist_log()
-        self.__plot_degree_in_dist()
-        self.__plot_degree_out_dist()
-        # self.__plot_rich_club_coefficient()
-
-    def plot_graph(self):
-        # TODO: need better plotting tools / motif plotting
-        if self.neuron_names:
-            mapping = {i: n for i, n in enumerate(self.neuron_names)}
-            plot_g = nx.relabel_nodes(self.graph, mapping)
-        else:
-            plot_g = self.graph
-
-        plt.figure()
-        nx.draw_networkx(plot_g, with_labels=True, node_size=600, node_color='lightgreen')
-        plt.show()
