@@ -1,5 +1,3 @@
-from typing import Union
-
 import networkx as nx
 import numpy as np
 
@@ -71,14 +69,3 @@ class Network:
         self.__degree_stats(self.graph.degree, 'Degree')
         self.__degree_stats(self.graph.in_degree, 'In-Degree')
         self.__degree_stats(self.graph.out_degree, 'Out-Degree')
-
-    def node_properties(self, node: Union[str, int]):
-        self.logger.info(f'Node {node} properties:')
-
-        if isinstance(node, str):
-            node = self.neuron_names.index(node)
-
-        self.logger.info(f'Degree: {self.graph.degree[node]}')
-        self.logger.info(f'Out Degree: {self.graph.out_degree[node]}')
-        self.logger.info(f'In Degree: {self.graph.in_degree[node]}')
-        self.logger.info(f'Clustering coefficient: {round(nx.average_clustering(self.graph, nodes=[node]), 3)}')

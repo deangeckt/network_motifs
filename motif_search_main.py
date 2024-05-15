@@ -78,8 +78,12 @@ def parse_args():
 
     parser.add_argument("-rs", "--random_seed", help="random seed for the entire program", default=42)
     # [Output files]
-    parser.add_argument("-lf", "--log_file", help="file path to save log results", default=None)
-    parser.add_argument("-bf", "--bin_file", help="file path to save binary results", default='tst.bin')
+    parser.add_argument("-lf", "--log_file",
+                        help="file path to save log results",
+                        default=None)
+    parser.add_argument("-bf", "--bin_file",
+                        help="file path to save binary results",
+                        default='results/pol4_test.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -108,7 +112,7 @@ def parse_args():
                         default=True)
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif",
-                        default=3)
+                        default=4)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
                         default='mfinder_i',
@@ -125,7 +129,7 @@ def parse_args():
     # [Neuronal]
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
-                        default=20)
+                        default=26)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",

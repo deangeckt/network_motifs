@@ -22,7 +22,7 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
     """
     :param appearances: the sub graphs appearances of a given motif
     :param roles: list of tuples with the pattern of roles of the motif
-    :param graph: the real network graph
+    :param graph: the graph from which the appearances were extracted
     :return: a list of object containing frequencies and polarity list: e.g.: [-, +] for a 2 edge sub graph
     the order in each polarity list is the same as the order of the roles
     """
@@ -38,7 +38,7 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
         for s, t in sub_graph:
             polarity = graph.get_edge_data(s, t)['polarity']
             role_edge = (nodes_in_sub_graph_reverse[s], nodes_in_sub_graph_reverse[t])
-            edge_idx = roles.index(role_edge)
+            edge_idx = roles.index(role_edge)  # TODO:  bug in polarity rand network, use m=25 on the pol network
             sub_graph_polarity[edge_idx] = polarity
 
         polarity_vec = list(sub_graph_polarity.values())
