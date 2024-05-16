@@ -20,8 +20,7 @@ from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif
 from subgraphs.triadic_census import TriadicCensus
 from utils.export_import import export_results
-from utils.logs import log_motif_results, log_sub_graph_args, log_randomizer_args, \
-    log_polarity_motif_results
+from utils.logs import log_motif_results, log_sub_graph_args, log_randomizer_args, log_motifs_table
 from utils.simple_logger import Logger
 import time
 import argparse
@@ -81,7 +80,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default=None)
+                        default='pol_k3_m10.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -103,12 +102,11 @@ def parse_args():
                         nargs='+'
                         )
 
-
     # [Run args]
     parser.add_argument("-rmc", "--run_motif_criteria",
                         help="run full motif search with motif criteria tests",
                         action='store_true',
-                        default=False)
+                        default=True)
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif",
                         type=int,
@@ -128,7 +126,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=10)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -160,7 +158,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=1000)
+                        default=100)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -188,22 +186,17 @@ def parse_args():
 
 
 def polarity_motif_search(
-        k: int,
         motif_candidates: dict[int, Motif],
         random_networks: list[DiGraph],
         random_network_sub_graph_results: list[SubGraphSearchResult]):
+
     if not network.use_polarity:
         return
 
-    all_polarity_motifs = {}
     for sub_id in motif_candidates:
-        polarity_motifs = {}
         motif = motif_candidates[sub_id]
 
-        if not motif.polarity_frequencies:
-            continue
-
-        # count polarity frequencies in random networks
+        # count polarity frequencies for the random networks
         random_network_polarity_frequencies = []
         for rand_net_idx, rand_network_res in enumerate(random_network_sub_graph_results):
             random_network_polarity_frequencies.append(
@@ -211,35 +204,29 @@ def polarity_motif_search(
                                          roles=motif.role_pattern,
                                          graph=random_networks[rand_net_idx]))
 
-        for motif_pol_freq in motif.polarity_frequencies:
-            polarity_motif_id = f'{sub_id} {str(motif_pol_freq.polarity)}'
-            polarity_motif = create_base_motif(sub_id=sub_id, k=k)
-            polarity_motif.id = polarity_motif_id
-            polarity_motif.n_real = motif_pol_freq.frequency
-
-            if polarity_motif.n_real == 0:
-                continue
-
+        for polarity_motif in motif.polarity_motifs:
             random_network_samples: list[int] = []
             for rand_network_pol_freq in random_network_polarity_frequencies:
                 for rand_pol_freq in rand_network_pol_freq:
-                    if rand_pol_freq.polarity == motif_pol_freq.polarity:
+                    if rand_pol_freq.polarity == polarity_motif.polarity:
                         random_network_samples.append(rand_pol_freq.frequency)
                         break
 
             polarity_motif.random_network_samples = random_network_samples
             polarity_motif.motif_criteria = motif_criteria.is_motif(polarity_motif)
-            # polarity_motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=motif.sub_graphs,
-            #                                                                      neuron_names=network.neuron_names)
 
-            polarity_motifs[polarity_motif_id] = polarity_motif
+        log_motifs_table(motif.polarity_motifs)
 
-        if polarity_motifs:
-            all_polarity_motifs[sub_id] = polarity_motifs
-
-    log_polarity_motif_results(all_polarity_motifs)
     if args.bin_file:
-        export_results(BinaryFile(args=args, motifs=motif_candidates, polarity_motifs=all_polarity_motifs))
+        export_results(BinaryFile(args=args, motifs=motif_candidates))
+
+
+def _populate_motif(motif: Motif, sub_graphs: list):
+    motif.node_roles = sort_node_roles_in_sub_graph(appearances=sub_graphs,
+                                                    neuron_names=network.neuron_names,
+                                                    roles=motif.role_pattern)
+    motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=sub_graphs,
+                                                                neuron_names=network.neuron_names)
 
 
 def sub_graph_search(args: Namespace) -> dict[int, Motif]:
@@ -257,15 +244,20 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
         motif = create_base_motif(sub_id=sub_id, k=args.k)
         motif.n_real = search_result.fsl.get(sub_id, 0)
         motif.sub_graphs = search_result.fsl_fully_mapped.get(sub_id, [])
-        motif.node_roles = sort_node_roles_in_sub_graph(appearances=motif.sub_graphs,
-                                                        neuron_names=network.neuron_names,
-                                                        roles=motif.role_pattern)
-        motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=motif.sub_graphs,
-                                                                    neuron_names=network.neuron_names)
+        _populate_motif(motif=motif, sub_graphs=motif.sub_graphs)
+
         if network.use_polarity:
-            motif.polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
-                                                                  roles=motif.role_pattern,
-                                                                  graph=network.graph)
+            polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
+                                                            roles=motif.role_pattern,
+                                                            graph=network.graph)
+            for motif_pol_freq in polarity_frequencies:
+                polarity_motif = create_base_motif(sub_id=sub_id, k=args.k)
+                polarity_motif.polarity = motif_pol_freq.polarity
+                polarity_motif.id = f'{sub_id} {str(motif_pol_freq.polarity)}'
+                polarity_motif.n_real = motif_pol_freq.frequency
+                polarity_motif.sub_graphs = motif_pol_freq.sub_graphs
+                _populate_motif(motif=polarity_motif, sub_graphs=motif_pol_freq.sub_graphs)
+                motif.polarity_motifs.append(polarity_motif)
 
         motifs[sub_id] = motif
 
@@ -276,9 +268,9 @@ def motif_search(args: Namespace):
     motif_candidates = sub_graph_search(args)
 
     if not args.run_motif_criteria:
-        log_motif_results(motif_candidates, network)
+        log_motif_results(motif_candidates)
         if args.bin_file:
-            export_results(BinaryFile(args=args, motifs=motif_candidates, polarity_motifs=None))
+            export_results(BinaryFile(args=args, motifs=motif_candidates))
         return
 
     log_randomizer_args(args)
@@ -303,12 +295,12 @@ def motif_search(args: Namespace):
         motif_candidate.motif_criteria = motif_criteria.is_motif(motif_candidate)
         motif_candidates[sub_id] = motif_candidate
 
-    log_motif_results(motif_candidates, network)
+    log_motif_results(motif_candidates)
 
     if args.bin_file and not network.use_polarity:
-        export_results(BinaryFile(args=args, motifs=motif_candidates, polarity_motifs=None))
+        export_results(BinaryFile(args=args, motifs=motif_candidates))
 
-    polarity_motif_search(args.k, motif_candidates, random_networks, random_network_sub_graph_results)
+    polarity_motif_search(motif_candidates, random_networks, random_network_sub_graph_results)
 
 
 def load_network_from_args(args: Namespace) -> Network:

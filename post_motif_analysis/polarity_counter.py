@@ -5,6 +5,7 @@ from networkx import DiGraph
 from subgraphs.sub_graphs_utils import get_sub_graph_mapping_to_motif
 from utils.common import get_decimal_from_bin_vec, get_bin_vec_from_decimal
 from utils.types import PolarityFrequencies
+from collections import defaultdict
 
 
 def count_network_polarity_ratio(polarity: list[str]):
@@ -28,7 +29,7 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
     """
 
     edges = len(roles)
-    freq_list = [0] * (2 ** edges)
+    fsl = defaultdict(list)
 
     for sub_graph in appearances:
         nodes_in_sub_graph = get_sub_graph_mapping_to_motif(sub_graph, roles)
@@ -44,31 +45,15 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
         polarity_vec = sorted(sub_graph_polarity.values(), key=lambda item: item[0])
         polarity_bin_vec = list(map(lambda x: 1 if x == '+' else 0, polarity_vec))
         polarity_id = get_decimal_from_bin_vec(polarity_bin_vec)
-        freq_list[polarity_id] += 1
+        fsl[polarity_id].append(sub_graph)
 
+    fsl = dict(sorted(fsl.items()))
     polarity_frequencies = []
-    for decimal, freq in enumerate(freq_list):
+    for decimal in range((2 ** edges)):
+        sub_graphs = fsl.get(decimal, [])
+        freq = len(sub_graphs)
         bin_digits = get_bin_vec_from_decimal(decimal=decimal, pad_to=edges)
         polarity_vec = list(map(lambda x: '+' if x == 1 else '-', bin_digits))
-        polarity_frequencies.append(PolarityFrequencies(frequency=freq, polarity=polarity_vec))
+        polarity_frequencies.append(PolarityFrequencies(frequency=freq, polarity=polarity_vec, sub_graphs=sub_graphs))
 
     return polarity_frequencies
-
-
-def get_all_sub_graph_polarities(sub_graphs: list[tuple[tuple]], graph: nx.DiGraph) -> list:
-    """
-    attaching the polarity to each edge in the sub graph
-    """
-    enriched_sub_graphs = []
-
-    for sub_graph in sub_graphs:
-        enriched_sub_graph = tuple()
-        for edge in sub_graph:
-            s, t = edge
-            polarity = graph.get_edge_data(s, t)['polarity']
-            polarity = '+' if polarity == 1 else '-'
-            edge += (polarity,)
-            enriched_sub_graph += (edge,)
-        enriched_sub_graphs.append(enriched_sub_graph)
-
-    return enriched_sub_graphs

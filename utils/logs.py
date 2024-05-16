@@ -1,8 +1,5 @@
 from argparse import Namespace
 from typing import Any
-
-from networks.network import Network
-from post_motif_analysis.polarity_counter import get_all_sub_graph_polarities
 from utils.simple_logger import Logger
 from utils.types import Motif, MotifCriteriaResults, MotifCriteriaArgs, SubGraphAlgoName, RandomGeneratorAlgoName
 from tabulate import tabulate
@@ -10,12 +7,11 @@ from tabulate import tabulate
 logger = Logger()
 
 
-def log_motifs_table(motifs: dict[Any, Motif]):
+def log_motifs_table(motifs: list[Motif]):
     if not motifs:
         return
     table = []
-    for motif_id in motifs:
-        motif = motifs[motif_id]
+    for motif in motifs:
         motif_criteria_res = motif.motif_criteria if motif.motif_criteria is not None else MotifCriteriaResults(
             n_real=motif.n_real,
         )
@@ -43,7 +39,7 @@ def log_motifs_table(motifs: dict[Any, Motif]):
     logger.info(tabulate(table, tablefmt="grid", headers=headers, colalign=col_align, floatfmt=float_fmt))
 
 
-def log_motif_results(motifs: dict[int, Motif], network: Network):
+def log_motif_results(motifs: dict[int, Motif]):
     motifs_list = motifs.values()
     non_zero_found = sum([1 for m in motifs_list if m.n_real > 0])
     total_sub_graphs = sum([m.n_real for m in motifs_list])
@@ -51,7 +47,7 @@ def log_motif_results(motifs: dict[int, Motif], network: Network):
     logger.info(f'\nMotif candidates found: {non_zero_found}')
     logger.info(f'Total number of sub graphs found: {total_sub_graphs}')
 
-    log_motifs_table(motifs)
+    log_motifs_table(list(motifs.values()))
 
     for motif_id in motifs:
         motif = motifs[motif_id]
@@ -59,24 +55,14 @@ def log_motif_results(motifs: dict[int, Motif], network: Network):
             continue
         logger.info(f'\nMotif Id: {motif_id}')
 
-        # all_sub_graphs = get_all_sub_graph_polarities(motif.sub_graphs,
-        #                                               network.graph) if network.use_polarity else motif.sub_graphs
-        # logger.info(f'Appearances (all sub-graphs): {all_sub_graphs}')
         logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
         logger.info(f'Role pattern: {motif.role_pattern}')
         for role in motif.node_roles:
             logger.info(f'Appearances of Nodes in role {role}: {motif.node_roles[role]}')
 
-        for pol_freq in motif.polarity_frequencies:
-            if pol_freq.frequency:
-                logger.info(f'Polarity: {pol_freq.polarity} - frequency: {pol_freq.frequency}')
-
-
-def log_polarity_motif_results(polarity_motifs: dict[int, dict[str, Motif]]):
-    if polarity_motifs:
-        logger.info('\nPolarity Motif results:')
-        for polarity_motif in polarity_motifs.values():
-            log_motifs_table(polarity_motif)
+        for pol_motif in motif.polarity_motifs:
+            if pol_motif.n_real:
+                logger.info(f'Polarity: {pol_motif.polarity}: frequency: {pol_motif.n_real}')
 
 
 def log_motif_criteria_args(args: MotifCriteriaArgs):
@@ -100,4 +86,3 @@ def log_randomizer_args(args: Namespace):
     logger.info(f'Randomizer: generating {args.network_amount} random networks')
     if random_generator_algo_choice == RandomGeneratorAlgoName.markov_chain_switching:
         logger.info(f'Markov chain switch factor: {args.switch_factor}')
-

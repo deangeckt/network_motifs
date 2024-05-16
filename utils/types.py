@@ -78,6 +78,7 @@ class MotifCriteriaResults(BaseModel):
 class PolarityFrequencies(BaseModel):
     frequency: int
     polarity: list[str]
+    sub_graphs: list
 
 
 class Motif(BaseModel):
@@ -96,7 +97,8 @@ class Motif(BaseModel):
     # the key is either a neuron name or node id
     node_appearances: Optional[dict[Union[int, str], int]] = {}
 
-    polarity_frequencies: Optional[list[PolarityFrequencies]] = []
+    polarity_motifs: Optional[list['Motif']] = []
+    polarity: Optional[list[str]] = []
 
     class Config:
         arbitrary_types_allowed = True
@@ -112,4 +114,3 @@ class SubGraphSearchResult(BaseModel):
 class BinaryFile(TypedDict):
     args: Namespace
     motifs: dict[int, Motif]
-    polarity_motifs: Optional[dict[int, dict[str, Motif]]]
