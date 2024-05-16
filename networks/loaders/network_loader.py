@@ -37,6 +37,8 @@ class NetworkLoader:
 
         name = os.path.basename(file_path)
         self.logger.info(f'Network file name: {name}')
+        if sheet_name:
+            self.logger.info(f'Sheet name: {sheet_name}')
 
         loader.load(file_path, sheet_name)
 

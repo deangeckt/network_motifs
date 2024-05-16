@@ -41,7 +41,7 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
             edge_idx = roles.index(role_edge)  # TODO:  bug in polarity rand network, use m=25 on the pol network
             sub_graph_polarity[edge_idx] = polarity
 
-        polarity_vec = list(sub_graph_polarity.values())
+        polarity_vec = sorted(sub_graph_polarity.values(), key=lambda item: item[0])
         polarity_bin_vec = list(map(lambda x: 1 if x == '+' else 0, polarity_vec))
         polarity_id = get_decimal_from_bin_vec(polarity_bin_vec)
         freq_list[polarity_id] += 1

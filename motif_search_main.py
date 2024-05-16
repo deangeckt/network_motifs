@@ -59,11 +59,9 @@ def my_input_files():
     # file_type = 'worm_wiring_xlsx'
     #
     # path = "networks/data/Uri_Alon_2002/example.txt"
-    # sheet_name = None
     # file_type = 'simple_adj_txt'
 
     # path = "networks/data/Durbin_1986/neurodata.txt"
-    # sheet_name = None
     # file_type = 'durbin_txt'
     pass
 
@@ -83,7 +81,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='results/pol4_test.bin')
+                        default=None)
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -93,15 +91,18 @@ def parse_args():
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/polarity_2020/s1_data.xlsx")
+                        default="networks/data/polarity_2020/s1_data.xlsx"
+                        )
+    parser.add_argument("-sn", "--sheet_name",
+                        default='5. Sign prediction',
+                        help="sheet name of an xlsx input network file"
+                        )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of tuples where each is an edge. in the format: "1 2" "2 3"...',
                         default=None,
                         nargs='+'
                         )
-    parser.add_argument("-sn", "--sheet_name",
-                        default='5. Sign prediction',
-                        help="sheet name of an xlsx input network file")
+
 
     # [Run args]
     parser.add_argument("-rmc", "--run_motif_criteria",
@@ -127,7 +128,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=26)
+                        default=5)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -149,7 +150,7 @@ def parse_args():
     parser.add_argument("-dfs", "--durbin_filter_syn_type",
                         help="durbin: filter synapse type",
                         choices=['chem', 'gap', 'all'],
-                        default='chem')
+                        default='all')
 
     # [Randomizer]
     parser.add_argument("-r", "--randomizer",
@@ -265,6 +266,7 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
             motif.polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
                                                                   roles=motif.role_pattern,
                                                                   graph=network.graph)
+
         motifs[sub_id] = motif
 
     return motifs
