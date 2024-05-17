@@ -80,7 +80,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='pol_k3_m10.bin')
+                        default='results/pol_k3_m10.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
