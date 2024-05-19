@@ -80,7 +80,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='results/pol_k3_m10.bin')
+                        default='results/pol_k3_m5.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -126,7 +126,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=10)
+                        default=5)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -158,7 +158,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=100)
+                        default=1000)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
