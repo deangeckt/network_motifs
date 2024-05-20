@@ -8,7 +8,8 @@ from subgraphs.sub_graphs_utils import get_sub_graph_mapping_to_motif
 from utils.common import sort_dict_freq
 
 
-def sort_node_appearances_in_sub_graph(appearances: list[tuple[tuple]], neuron_names: list) -> dict[Union[int, str], int]:
+def sort_node_appearances_in_sub_graph(appearances: list[tuple[tuple]],
+                                       neuron_names: list) -> dict[Union[int, str], int]:
     """
     :param appearances: the sub graphs appearances of a given motif
     :param neuron_names: list of neurons names for neural network or an empty list otherwise
