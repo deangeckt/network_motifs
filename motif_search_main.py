@@ -27,7 +27,7 @@ import argparse
 from argparse import Namespace
 
 from utils.types import SubGraphAlgoName, RandomGeneratorAlgoName, NetworkInputType, NetworkLoaderArgs, \
-    MotifCriteriaArgs, Motif, SubGraphSearchResult, BinaryFile
+    MotifCriteriaArgs, Motif, SubGraphSearchResult, BinaryFile, MotifType
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
@@ -80,7 +80,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='results/pol_k3_m5.bin')
+                        default='results/pol_k3_m10.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -126,13 +126,13 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=10)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-'],
+                        default=['+', '-', 'complex'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
@@ -158,7 +158,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=1000)
+                        default=100)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -202,7 +202,9 @@ def polarity_motif_search(
             random_network_polarity_frequencies.append(
                 get_polarity_frequencies(appearances=rand_network_res.fsl_fully_mapped.get(sub_id, []),
                                          roles=motif.role_pattern,
-                                         graph=random_networks[rand_net_idx]))
+                                         graph=random_networks[rand_net_idx],
+                                         polarity_options=network.polarity_options
+                                         ))
 
         for polarity_motif in motif.polarity_motifs:
             random_network_samples: list[int] = []
@@ -215,7 +217,7 @@ def polarity_motif_search(
             polarity_motif.random_network_samples = random_network_samples
             polarity_motif.motif_criteria = motif_criteria.is_motif(polarity_motif)
 
-        log_motifs_table(motif.polarity_motifs)
+        log_motifs_table([m for m in motif.polarity_motifs if m.motif_criteria.is_motif != MotifType.none])
 
     if args.bin_file:
         export_results(BinaryFile(args=args, motifs=motif_candidates))
@@ -249,7 +251,8 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
         if network.use_polarity:
             polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
                                                             roles=motif.role_pattern,
-                                                            graph=network.graph)
+                                                            graph=network.graph,
+                                                            polarity_options=network.polarity_options)
             for motif_pol_freq in polarity_frequencies:
                 polarity_motif = create_base_motif(sub_id=sub_id, k=args.k)
                 polarity_motif.polarity = motif_pol_freq.polarity

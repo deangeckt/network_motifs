@@ -1,3 +1,5 @@
+import collections
+
 import networkx as nx
 import numpy as np
 
@@ -19,7 +21,8 @@ class Network:
 
         # polarity configuration
         self.use_polarity = False
-        self.polarity_ratio = 1  # E/I (+/-) ratio
+        self.polarity_ratio = collections.Counter([])
+        self.polarity_options: list[str] = []
 
     def calc_polarity_ratio(self):
         """
@@ -32,6 +35,7 @@ class Network:
             polarities.append(self.graph.get_edge_data(s, t)['polarity'])
 
         self.polarity_ratio = count_network_polarity_ratio(polarities)
+        self.polarity_options = list(self.polarity_ratio.keys())
         self.use_polarity = True
 
     def __degree_stats(self, degree_data: dict, title: str):
@@ -64,7 +68,7 @@ class Network:
 
         self.logger.info(f'\tDensity: {round(nx.density(self.graph), 3)}')
         if self.use_polarity:
-            self.logger.info(f'\tPolarity E/I ratio: {round(self.polarity_ratio, 3)}')
+            self.logger.info(f'\tPolarity ratios: {self.polarity_ratio}')
 
         self.__degree_stats(self.graph.degree, 'Degree')
         self.__degree_stats(self.graph.in_degree, 'In-Degree')

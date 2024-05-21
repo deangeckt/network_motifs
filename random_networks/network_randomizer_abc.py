@@ -13,8 +13,6 @@ class NetworkRandomizer(metaclass=ABCMeta):
         self.network = network
         self.logger = Logger()
 
-        self.inhibitory_polarity_ratio = 1 / network.polarity_ratio
-
     @abstractmethod
     def generate(self, amount: int) -> list[DiGraph]:
         pass
@@ -42,18 +40,26 @@ class NetworkRandomizer(metaclass=ABCMeta):
         return dir_graph
 
     def _assign_polarity(self, graph: DiGraph):
-        r = self.network.polarity_ratio
-        e = len(self.network.graph.edges)
+        pol_amounts = {}
 
-        inhibitory_edges = round(e / (r+1))
-        excitatory_edges = e - inhibitory_edges
+        curr_sum = 0
+        last_key = ''
+        for i, key in enumerate(self.network.polarity_ratio):
+            last_key = key
+            if i == len(self.network.polarity_ratio) - 1:
+                break
+            pol_amounts[key] = round(self.network.polarity_ratio[key] * len(graph.edges))
+            curr_sum += pol_amounts[key]
+
+        pol_amounts[last_key] = len(graph.edges) - curr_sum
 
         all_edges = list(graph.edges)
         random.shuffle(all_edges)
 
-        for ex_idx in range(excitatory_edges):
-            edge = all_edges[ex_idx]
-            nx.set_edge_attributes(graph, {edge: {"polarity": '+'}})
-        for in_idx in range(excitatory_edges, len(all_edges)):
-            edge = all_edges[in_idx]
-            nx.set_edge_attributes(graph, {edge: {"polarity": '-'}})
+        start_idx = 0
+        for pol in pol_amounts:
+            amount = pol_amounts[pol]
+            edges = all_edges[start_idx: start_idx + amount]
+            edges_dict = {e: {"polarity": pol} for e in edges}
+            nx.set_edge_attributes(graph, edges_dict)
+            start_idx += amount
