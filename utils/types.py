@@ -107,16 +107,12 @@ class Motif(BaseModel):
 
 class SubGraphSearchResult(BaseModel):
     # frequent sub graph list: key=motif id, value is the frequency
-    fsl: dict[int, int]
+    fsl: dict[Union[str, int], int]
     # same fsl, the value is the list of sub graphs
-    fsl_fully_mapped: dict[int, list[tuple]]
+    fsl_fully_mapped: dict[Union[str, int], list[tuple]]
 
 
-class LargeSubGraphSearchResult(BaseModel):
-    # frequent sub graph list: key=motif id, value is the frequency
-    fsl: dict[str, int]
-    # same fsl, the value is the list of sub graphs
-    fsl_fully_mapped: dict[str, list[tuple]]
+class LargeSubGraphSearchResult(SubGraphSearchResult):
     adj_mat: dict[str, np.ndarray]
 
     class Config:
@@ -125,4 +121,4 @@ class LargeSubGraphSearchResult(BaseModel):
 
 class BinaryFile(TypedDict):
     args: Namespace
-    motifs: dict[int, Motif]
+    motifs: dict[Union[str, int], Motif]

@@ -2,8 +2,6 @@ import numpy as np
 from networkx import DiGraph
 import networkx as nx
 from itertools import combinations
-
-from subgraphs.sub_graphs_utils import get_adjacency_matrix
 from utils.types import LargeSubGraphSearchResult
 
 
@@ -21,13 +19,18 @@ class SingleInputModule:
         self.fsl_fully_mapped = {}  # same fsl, the value is the list of sub graphs
         self.adj_mats = {}
 
-    def search_sub_graphs(self, min_control_size: int) -> LargeSubGraphSearchResult:
+    @staticmethod
+    def __set_adj_mat(control_size: int) -> np.ndarray:
+        adj_mat = np.zeros((control_size + 1, control_size + 1))
+        adj_mat[0][1:control_size + 1] = 1
+        return adj_mat
 
+    def search_sub_graphs(self, min_control_size: int) -> LargeSubGraphSearchResult:
         _, max_out_degree = max(self.network.out_degree, key=lambda x: x[1])
         # we don't want the keys to mix with regular motif ids
         self.fsl = {f'SIM_{i}': 0 for i in range(min_control_size, max_out_degree + 1)}
         self.fsl_fully_mapped = {f'SIM_{i}': [] for i in range(min_control_size, max_out_degree + 1)}
-        self.adj_mats = {f'SIM_{i}': np.array([]) for i in range(min_control_size, max_out_degree + 1)}
+        self.adj_mats = {f'SIM_{i}': self.__set_adj_mat(i) for i in range(min_control_size, max_out_degree + 1)}
 
         for control_size in range(min_control_size, max_out_degree + 1):
             sim_key = f'SIM_{control_size}'
@@ -39,11 +42,6 @@ class SingleInputModule:
                     if len(induced_sim.edges) == control_size:
                         self.fsl[sim_key] += 1
                         self.fsl_fully_mapped[sim_key].append(tuple(list(induced_sim.edges)))
-
-            if self.fsl[sim_key]:
-                sub_graph = list(self.fsl_fully_mapped[sim_key][0])
-                adj_mat = get_adjacency_matrix(nx.DiGraph(sub_graph))
-                self.adj_mats[sim_key] = adj_mat
 
         return LargeSubGraphSearchResult(fsl=self.fsl,
                                          fsl_fully_mapped=self.fsl_fully_mapped,

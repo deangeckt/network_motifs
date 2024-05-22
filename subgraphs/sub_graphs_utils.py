@@ -182,3 +182,9 @@ def create_base_motif(sub_id: int, k: int) -> Motif:
     adj_mat = nx.adjacency_matrix(sub_graph).todense()
     role_pattern = get_role_pattern(adj_mat)
     return Motif(name=name, id=sub_id, adj_mat=adj_mat, role_pattern=role_pattern)
+
+
+def create_sim_motif(sim_id: str, adj_mat: np.ndarray):
+    roles = get_role_pattern(adj_mat)
+    # we don't add the adj_mat, so it won't explode the table in the logs
+    return Motif(name=MotifName.na, id=sim_id, adj_mat=np.array([]), role_pattern=roles)
