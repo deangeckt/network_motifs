@@ -11,7 +11,7 @@ class WormWiringLoader(NetworkLoaderStrategy):
         self.amount = 272
 
     def load(self, *args):
-        # TODO: add param to load 2 sheet names - chem and gap
+        # TODO: add param to load 2 sheet names - chem and gap - maybe remove sheet param afterwards.. the param should be chem / gap / all
         """
         https://wormwiring.org/pages/adjacency.html xlsx format
         Cook, (2019). Whole-animal connectomes of both Caenorhabditis elegans sexes.

@@ -64,3 +64,8 @@ class NetworkLoader:
         with open(output_file_path, "w") as f:
             for i, j in self.network.graph.edges:
                 f.write(f'{i} {j} 1\n')
+
+    def export_to_gephi(self, output_file_path: str):
+        mapping = {i: n for i, n in enumerate(self.network.neuron_names)}
+        g = nx.relabel_nodes(self.network.graph, mapping) if mapping else self.network.graph
+        nx.write_gexf(g, output_file_path)

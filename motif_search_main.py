@@ -126,7 +126,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=10)
+                        default=5)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
