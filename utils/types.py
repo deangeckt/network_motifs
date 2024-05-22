@@ -51,6 +51,7 @@ class MotifName(str, Enum):
     feed_forward = 'feed_forward'
     bi_fan = 'bi_fan'
     bi_parallel = 'bi_parallel'
+    sim_3 = 'sim_3'
     na = 'n/a'
 
 

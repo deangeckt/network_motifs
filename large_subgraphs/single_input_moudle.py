@@ -21,21 +21,17 @@ class SingleInputModule:
         self.fsl_fully_mapped = {}  # same fsl, the value is the list of sub graphs
         self.adj_mats = {}
 
-    def search_sub_graphs(self) -> LargeSubGraphSearchResult:
-        MIN_CTRL_SIZE = 2
+    def search_sub_graphs(self, min_control_size: int) -> LargeSubGraphSearchResult:
 
         _, max_out_degree = max(self.network.out_degree, key=lambda x: x[1])
         # we don't want the keys to mix with regular motif ids
-        self.fsl = {f'SIM_{i}': 0 for i in range(MIN_CTRL_SIZE, max_out_degree + 1)}
-        self.fsl_fully_mapped = {f'SIM_{i}': [] for i in range(MIN_CTRL_SIZE, max_out_degree + 1)}
-        self.adj_mats = {f'SIM_{i}': np.array([]) for i in range(MIN_CTRL_SIZE, max_out_degree + 1)}
+        self.fsl = {f'SIM_{i}': 0 for i in range(min_control_size, max_out_degree + 1)}
+        self.fsl_fully_mapped = {f'SIM_{i}': [] for i in range(min_control_size, max_out_degree + 1)}
+        self.adj_mats = {f'SIM_{i}': np.array([]) for i in range(min_control_size, max_out_degree + 1)}
 
-        nodes = list(self.network.nodes)
-
-        for control_size in range(MIN_CTRL_SIZE, max_out_degree + 1):
+        for control_size in range(min_control_size, max_out_degree + 1):
             sim_key = f'SIM_{control_size}'
-            for row in range(len(nodes) - 1):
-                input_node = nodes[row]
+            for input_node in list(self.network.nodes):
                 neighbors = list(self.network.neighbors(input_node))
                 for controlled in list(combinations(neighbors, control_size)):
                     sub_graph = list(controlled) + [input_node]
@@ -51,18 +47,4 @@ class SingleInputModule:
 
         return LargeSubGraphSearchResult(fsl=self.fsl,
                                          fsl_fully_mapped=self.fsl_fully_mapped,
-                                         adj_mat=self.adj_mats
-                                         )
-
-
-if __name__ == "__main__":
-    graph = nx.DiGraph([(1, 2), (1, 3), (1, 4), (1, 7), (5, 2), (5, 6), (5, 8), (9, 1)])
-    sim = SingleInputModule(graph)
-    res = sim.search_sub_graphs()
-
-    for sim_id in res.fsl:
-        print(f'{sim_id} - freq: {res.fsl[sim_id]}')
-        for sub_graph in res.fsl_fully_mapped[sim_id]:
-            print(sub_graph)
-        print(res.adj_mat[sim_id])
-        print()
+                                         adj_mat=self.adj_mats)

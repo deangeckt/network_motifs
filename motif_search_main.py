@@ -21,7 +21,6 @@ from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
 from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif, get_role_pattern
 from subgraphs.triadic_census import TriadicCensus
-from utils.common import get_decimal_from_bin_vec
 from utils.export_import import export_results
 from utils.logs import log_motif_results, log_sub_graph_args, log_randomizer_args, log_motifs_table
 from utils.simple_logger import Logger
@@ -129,7 +128,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=10)
+                        default=15)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -246,7 +245,7 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
 
     sim = SingleInputModule(network.graph)
     start_time = time.time()
-    sim_search_result = sim.search_sub_graphs()
+    sim_search_result = sim.search_sub_graphs(min_control_size=args.k)
     end_time = time.time()
     logger.info(f'SIM search timer [Sec]: {round(end_time - start_time, 2)}')
 
@@ -279,11 +278,9 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
         motif = Motif(name=MotifName.na, id=sim_id, adj_mat=np.array([]), role_pattern=roles)
         motif.n_real = sim_search_result.fsl[sim_id]
         motif.sub_graphs = sim_search_result.fsl_fully_mapped[sim_id]
-        # _populate_motif(motif=motif, sub_graphs=motif.sub_graphs) # TODO: crash
-        # TODO: compare fan out - still error!
+        _populate_motif(motif=motif, sub_graphs=motif.sub_graphs)
 
         motifs[sim_id] = motif
-
 
     return motifs
 

@@ -43,7 +43,8 @@ three_sub_graphs_ids = {
 
 four_sub_graphs_ids = {
     MotifName.bi_fan: [204, 2448, 2570, 13056, 20560, 24582],
-    MotifName.bi_parallel: [904, 2136, 2182, 4544, 6672, 8716, 10498, 12356, 16458, 16532, 20994, 24848]
+    MotifName.bi_parallel: [904, 2136, 2182, 4544, 6672, 8716, 10498, 12356, 16458, 16532, 20994, 24848],
+    MotifName.sim_3: [14, 208, 2816, 28672]
 }
 
 sub_graphs_ids_per_k = {
