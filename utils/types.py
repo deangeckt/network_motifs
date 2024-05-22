@@ -83,7 +83,7 @@ class PolarityFrequencies(BaseModel):
 
 class Motif(BaseModel):
     name: MotifName  # motif name
-    id: int  # motif if / sub graph id
+    id: Union[int, str]  # motif if / sub graph id
     adj_mat: np.ndarray  # adjacency matrix
     role_pattern: list[tuple]  # the adjacency matrix in an edge tuple format: e.g.: (a,b), (a,c)
     n_real: Optional[int] = 0  # number of appearances in the real network
@@ -109,6 +109,17 @@ class SubGraphSearchResult(BaseModel):
     fsl: dict[int, int]
     # same fsl, the value is the list of sub graphs
     fsl_fully_mapped: dict[int, list[tuple]]
+
+
+class LargeSubGraphSearchResult(BaseModel):
+    # frequent sub graph list: key=motif id, value is the frequency
+    fsl: dict[str, int]
+    # same fsl, the value is the list of sub graphs
+    fsl_fully_mapped: dict[str, list[tuple]]
+    adj_mat: dict[str, np.ndarray]
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class BinaryFile(TypedDict):

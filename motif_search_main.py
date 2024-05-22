@@ -1,6 +1,7 @@
 import random
 
 import networkx as nx
+import numpy as np
 from networkx import DiGraph
 from tqdm import tqdm
 
@@ -15,10 +16,12 @@ from random_networks.markov_chain_switching import MarkovChainSwitching
 from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
+from large_subgraphs.single_input_moudle import SingleInputModule
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif
+from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif, get_role_pattern
 from subgraphs.triadic_census import TriadicCensus
+from utils.common import get_decimal_from_bin_vec
 from utils.export_import import export_results
 from utils.logs import log_motif_results, log_sub_graph_args, log_randomizer_args, log_motifs_table
 from utils.simple_logger import Logger
@@ -27,7 +30,7 @@ import argparse
 from argparse import Namespace
 
 from utils.types import SubGraphAlgoName, RandomGeneratorAlgoName, NetworkInputType, NetworkLoaderArgs, \
-    MotifCriteriaArgs, Motif, SubGraphSearchResult, BinaryFile, MotifType
+    MotifCriteriaArgs, Motif, SubGraphSearchResult, BinaryFile, MotifType, MotifName
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
@@ -80,7 +83,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='results/pol_k3_m10.bin')
+                        default='results/sim_test.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -106,7 +109,7 @@ def parse_args():
     parser.add_argument("-rmc", "--run_motif_criteria",
                         help="run full motif search with motif criteria tests",
                         action='store_true',
-                        default=True)
+                        default=False)
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif",
                         type=int,
@@ -126,13 +129,13 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=10)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-', 'complex'],
+                        default=['+', '-'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
@@ -158,7 +161,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=100)
+                        default=10)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -241,6 +244,12 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
     end_time = time.time()
     logger.info(f'Sub Graph search timer [Sec]: {round(end_time - start_time, 2)}')
 
+    sim = SingleInputModule(network.graph)
+    start_time = time.time()
+    sim_search_result = sim.search_sub_graphs()
+    end_time = time.time()
+    logger.info(f'SIM search timer [Sec]: {round(end_time - start_time, 2)}')
+
     motifs = {}
     for sub_id in isomorphic_graphs:
         motif = create_base_motif(sub_id=sub_id, k=args.k)
@@ -263,6 +272,18 @@ def sub_graph_search(args: Namespace) -> dict[int, Motif]:
                 motif.polarity_motifs.append(polarity_motif)
 
         motifs[sub_id] = motif
+
+    for sim_id in sim_search_result.fsl:
+        adj_mat = sim_search_result.adj_mat[sim_id]
+        roles = get_role_pattern(adj_mat)
+        motif = Motif(name=MotifName.na, id=sim_id, adj_mat=np.array([]), role_pattern=roles)
+        motif.n_real = sim_search_result.fsl[sim_id]
+        motif.sub_graphs = sim_search_result.fsl_fully_mapped[sim_id]
+        # _populate_motif(motif=motif, sub_graphs=motif.sub_graphs) # TODO: crash
+        # TODO: compare fan out - still error!
+
+        motifs[sim_id] = motif
+
 
     return motifs
 
