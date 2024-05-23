@@ -12,7 +12,7 @@ Network Motif discovery main steps:
 Implemented enumeration algorithms:
 - **Mfinder**, both an induced and non-induced version. R. Milo, S. Shen-Orr, S. Itzkovitz, N. Kashtan,D. Chklovskii, and U. Alon, “Network motifs: simple building blocks of complex networks.” Science, vol. 298, no. 5594, pp. 824–827, October 2002"
 - **FANMOD** - S. Wernicke, “Efficient detection of network motifs” 2006
-- **Triadic Census** - (networkx implementation) Vladimir Batagelj and Andrej Mrvar, "A subquadratic triad census algorithm for large sparse networks with small maximum degree" 2001
+- **Triadic Census** - (a wrapper of networkx implementation) Vladimir Batagelj and Andrej Mrvar, "A subquadratic triad census algorithm for large sparse networks with small maximum degree" 2001
 
 ##
 Implemented Large Motif search algorithms:
