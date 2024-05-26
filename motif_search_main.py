@@ -82,7 +82,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='results/cmpx_pol_k3_m5.bin')
+                        default=None)
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -108,7 +108,7 @@ def parse_args():
     parser.add_argument("-rmc", "--run_motif_criteria",
                         help="run full motif search with motif criteria tests",
                         action='store_true',
-                        default=True)
+                        default=False)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
                         default='mfinder_i',
@@ -120,7 +120,7 @@ def parse_args():
     parser.add_argument("-sim", "--sim",
                         help="the maximum size of control size in the SIM search",
                         type=int,
-                        default=5)
+                        default=3)
 
     # TODO: add bool flag to use iso mapping sub-graphs search. test on k=2
     # implications: without it - you won't get anti-motifs!
@@ -139,7 +139,7 @@ def parse_args():
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-', 'complex'],
+                        default=['+', '-'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
