@@ -45,7 +45,7 @@ class MotifType(str, Enum):
 class MotifName(str, Enum):
     self_loop = 'self_loop'
     mutual_regulation = 'mutual_regulation'
-    fan_out = 'fan_out'
+    fan_out = 'fan_out'  # a.k.a sim_2
     fan_in = 'fan_in'
     cascade = 'cascade'
     feed_forward = 'feed_forward'
@@ -90,7 +90,9 @@ class Motif(BaseModel):
     n_real: Optional[int] = 0  # number of appearances in the real network
     motif_criteria: Optional[MotifCriteriaResults] = None
     random_network_samples: Optional[list[int]] = []  # number of appearances of this motif id in the random networks
-    sub_graphs: Optional[list[tuple[tuple]]] = []  # all the isomorphic sub graphs appearances - in a tuple-edge format
+
+    # all the isomorphic sub graphs appearances - in a tuple-edge format: (s,t,polarity)
+    sub_graphs: Optional[list[tuple[tuple]]] = []
     # dict of dicts, key=role. value = dict where keys are node name and value are their freq.
     node_roles: Optional[dict] = {}
 

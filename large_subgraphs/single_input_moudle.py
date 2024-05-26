@@ -26,23 +26,37 @@ class SingleInputModule:
         adj_mat[0][1:control_size + 1] = 1
         return adj_mat
 
-    def search_sub_graphs(self, min_control_size: int) -> LargeSubGraphSearchResult:
+    def search_sub_graphs(self, min_control_size: int, max_control_size=6) -> LargeSubGraphSearchResult:
         _, max_out_degree = max(self.network.out_degree, key=lambda x: x[1])
-        # we don't want the keys to mix with regular motif ids
-        self.fsl = {f'SIM_{i}': 0 for i in range(min_control_size, max_out_degree + 1)}
-        self.fsl_fully_mapped = {f'SIM_{i}': [] for i in range(min_control_size, max_out_degree + 1)}
-        self.adj_mats = {f'SIM_{i}': self.__set_adj_mat(i) for i in range(min_control_size, max_out_degree + 1)}
 
-        for control_size in range(min_control_size, max_out_degree + 1):
+        if max_control_size is None:
+            max_control_size = min(max_out_degree, max_out_degree)
+
+        # we don't want the keys to mix with regular motif ids
+        self.fsl = {f'SIM_{i}': 0 for i in range(min_control_size, max_control_size + 1)}
+        self.fsl_fully_mapped = {f'SIM_{i}': [] for i in range(min_control_size, max_control_size + 1)}
+        self.adj_mats = {f'SIM_{i}': self.__set_adj_mat(i) for i in range(min_control_size, max_control_size + 1)}
+
+        for control_size in range(min_control_size, max_control_size + 1):
             sim_key = f'SIM_{control_size}'
             for input_node in list(self.network.nodes):
                 neighbors = list(self.network.neighbors(input_node))
+                if input_node in neighbors:
+                    neighbors.remove(input_node)
                 for controlled in list(combinations(neighbors, control_size)):
                     sub_graph = list(controlled) + [input_node]
                     induced_sim = nx.induced_subgraph(self.network, sub_graph)
-                    if len(induced_sim.edges) == control_size:
-                        self.fsl[sim_key] += 1
+                    if len(induced_sim.edges) != control_size:
+                        continue
+
+                    self.fsl[sim_key] += 1
+
+                    polarities = nx.get_edge_attributes(induced_sim, 'polarity')
+                    if not polarities:
                         self.fsl_fully_mapped[sim_key].append(tuple(list(induced_sim.edges)))
+                    else:
+                        pol_edges = tuple([(*e, {'polarity': polarities[e]}) for e in list(induced_sim.edges)])
+                        self.fsl_fully_mapped[sim_key].append(pol_edges)
 
         return LargeSubGraphSearchResult(fsl=self.fsl,
                                          fsl_fully_mapped=self.fsl_fully_mapped,

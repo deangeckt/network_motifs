@@ -82,7 +82,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='results/sim_test.bin')
+                        default='results/cmpx_pol_k3_m5.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -109,15 +109,20 @@ def parse_args():
                         help="run full motif search with motif criteria tests",
                         action='store_true',
                         default=True)
-    parser.add_argument("-k", "--k",
-                        help="the size of sub-graph / motif",
-                        type=int,
-                        default=3)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
                         default='mfinder_i',
                         choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'specific'])
-    # TODO: add bool flag to use iso mapping sub-graphs search
+    parser.add_argument("-k", "--k",
+                        help="the size of sub-graph / motif to search in the enumeration algorithm",
+                        type=int,
+                        default=3)
+    parser.add_argument("-sim", "--sim",
+                        help="the maximum size of control size in the SIM search",
+                        type=int,
+                        default=5)
+
+    # TODO: add bool flag to use iso mapping sub-graphs search. test on k=2
     # implications: without it - you won't get anti-motifs!
     parser.add_argument("-asl", "--allow_self_loops",
                         help="allow self loops in the (pre motif search) isomorphic sub-graphs search",
@@ -128,13 +133,13 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=20)
+                        default=5)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-'],
+                        default=['+', '-', 'complex'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
@@ -160,7 +165,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=3)
+                        default=1000)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -189,7 +194,6 @@ def parse_args():
 
 def polarity_motif_search(
         motif_candidates: dict[int, Motif],
-        random_networks: list[DiGraph],
         random_network_sub_graph_results: list[SubGraphSearchResult]):
 
     if not network.use_polarity:
@@ -204,7 +208,6 @@ def polarity_motif_search(
             random_network_polarity_frequencies.append(
                 get_polarity_frequencies(appearances=rand_network_res.fsl_fully_mapped.get(sub_id, []),
                                          roles=motif.role_pattern,
-                                         graph=random_networks[rand_net_idx],
                                          polarity_options=network.polarity_options
                                          ))
 
@@ -244,7 +247,7 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
 
     sim = SingleInputModule(network.graph)
     start_time = time.time()
-    sim_search_result = sim.search_sub_graphs(min_control_size=args.k)
+    sim_search_result = sim.search_sub_graphs(min_control_size=args.k, max_control_size=args.sim)
     end_time = time.time()
     logger.info(f'SIM search timer [Sec]: {round(end_time - start_time, 2)}')
 
@@ -268,7 +271,6 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
             motif = motifs[sub_id]
             polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
                                                             roles=motif.role_pattern,
-                                                            graph=network.graph,
                                                             polarity_options=network.polarity_options)
             for motif_pol_freq in polarity_frequencies:
                 if isinstance(sub_id, str):
@@ -311,7 +313,7 @@ def motif_search(args: Namespace):
         sub_graph_search_result = sub_graph_algo.search_sub_graphs(k=args.k)
 
         sim = SingleInputModule(rand_network)
-        sim_search_result = sim.search_sub_graphs(min_control_size=args.k)
+        sim_search_result = sim.search_sub_graphs(min_control_size=args.k, max_control_size=args.sim)
 
         combined_res = SubGraphSearchResult(fsl={**sub_graph_search_result.fsl, **sim_search_result.fsl},
                                             fsl_fully_mapped={**sub_graph_search_result.fsl_fully_mapped,
@@ -331,7 +333,7 @@ def motif_search(args: Namespace):
     if args.bin_file and not network.use_polarity:
         export_results(BinaryFile(args=args, motifs=motif_candidates))
 
-    polarity_motif_search(motif_candidates, random_networks, random_network_sub_graph_results)
+    polarity_motif_search(motif_candidates, random_network_sub_graph_results)
 
 
 def load_network_from_args(args: Namespace) -> Network:

@@ -5,7 +5,7 @@ from networkx import DiGraph
 from subgraphs.sub_graphs_abc import SubGraphsABC
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import get_id, graph_to_hashed_graph
+from subgraphs.sub_graphs_utils import graph_to_hashed_graph
 from collections import defaultdict
 
 from utils.types import SubGraphSearchResult
@@ -21,8 +21,6 @@ class FanmodESU(SubGraphsABC):
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
         self.undirected_network = nx.Graph(network)
-        self.fsl = defaultdict(int)
-        self.fsl_fully_mapped = defaultdict(list)
 
         self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
@@ -30,25 +28,12 @@ class FanmodESU(SubGraphsABC):
     def __is_unique(self, sub_graph: DiGraph) -> bool:
         return graph_to_hashed_graph(sub_graph) not in self.unique
 
-    def __inc_count_w_canonical_label(self, sub_graph: DiGraph):
-        # TODO: mv to super + support a case where u didnt get the iso mapping - test with k=2 with self loops
-        sub_id = get_id(sub_graph)
-        if sub_id not in self.isomorphic_mapping:
-            return
-
-        self.logger.debug(f'inc count to motif id: {sub_id}')
-        self.logger.debug(f'{list(sub_graph.edges)}\n')
-
-        sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
-        self.fsl[sub_id_isomorphic_representative] += 1
-        self.fsl_fully_mapped[sub_id_isomorphic_representative].append(tuple(list(sub_graph.edges)))
-
     def __extend_sub_graphs(self, sub_graph: set, extension: set, v: int):
         if len(sub_graph) == self.k:
             graph = nx.induced_subgraph(self.network, list(sub_graph))
             if self.__is_unique(graph):
                 self.unique.add(graph_to_hashed_graph(graph))
-                self.__inc_count_w_canonical_label(graph)
+                self._inc_count_w_canonical_label(graph)
         else:
             while len(extension) > 0:
                 w = random.sample(extension, 1)[0]

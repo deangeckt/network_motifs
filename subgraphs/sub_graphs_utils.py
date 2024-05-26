@@ -131,7 +131,7 @@ def generate_isomorphic_k_sub_graphs(k: int, allow_self_loops=False) -> tuple[di
     return isomorphic_mapping, isomorphic_graphs
 
 
-def get_number_of_disjoint_group_nodes(sub_graphs: list[list[tuple]]) -> int:
+def get_number_of_disjoint_group_nodes(sub_graphs: list[tuple[tuple]]) -> int:
     """
     :param sub_graphs: all the sub graphs (list of edges) participating in a candidate motif sub graph
     :return: the number of completely disjoint groups of nodes
@@ -158,7 +158,7 @@ def get_role_pattern(adj_mat: np.ndarray) -> list[tuple]:
     return roles
 
 
-def get_sub_graph_mapping_to_motif(sub_graph: tuple, motif_roles: list[tuple]) -> dict:
+def get_sub_graph_mapping_to_motif(sub_graph: tuple[tuple], motif_roles: list[tuple]) -> dict:
     """
     :param sub_graph: tuple of tuples - the edges in the subgraph
     :param motif_roles: list of tuples with roles of a motif, in the format: (a,b), (b,c)

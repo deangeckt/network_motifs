@@ -74,7 +74,7 @@ class MotifCriteria:
 
         partial_res.is_anti_motif_frequent = is_freq
 
-    def __is_uniq(self, partial_res: MotifCriteriaResults, sub_graphs: list):
+    def __is_uniq(self, partial_res: MotifCriteriaResults, sub_graphs: list[tuple[tuple]]):
         """
         :param sub_graphs: a list of the motif candidate sub graphs edges
         :return: if configured to use the uniqueness test

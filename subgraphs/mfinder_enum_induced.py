@@ -5,7 +5,7 @@ from networkx import DiGraph
 from subgraphs.sub_graphs_abc import SubGraphsABC
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import get_id, graph_to_hashed_graph
+from subgraphs.sub_graphs_utils import graph_to_hashed_graph
 from collections import defaultdict
 
 from utils.types import SubGraphSearchResult
@@ -32,18 +32,6 @@ class MFinderInduced(SubGraphsABC):
     def __is_unique(self, sub_graph: DiGraph) -> bool:
         return graph_to_hashed_graph(sub_graph) not in self.unique
 
-    def __inc_count_w_canonical_label(self, sub_graph: DiGraph):
-        sub_id = get_id(sub_graph)
-        if sub_id not in self.isomorphic_mapping:
-            return
-
-        self.logger.debug(f'inc count to motif id: {sub_id}')
-        self.logger.debug(list(sub_graph.edges))
-
-        sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
-        self.fsl[sub_id_isomorphic_representative] += 1
-        self.fsl_fully_mapped[sub_id_isomorphic_representative].append(tuple(list(sub_graph.edges)))
-
     def __find_sub_graphs_new_edge(self, sub_graph: frozenset, k: int):
         if k in sub_graph:
             return
@@ -59,7 +47,7 @@ class MFinderInduced(SubGraphsABC):
             return
         if len(graph) == self.k and self.__is_unique(graph):
             self.unique.add(graph_to_hashed_graph(graph))
-            self.__inc_count_w_canonical_label(graph)
+            self._inc_count_w_canonical_label(graph)
             if self.k > 2:
                 return
 
