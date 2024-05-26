@@ -21,11 +21,6 @@ class MFinderInduced(SubGraphsABC):
 
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
-
-        self.fsl = defaultdict(int)
-        self.fsl_fully_mapped = defaultdict(list)
-
-        self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
         self.hash_ = set()  # hash for trimming during the backtracking
 

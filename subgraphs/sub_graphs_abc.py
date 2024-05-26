@@ -14,6 +14,7 @@ class SubGraphsABC(metaclass=ABCMeta):
         self.network = network
         self.isomorphic_mapping = isomorphic_mapping
         self.logger = Logger()
+        self.k = -1  # motif size
 
         self.fsl = defaultdict(int)
         self.fsl_fully_mapped = defaultdict(list)

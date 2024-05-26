@@ -21,8 +21,6 @@ class FanmodESU(SubGraphsABC):
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
         self.undirected_network = nx.Graph(network)
-
-        self.k = -1  # motif size
         self.unique = set()  # unique sub graphs visited
 
     def __is_unique(self, sub_graph: DiGraph) -> bool:
