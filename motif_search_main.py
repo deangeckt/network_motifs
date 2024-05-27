@@ -273,6 +273,7 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
                                                             roles=motif.role_pattern,
                                                             polarity_options=network.polarity_options)
             for motif_pol_freq in polarity_frequencies:
+                # TODO: compare to 'sim', 'dor' etc... remove isinstance
                 if isinstance(sub_id, str):
                     polarity_motif = create_sim_motif(sim_id=sub_id, adj_mat=sim_search_result.adj_mat[sub_id])
                 else:

@@ -28,7 +28,7 @@ def test_fan_out(network_file):
     triadic_census_sub_graphs = triadic_census.search_sub_graphs(k=k)
 
     sim = SingleInputModule(network.graph)
-    sim_res = sim.search_sub_graphs(min_control_size=k-1)
+    sim_res = sim.search_sub_graphs(min_control_size=k-1, max_control_size=5)
 
     assert sim_res.fsl['SIM_2'] == triadic_census_sub_graphs.fsl.get(6, 0)
 
@@ -46,6 +46,5 @@ def test_sim3(network_file):
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
 
     sim = SingleInputModule(network.graph)
-    sim_res = sim.search_sub_graphs(min_control_size=k - 1)
-
+    sim_res = sim.search_sub_graphs(min_control_size=k - 1, max_control_size=5)
     assert sim_res.fsl['SIM_3'] == mfinder_sub_graphs.fsl.get(14, 0)

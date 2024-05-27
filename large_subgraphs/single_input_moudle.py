@@ -26,7 +26,7 @@ class SingleInputModule:
         adj_mat[0][1:control_size + 1] = 1
         return adj_mat
 
-    def search_sub_graphs(self, min_control_size: int, max_control_size=6) -> LargeSubGraphSearchResult:
+    def search_sub_graphs(self, min_control_size: int, max_control_size: int) -> LargeSubGraphSearchResult:
         _, max_out_degree = max(self.network.out_degree, key=lambda x: x[1])
 
         if max_control_size is None:
