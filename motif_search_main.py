@@ -82,7 +82,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default=None)
+                        default='results/cmpx_pol_k3_m10.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -108,7 +108,7 @@ def parse_args():
     parser.add_argument("-rmc", "--run_motif_criteria",
                         help="run full motif search with motif criteria tests",
                         action='store_true',
-                        default=False)
+                        default=True)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
                         default='mfinder_i',
@@ -133,13 +133,13 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=10)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-'],
+                        default=['+', '-', 'complex'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
