@@ -11,17 +11,26 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
         self.network = Network(args.synapse_threshold)
         self.args = args
 
-    def _load_synapse(self, v1, v2, num_of_synapse, polarity=None):
-        self.network.participating_neurons.add(int(v1))
-        self.network.participating_neurons.add(int(v2))
-        self.network.amount_of_synapses_in_total += int(num_of_synapse)
+    def _append_edge(self, v1: int, v2: int, synapse: int, gap: int, polarity=None):
+        self.network.participating_neurons.add(v1)
+        self.network.participating_neurons.add(v2)
 
-        if int(num_of_synapse) >= self.args.synapse_threshold:
-            self.network.amount_of_synapses_in_graph += int(num_of_synapse)
-            if polarity is not None:
-                self.network.graph.add_edge(int(v1), int(v2), polarity=polarity)
+        self.network.amount_of_synapses_in_total += synapse
+        self.network.amount_of_gaps_in_total += gap
+
+        if synapse >= self.args.synapse_threshold or gap >= self.args.synapse_threshold:
+            self.network.amount_of_synapses_in_graph += synapse
+            self.network.amount_of_gaps_in_graph += gap
+
+            if self.network.graph.has_edge(v1, v2):
+                edge = self.network.graph.get_edge_data(v1, v2)
+                self.network.graph.add_edge(v1,
+                                            v2,
+                                            synapse=edge['synapse'] + synapse,
+                                            gap=edge['gap'] + gap,
+                                            polarity=edge['polarity'])
             else:
-                self.network.graph.add_edge(int(v1), int(v2))
+                self.network.graph.add_edge(v1, v2, synapse=synapse, gap=gap, polarity=polarity)
 
     @abstractmethod
     def load(self, *args):

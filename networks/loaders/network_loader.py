@@ -18,10 +18,7 @@ class NetworkLoader:
         self.network = Network(synapse_threshold=args.synapse_threshold)
         self.args = args
 
-    def load_network_file(self,
-                          input_type: NetworkInputType,
-                          file_path: str,
-                          sheet_name: Optional[str] = None) -> Network:
+    def load_network_file(self, input_type: NetworkInputType, file_path: str) -> Network:
         if input_type == NetworkInputType.simple_adj_txt:
             loader = SimpleAdjFileLoader(self.args)
         elif input_type == NetworkInputType.worm_wiring_xlsx:
@@ -37,10 +34,8 @@ class NetworkLoader:
 
         name = os.path.basename(file_path)
         self.logger.info(f'Network file name: {name}')
-        if sheet_name:
-            self.logger.info(f'Sheet name: {sheet_name}')
 
-        loader.load(file_path, sheet_name)
+        loader.load(file_path)
 
         self.network = loader.network
         self.network.properties()

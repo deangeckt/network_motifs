@@ -18,7 +18,6 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         self.src_col = 0
         self.tar_col = 3
         self.weight_col = 4
-        self.edge_type_col = 5
         self.polarity_col = 16
         self.prim_nt_col = 1
 
@@ -27,12 +26,13 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         # primary neurotransmitter options [GABA, Glu, ACh, 0] (0 is an int)
         self.filter_prim_nt: list[str] = args.filter_prim_nt
 
-    def load(self, *args):
-        xlsx_path, sheet_name = args
-        xls = pd.ExcelFile(xlsx_path)
-        df = xls.parse(sheet_name, header=None)
+        self.sheet_name = '5. Sign prediction'
 
-        # filter
+    def load(self, *args):
+        xlsx_path = args[0]
+        xls = pd.ExcelFile(xlsx_path)
+        df = xls.parse(self.sheet_name, header=None)
+
         self.logger.info(f'Filtering Neurons with polarity: {self.filter_polarity}')
         df = df[df[self.polarity_col].isin(self.filter_polarity)]
         self.logger.info(f'Filtering Neurons with primary neurotransmitter: {self.filter_prim_nt}')
@@ -42,7 +42,7 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
 
         src_neurons_names = df.iloc[:, self.src_col]
         tar_neurons_names = df.iloc[:, self.tar_col]
-        edge_weights = df.iloc[:, self.weight_col]  # these are the amount of synapses
+        edge_weights = df.iloc[:, self.weight_col]
         polarity = df.iloc[:, self.polarity_col]
 
         self.network.use_polarity = True
@@ -55,7 +55,7 @@ class NeuronalPolarityLoader(NetworkLoaderStrategy):
         neurons_indices = {ss: i for i, ss in enumerate(self.network.neuron_names)}
 
         for v1, v2, w, p in zip(src_neurons_names, tar_neurons_names, edge_weights, polarity):
-            self._load_synapse(neurons_indices[v1], neurons_indices[v2], w, p)
+            self._append_edge(neurons_indices[v1], neurons_indices[v2], synapse=w, gap=0, polarity=p)
 
         polarities = [(self.network.graph.get_edge_data(s, t)['polarity']) for s, t in self.network.graph.edges]
         self.network.polarity_ratio = count_network_polarity_ratio(polarities)

@@ -18,8 +18,8 @@ class NetworkLoaderArgs(BaseModel):
     synapse_threshold: int
     filter_polarity: Optional[list[str]] = ['+', '-']
     filter_prim_nt: Optional[list[Union[str, int]]] = ['GABA', 'Glu', 'ACh', 0]
-    durbin_filter_syn_type: Optional[str] = 'chem'
-    durbin_filter_recon: Optional[str] = 'N2U'
+    filter_syn_type: Optional[str] = 'chem'
+    filter_sex_type: Optional[str] = 'herm'
 
 
 class SubGraphAlgoName(str, Enum):

@@ -47,23 +47,11 @@ random_generator_algorithms = {
 
 
 def my_input_files():
-    # path = "networks/data/polarity_2020/s1_data.xlsx"
-    # sheet_name = '5. Sign prediction'
-    # file_type = 'polarity_xlsx'
-    #
     # path = "networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx"
-    # sheet_name = 'herm chem synapse adjacency'  # 'herm gap jn synapse adjacency'
-    # file_type = 'worm_wiring_xlsx'
-    #
     # path = "networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July 2020.xlsx"
-    # sheet_name = 'hermaphrodite chemical'
-    # file_type = 'worm_wiring_xlsx'
-    #
+    # path = "networks/data/polarity_2020/s1_data.xlsx"
     # path = "networks/data/Uri_Alon_2002/example.txt"
-    # file_type = 'simple_adj_txt'
-
     # path = "networks/data/Durbin_1986/neurodata.txt"
-    # file_type = 'durbin_txt'
     pass
 
 
@@ -82,7 +70,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='results/cmpx_pol_k3_m10.bin')
+                        default=None)
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -93,10 +81,6 @@ def parse_args():
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
                         default="networks/data/polarity_2020/s1_data.xlsx"
-                        )
-    parser.add_argument("-sn", "--sheet_name",
-                        default='5. Sign prediction',
-                        help="sheet name of an xlsx input network file"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of tuples where each is an edge. in the format: "1 2" "2 3"...',
@@ -123,7 +107,6 @@ def parse_args():
                         default=3)
 
     # TODO: add bool flag to use iso mapping sub-graphs search. test on k=2
-    # implications: without it - you won't get anti-motifs!
     parser.add_argument("-asl", "--allow_self_loops",
                         help="allow self loops in the (pre motif search) isomorphic sub-graphs search",
                         action='store_true',
@@ -133,7 +116,15 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=10)
+                        default=20)
+    parser.add_argument("-fsy", "--filter_syn_type",
+                        help="filter synapse type, supported in durbin and worm_wiring networks",
+                        choices=['chem', 'gap', 'all'],
+                        default='chem')
+    parser.add_argument("-fsx", "--filter_sex_type",
+                        help="filter sex type, supported in durbin and worm_wiring networks",
+                        choices=['herm', 'male'],
+                        default='herm')
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -146,16 +137,6 @@ def parse_args():
                         choices=['Glu', 'GABA', 'ACh', 0],
                         default=['Glu', 'GABA', 'ACh', 0],
                         nargs='+')
-
-    # [Durbin]
-    parser.add_argument("-dfr", "--durbin_filter_recon",
-                        help="durbin: filter animal: JSH: L4 male, N2U: hermaphrodite adult",
-                        choices=['N2U', 'N2U'],
-                        default='N2U')
-    parser.add_argument("-dfs", "--durbin_filter_syn_type",
-                        help="durbin: filter synapse type",
-                        choices=['chem', 'gap', 'all'],
-                        default='all')
 
     # [Randomizer]
     parser.add_argument("-r", "--randomizer",
@@ -346,8 +327,7 @@ def load_network_from_args(args: Namespace) -> Network:
         network = loader.load_graph(graph)
     else:
         network = loader.load_network_file(input_type=input_type,
-                                           file_path=args.input_network_file,
-                                           sheet_name=args.sheet_name)
+                                           file_path=args.input_network_file)
     return network
 
 

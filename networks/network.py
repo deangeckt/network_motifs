@@ -17,6 +17,10 @@ class Network:
         self.amount_of_synapses_in_graph = 0
         self.amount_of_synapses_in_total = 0
         self.synapse_threshold = synapse_threshold
+
+        self.amount_of_gaps_in_graph = 0
+        self.amount_of_gaps_in_total = 0
+
         self.participating_neurons = set()
 
         # polarity configuration
@@ -50,12 +54,16 @@ class Network:
     def properties(self):
         self.logger.info(f'\nNetwork properties:')
         if self.neuron_names:
-            self.logger.info(f'\tNeurons: {len(self.neuron_names)}')
-            self.logger.info(f'\tNeurons with a Synapse: {len(self.participating_neurons)}')
+            self.logger.info(f'\tNeurons in the network: {len(self.neuron_names)}')
+            self.logger.info(f'\tParticipating Neurons (in the graph): {len(self.participating_neurons)}')
+
+            self.logger.info(f'\n\tParticipating Nodes are neurons with at least: {self.synapse_threshold} synapses')
+
             self.logger.info(f'\tSynapses in the network: {self.amount_of_synapses_in_total}')
-            self.logger.info(f'\n\tParticipating Nodes are neurons in a tuple with at least:'
-                             f' {self.synapse_threshold} synapses')
             self.logger.info(f'\tSynapses in the graph: {self.amount_of_synapses_in_graph}')
+
+            self.logger.info(f'\tGaps in the network: {self.amount_of_gaps_in_total}')
+            self.logger.info(f'\tGaps in the graph: {self.amount_of_gaps_in_graph}')
 
         self.logger.info(f'\tNodes: {len(self.graph)}')
         self.logger.info(f'\tEdges: {len(self.graph.edges)}')
