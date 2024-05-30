@@ -67,6 +67,10 @@ class Network:
 
         self.logger.info(f'\tNodes: {len(self.graph)}')
         self.logger.info(f'\tEdges: {len(self.graph.edges)}')
+
+        if not len(self.graph):
+            return
+
         self.logger.info(f'\tAverage clustering coefficient: {round(nx.average_clustering(self.graph), 3)}')
 
         un_dir_graph = nx.Graph(self.graph)
