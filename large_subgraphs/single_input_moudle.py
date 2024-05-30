@@ -15,7 +15,7 @@ class SingleInputModule:
     def __init__(self, network: DiGraph):
         self.network = network
         s, t = list(network.edges)[0]
-        self.use_polarity = network[s][t]['polarity'] is not None
+        self.use_polarity = 'polarity' in network[s][t] and network[s][t]['polarity'] is not None
 
         self.fsl = {}  # frequent sub graph list - value is the frequency
         self.fsl_fully_mapped = {}  # same fsl, the value is the list of sub graphs

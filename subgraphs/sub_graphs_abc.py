@@ -13,7 +13,7 @@ class SubGraphsABC(metaclass=ABCMeta):
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         self.network = network
         s, t = list(network.edges)[0]
-        self.use_polarity = network[s][t]['polarity'] is not None
+        self.use_polarity = 'polarity' in network[s][t] and network[s][t]['polarity'] is not None
 
         self.isomorphic_mapping = isomorphic_mapping
         self.logger = Logger()
