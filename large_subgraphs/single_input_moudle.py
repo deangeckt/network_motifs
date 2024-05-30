@@ -15,6 +15,8 @@ class SingleInputModule:
 
     def __init__(self, network: DiGraph):
         self.network = network
+        s, t = list(network.edges)[0]
+        self.use_polarity = network[s][t]['polarity'] is not None
 
         self.fsl = {}  # frequent sub graph list - value is the frequency
         self.fsl_fully_mapped = {}  # same fsl, the value is the list of sub graphs
@@ -51,10 +53,10 @@ class SingleInputModule:
 
                     self.fsl[sim_key] += 1
 
-                    polarities = nx.get_edge_attributes(induced_sim, 'polarity')
-                    if not polarities:
+                    if not self.use_polarity:
                         self.fsl_fully_mapped[sim_key].append(tuple(list(induced_sim.edges)))
                     else:
+                        polarities = nx.get_edge_attributes(induced_sim, 'polarity')
                         pol_edges = tuple([(*e, {'polarity': polarities[e]}) for e in list(induced_sim.edges)])
                         self.fsl_fully_mapped[sim_key].append(pol_edges)
 

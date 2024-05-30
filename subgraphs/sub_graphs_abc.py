@@ -12,6 +12,9 @@ from utils.types import SubGraphSearchResult
 class SubGraphsABC(metaclass=ABCMeta):
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         self.network = network
+        s, t = list(network.edges)[0]
+        self.use_polarity = network[s][t]['polarity'] is not None
+
         self.isomorphic_mapping = isomorphic_mapping
         self.logger = Logger()
         self.k = -1  # motif size
@@ -35,9 +38,9 @@ class SubGraphsABC(metaclass=ABCMeta):
         sub_id_isomorphic_representative = self.isomorphic_mapping[sub_id]
         self.fsl[sub_id_isomorphic_representative] += 1
 
-        polarities = nx.get_edge_attributes(sub_graph, 'polarity')
-        if not polarities:
+        if not self.use_polarity:
             self.fsl_fully_mapped[sub_id_isomorphic_representative].append(tuple(list(sub_graph.edges)))
         else:
+            polarities = nx.get_edge_attributes(sub_graph, 'polarity')
             pol_edges = tuple([(*e, {'polarity': polarities[e]}) for e in list(sub_graph.edges)])
             self.fsl_fully_mapped[sub_id_isomorphic_representative].append(pol_edges)
