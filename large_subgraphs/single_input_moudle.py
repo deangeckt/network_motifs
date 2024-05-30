@@ -5,7 +5,6 @@ from itertools import combinations
 from utils.types import LargeSubGraphSearchResult
 
 
-# TODO: when adding more: 1. abc super class. 2. type, i.e.: SIM, DOR, regular...
 class SingleInputModule:
     """
     SIM - Single Input Module. my variation of induced SIM detector.

@@ -70,7 +70,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default=None)
+                        default='cmpx_pol_k3_m10.bin')
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -104,7 +104,7 @@ def parse_args():
     parser.add_argument("-sim", "--sim",
                         help="the maximum size of control size in the SIM search",
                         type=int,
-                        default=3)
+                        default=8)
 
     # TODO: add bool flag to use iso mapping sub-graphs search. test on k=2
     parser.add_argument("-asl", "--allow_self_loops",
@@ -116,7 +116,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=10)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -254,7 +254,7 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
                                                             roles=motif.role_pattern,
                                                             polarity_options=network.polarity_options)
             for motif_pol_freq in polarity_frequencies:
-                # TODO: compare to 'sim', 'dor' etc... remove isinstance
+                # TODO: compare to 'sim', 'dor' etc... remove isinstance. and add SIM's super class...
                 if isinstance(sub_id, str):
                     polarity_motif = create_sim_motif(sim_id=sub_id, adj_mat=sim_search_result.adj_mat[sub_id])
                 else:
