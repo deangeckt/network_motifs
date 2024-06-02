@@ -75,6 +75,7 @@ def log_motif_criteria_args(args: MotifCriteriaArgs):
 def log_sub_graph_args(args: Namespace):
     logger.info(f'\nSub Graph search using Algorithm: {SubGraphAlgoName(args.sub_graph_algorithm)}')
     logger.info(f'Enum Sub Graph search using k: {args.k}')
+    logger.info(f'Using isomorphic mapping: {args.use_isomorphic_mapping}')
     logger.info(f'SIM Sub Graph search using max-control size: {args.sim}')
     logger.info(f'Allow self loops: {args.allow_self_loops}')
     logger.info(f'Doing full Motif-Search: {args.run_motif_criteria}')

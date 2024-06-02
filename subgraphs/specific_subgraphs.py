@@ -39,7 +39,7 @@ class SpecificSubGraphs(SubGraphsABC):
             4: self.four_sub_graph_search
         }
 
-    def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
+    def search_sub_graphs(self, k: int, _) -> SubGraphSearchResult:
         self.fsl = {}
         self.fsl_fully_mapped = defaultdict(list)
 

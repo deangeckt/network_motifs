@@ -19,7 +19,8 @@ from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from large_subgraphs.single_input_moudle import SingleInputModule
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif, create_sim_motif
+from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif, create_sim_motif, \
+    get_fsl_ids_iso_mapping
 from subgraphs.triadic_census import TriadicCensus
 from utils.export_import import export_results
 from utils.logs import log_motif_results, log_sub_graph_args, log_randomizer_args, log_motifs_table
@@ -70,7 +71,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default='cmpx_pol_k3_m10.bin')
+                        default=None)
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -95,18 +96,21 @@ def parse_args():
                         default=True)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
-                        default='mfinder_i',
+                        default='fanmod',
                         choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'specific'])
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif to search in the enumeration algorithm",
                         type=int,
                         default=3)
     parser.add_argument("-sim", "--sim",
-                        help="the maximum size of control size in the SIM search",
+                        help="the maximum size of control size in the SIM search algorithm",
                         type=int,
                         default=8)
 
-    # TODO: add bool flag to use iso mapping sub-graphs search. test on k=2
+    parser.add_argument("-uim", "--use_isomorphic_mapping",
+                        help="run (pre motif search) isomorphic sub-graphs search",
+                        action='store_true',
+                        default=False)
     parser.add_argument("-asl", "--allow_self_loops",
                         help="allow self loops in the (pre motif search) isomorphic sub-graphs search",
                         action='store_true',
@@ -116,7 +120,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=10)
+                        default=25)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -146,7 +150,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=1000)
+                        default=3)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -176,7 +180,6 @@ def parse_args():
 def polarity_motif_search(
         motif_candidates: dict[int, Motif],
         random_network_sub_graph_results: list[SubGraphSearchResult]):
-
     if not network.use_polarity:
         return
 
@@ -185,7 +188,7 @@ def polarity_motif_search(
 
         # count polarity frequencies for the random networks
         random_network_polarity_frequencies = []
-        for rand_net_idx, rand_network_res in enumerate(random_network_sub_graph_results):
+        for rand_network_res in random_network_sub_graph_results:
             random_network_polarity_frequencies.append(
                 get_polarity_frequencies(appearances=rand_network_res.fsl_fully_mapped.get(sub_id, []),
                                          roles=motif.role_pattern,
@@ -222,7 +225,7 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
 
     sub_graph_algo: SubGraphsABC = sub_graph_algorithms[sub_graph_algo_choice](network.graph, isomorphic_mapping)
     start_time = time.time()
-    search_result = sub_graph_algo.search_sub_graphs(k=args.k)
+    search_result = sub_graph_algo.search_sub_graphs(k=args.k, allow_self_loops=args.allow_self_loops)
     end_time = time.time()
     logger.info(f'Sub Graph search timer [Sec]: {round(end_time - start_time, 2)}')
 
@@ -233,7 +236,8 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
     logger.info(f'SIM search timer [Sec]: {round(end_time - start_time, 2)}')
 
     motifs = {}
-    for sub_id in isomorphic_graphs:
+    loop_over = isomorphic_graphs if isomorphic_graphs else search_result.fsl
+    for sub_id in loop_over:
         motif = create_base_motif(sub_id=sub_id, k=args.k)
         motif.n_real = search_result.fsl.get(sub_id, 0)
         motif.sub_graphs = search_result.fsl_fully_mapped.get(sub_id, [])
@@ -292,7 +296,7 @@ def motif_search(args: Namespace):
     random_network_sub_graph_results = []
     for rand_network in tqdm(random_networks):
         sub_graph_algo: SubGraphsABC = sub_graph_algorithms[sub_graph_algo_choice](rand_network, isomorphic_mapping)
-        sub_graph_search_result = sub_graph_algo.search_sub_graphs(k=args.k)
+        sub_graph_search_result = sub_graph_algo.search_sub_graphs(k=args.k, allow_self_loops=args.allow_self_loops)
 
         sim = SingleInputModule(rand_network)
         sim_search_result = sim.search_sub_graphs(min_control_size=args.k, max_control_size=args.sim)
@@ -302,6 +306,22 @@ def motif_search(args: Namespace):
                                                               **sim_search_result.fsl_fully_mapped})
 
         random_network_sub_graph_results.append(combined_res)
+
+    # handle mapping in case no isomorphic_graphs
+    if not isomorphic_graphs:
+        n_real_ids = [m.id for m in motif_candidates.values() if isinstance(m.id, int)]
+        rand_network_ids = []
+        for rand_network in random_network_sub_graph_results:
+            rand_network_ids.append([k for k in list(rand_network.fsl.keys()) if isinstance(k, int)])
+
+        iso_mappings = [get_fsl_ids_iso_mapping(n_real_ids, rand_ids, k=args.k) for rand_ids in rand_network_ids]
+        for iso_map, rand_network in zip(iso_mappings, random_network_sub_graph_results):
+            for src_ in iso_map:
+                tar_ = iso_map[src_]
+                if src_ == tar_:
+                    continue
+                rand_network.fsl[src_] = rand_network.fsl.pop(tar_, 0)
+                rand_network.fsl_fully_mapped[src_] = rand_network.fsl_fully_mapped.pop(tar_, [])
 
     for sub_id in tqdm(motif_candidates):
         random_network_samples = [rand_network.fsl.get(sub_id, 0) for rand_network in random_network_sub_graph_results]
@@ -347,5 +367,8 @@ if __name__ == "__main__":
         exit(0)
 
     motif_criteria = MotifCriteria(MotifCriteriaArgs(**vars(args)))
-    isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=args.k)
+    if args.use_isomorphic_mapping:
+        isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=args.k)
+    else:
+        isomorphic_mapping, isomorphic_graphs = {}, {}
     motif_search(args)

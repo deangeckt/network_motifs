@@ -93,7 +93,6 @@ def generate_isomorphic_k_sub_graphs(k: int, allow_self_loops=False) -> tuple[di
     is the list of all the motif ids that are isomorphic to it.
 
     not scalable for k >= 5.
-    In case we are NOT looking for Anti Motifs - this isn't mandatory for mfinder.
     """
     isomorphic = defaultdict(dict)
 
@@ -129,6 +128,30 @@ def generate_isomorphic_k_sub_graphs(k: int, allow_self_loops=False) -> tuple[di
             isomorphic_mapping[sub_id] = id_
 
     return isomorphic_mapping, isomorphic_graphs
+
+
+def get_fsl_ids_iso_mapping(src_fsl_ids: list[int], tar_fsl_ids: list[int], k: int) -> dict[int, int]:
+    """
+    :param src_fsl_ids: a list of sub graphs id's of an FSL list
+    :param tar_fsl_ids: a list of sub graphs id's of an FSL list
+    :param k: motif / sub graph size
+    :return: a dict mapping the ids in the source list to the target based on iso matching.
+    in case a missing in the target list, the value will be -1
+    """
+    ids_iso_mappings = {}
+    for src in src_fsl_ids:
+        if src in tar_fsl_ids:
+            ids_iso_mappings[src] = src
+            continue
+
+        ids_iso_mappings[src] = -1
+        src_graph = get_sub_graph_from_id(decimal=src, k=k)
+        for tar in tar_fsl_ids:
+            tar_graph = get_sub_graph_from_id(decimal=tar, k=k)
+            if nx.is_isomorphic(src_graph, tar_graph):
+                ids_iso_mappings[src] = tar
+                break
+    return ids_iso_mappings
 
 
 def get_number_of_disjoint_group_nodes(sub_graphs: list[tuple[tuple]]) -> int:

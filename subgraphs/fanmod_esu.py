@@ -44,10 +44,11 @@ class FanmodESU(SubGraphsABC):
                 new_extension = extension.union(v_ext_new)
                 self.__extend_sub_graphs(sub_graph.union({w}), new_extension, v)
 
-    def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
+    def search_sub_graphs(self, k: int, allow_self_loops: bool) -> SubGraphSearchResult:
         self.fsl = defaultdict(int)
         self.fsl_fully_mapped = defaultdict(list)
         self.k = k
+        self.allow_self_loops = allow_self_loops
         self.unique = set()
 
         for v in list(self.network.nodes):

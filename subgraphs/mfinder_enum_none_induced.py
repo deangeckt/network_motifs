@@ -55,9 +55,10 @@ class MFinderNoneInduced(SubGraphsABC):
             for k in in_edges:
                 self.__find_sub_graphs_new_edge(sub_graph, (k, i))
 
-    def search_sub_graphs(self, k: int) -> SubGraphSearchResult:
+    def search_sub_graphs(self, k: int, allow_self_loops: bool) -> SubGraphSearchResult:
         self.fsl = defaultdict(int)
         self.k = k
+        self.allow_self_loops = allow_self_loops
         self.unique = set()
         self.hash_ = set()
         self.fsl_fully_mapped = defaultdict(list)
