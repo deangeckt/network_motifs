@@ -40,10 +40,10 @@ Post Motif-Search analysis:
 ![image](https://github.com/deangeckt/network_motifs/assets/24900065/35ed62ef-d0a1-4c4a-9f69-00aa88a9bde3)
 
 
-- Frequncy of nodes per their role in a given Motif:
+- Frequency  of nodes per their role in a given Motif:
   ![image](https://github.com/deangeckt/network_motifs/assets/24900065/c4092a87-0bbe-4994-b2e1-13a03312a979)
 
-- Frequncy of specific nodes in all Motifs:
+- Frequency  of specific nodes in all Motifs:
 
 ![image](https://github.com/deangeckt/network_motifs/assets/24900065/a62d074c-a5fd-46ec-810a-1d999ab714b8)
 

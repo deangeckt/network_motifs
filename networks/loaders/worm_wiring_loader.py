@@ -15,6 +15,8 @@ class XlsxParams(BaseModel):
 
 
 class WormWiringLoader(NetworkLoaderStrategy):
+    "Cook et al., 2019"
+
     def __init__(self, args: NetworkLoaderArgs):
         super().__init__(args)
         self.amount = 272
