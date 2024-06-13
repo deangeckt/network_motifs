@@ -71,7 +71,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/durbin_male_chem_k3_m5.bin")
+                        default="results/durbin_herm_chem_k3_m5_test.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -105,7 +105,7 @@ def parse_args():
     parser.add_argument("-sim", "--sim",
                         help="the maximum size of control size in the SIM search algorithm",
                         type=int,
-                        default=8)
+                        default=1)
 
     parser.add_argument("-uim", "--use_isomorphic_mapping",
                         help="run (pre motif search) isomorphic sub-graphs search",
@@ -128,7 +128,7 @@ def parse_args():
     parser.add_argument("-fsx", "--filter_sex_type",
                         help="filter sex type, supported in durbin and worm_wiring networks",
                         choices=['herm', 'male'],
-                        default='male')
+                        default='herm')
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",

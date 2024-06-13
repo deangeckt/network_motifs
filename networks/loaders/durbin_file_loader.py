@@ -55,6 +55,8 @@ class DurbinFileLoader(NetworkLoaderStrategy):
             neurons_names.add(n2)
 
         self.network.neuron_names = list(neurons_names)
+        # make it deterministic between runs
+        self.network.neuron_names.sort()
         neurons = {n: i for i, n in enumerate(self.network.neuron_names)}
 
         for n1, n2, synapse_type, _, num_of_synapses in data:
