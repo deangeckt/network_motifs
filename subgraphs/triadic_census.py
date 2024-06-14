@@ -30,7 +30,7 @@ class TriadicCensus(SubGraphsABC):
             '300': 238
         }
 
-    def search_sub_graphs(self, k: int, _) -> SubGraphSearchResult:
+    def search_sub_graphs(self, k: int,  allow_self_loops: bool) -> SubGraphSearchResult:
         if k != 3:
             raise Exception('Triadic Census support k=3 only')
 

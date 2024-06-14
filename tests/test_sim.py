@@ -3,8 +3,8 @@ import pytest
 from large_subgraphs.single_input_moudle import SingleInputModule
 from networks.loaders.network_loader import NetworkLoader
 from subgraphs.mfinder_enum_induced import MFinderInduced
-from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs
 from subgraphs.triadic_census import TriadicCensus
+from utils.isomorphic import generate_isomorphic_k_sub_graphs
 from utils.types import NetworkInputType, NetworkLoaderArgs
 
 simple_input_args = NetworkLoaderArgs(
@@ -25,7 +25,7 @@ def test_fan_out(network_file):
     isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
     triadic_census = TriadicCensus(network.graph, isomorphic_mapping)
-    triadic_census_sub_graphs = triadic_census.search_sub_graphs(k=k)
+    triadic_census_sub_graphs = triadic_census.search_sub_graphs(k=k, allow_self_loops=False)
 
     sim = SingleInputModule(network.graph)
     sim_res = sim.search_sub_graphs(min_control_size=k-1, max_control_size=5)
@@ -43,7 +43,7 @@ def test_sim3(network_file):
     isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
 
     mfinder = MFinderInduced(network.graph, isomorphic_mapping)
-    mfinder_sub_graphs = mfinder.search_sub_graphs(k=k)
+    mfinder_sub_graphs = mfinder.search_sub_graphs(k=k, allow_self_loops=False)
 
     sim = SingleInputModule(network.graph)
     sim_res = sim.search_sub_graphs(min_control_size=k - 1, max_control_size=5)

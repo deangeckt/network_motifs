@@ -19,8 +19,8 @@ from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from large_subgraphs.single_input_moudle import SingleInputModule
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from subgraphs.sub_graphs_utils import generate_isomorphic_k_sub_graphs, create_base_motif, create_sim_motif, \
-    get_fsl_ids_iso_mapping
+from utils.isomorphic import generate_isomorphic_k_sub_graphs, get_fsl_ids_iso_mapping
+from utils.sub_graphs import  create_base_motif, create_sim_motif
 from subgraphs.triadic_census import TriadicCensus
 from utils.export_import import export_results
 from utils.logs import log_motif_results, log_sub_graph_args, log_randomizer_args, log_motifs_table
@@ -71,17 +71,17 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/durbin_herm_chem_k3_m5_test.bin")
+                        default=None)
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
                         help="the type of the input network",
-                        default='durbin_txt',
+                        default='polarity_xlsx',
                         choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'graph'],
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/Durbin_1986/neurodata.txt"
+                        default="networks/data/polarity_2020/s1_data.xlsx"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of tuples where each is an edge. in the format: "1 2" "2 3"...',
@@ -105,7 +105,7 @@ def parse_args():
     parser.add_argument("-sim", "--sim",
                         help="the maximum size of control size in the SIM search algorithm",
                         type=int,
-                        default=1)
+                        default=3)
 
     parser.add_argument("-uim", "--use_isomorphic_mapping",
                         help="run (pre motif search) isomorphic sub-graphs search",
@@ -120,7 +120,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=15)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -150,7 +150,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=1000)
+                        default=10)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -192,7 +192,8 @@ def polarity_motif_search(
             random_network_polarity_frequencies.append(
                 get_polarity_frequencies(appearances=rand_network_res.fsl_fully_mapped.get(sub_id, []),
                                          roles=motif.role_pattern,
-                                         polarity_options=network.polarity_options
+                                         polarity_options=network.polarity_options,
+                                         motif_id=sub_id
                                          ))
 
         for polarity_motif in motif.polarity_motifs:
@@ -215,7 +216,8 @@ def polarity_motif_search(
 def _populate_motif(motif: Motif, sub_graphs: list):
     motif.node_roles = sort_node_roles_in_sub_graph(appearances=sub_graphs,
                                                     neuron_names=network.neuron_names,
-                                                    roles=motif.role_pattern)
+                                                    motif=motif,
+                                                    )
     motif.node_appearances = sort_node_appearances_in_sub_graph(appearances=sub_graphs,
                                                                 neuron_names=network.neuron_names)
 
@@ -251,12 +253,14 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
         _populate_motif(motif=motif, sub_graphs=motif.sub_graphs)
         motifs[sim_id] = motif
 
+    start_time = time.time()
     if network.use_polarity:
         for sub_id in motifs:
             motif = motifs[sub_id]
             polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
                                                             roles=motif.role_pattern,
-                                                            polarity_options=network.polarity_options)
+                                                            polarity_options=network.polarity_options,
+                                                            motif_id=sub_id)
             for motif_pol_freq in polarity_frequencies:
                 # TODO: compare to 'sim', 'dor' etc... remove isinstance. and add SIM's super class...
                 if isinstance(sub_id, str):
@@ -270,6 +274,8 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
                 polarity_motif.sub_graphs = motif_pol_freq.sub_graphs
                 _populate_motif(motif=polarity_motif, sub_graphs=motif_pol_freq.sub_graphs)
                 motif.polarity_motifs.append(polarity_motif)
+    end_time = time.time()
+    logger.info(f'Populate polarity motifs timer [Sec]: {round(end_time - start_time, 2)}')
 
     return motifs
 

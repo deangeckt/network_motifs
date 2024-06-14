@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
 
-from subgraphs.sub_graphs_utils import get_number_of_disjoint_group_nodes
+from utils.sub_graphs import get_number_of_disjoint_group_nodes
 from utils.logs import log_motif_criteria_args
 from utils.simple_logger import Logger
 from utils.types import MotifCriteriaResults, MotifType, Motif, MotifCriteriaArgs

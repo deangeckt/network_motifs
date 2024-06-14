@@ -4,7 +4,7 @@ from collections import defaultdict
 from networkx import DiGraph
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import get_id, get_sub_graph_from_id
+from utils.sub_graphs import get_id, get_sub_graph_from_id
 from utils.simple_logger import Logger
 from utils.types import SubGraphSearchResult
 

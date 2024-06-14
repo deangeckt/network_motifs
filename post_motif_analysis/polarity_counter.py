@@ -1,7 +1,7 @@
 import collections
+from typing import Union
 
-from networkx import DiGraph
-from subgraphs.sub_graphs_utils import get_sub_graph_mapping_to_motif
+from utils.isomorphic import get_sub_graph_mapping_to_motif, merge_polarity_isomorphic_sub_graphs
 from utils.types import PolarityFrequencies
 from collections import defaultdict
 from itertools import product
@@ -19,8 +19,10 @@ def count_network_polarity_ratio(polarity: list[str]) -> collections.Counter:
 def get_polarity_frequencies(appearances: list[tuple[tuple]],
                              roles: list[tuple],
                              polarity_options: list[str],
+                             motif_id: Union[int, str],
                              ) -> list[PolarityFrequencies]:
     """
+    :param motif_id: the original motif id (i.e.: not the polarity motif id)
     :param appearances: the sub graphs appearances of a given motif
     :param roles: list of tuples with the pattern of roles of the motif
     :param polarity_options: list of polarity options: can be from [+, -, complex]
@@ -32,7 +34,7 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
     fsl = defaultdict(list)
 
     for sub_graph in appearances:
-        nodes_in_sub_graph = get_sub_graph_mapping_to_motif(sub_graph, roles)
+        nodes_in_sub_graph = get_sub_graph_mapping_to_motif(sub_graph, roles, [])
         nodes_in_sub_graph_reverse = {v: k for k, v in nodes_in_sub_graph.items()}
 
         sub_graph_polarity = {}
@@ -53,4 +55,4 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
         freq = len(sub_graphs)
         polarity_frequencies.append(PolarityFrequencies(frequency=freq, polarity=polarity_vec, sub_graphs=sub_graphs))
 
-    return polarity_frequencies
+    return merge_polarity_isomorphic_sub_graphs(motif_id, roles, polarity_frequencies)

@@ -3,7 +3,7 @@ from collections import defaultdict
 from networkx import DiGraph
 
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from subgraphs.sub_graphs_utils import HashedGraph
+from utils.sub_graphs import HashedGraph
 from itertools import combinations
 
 from utils.types import SubGraphSearchResult

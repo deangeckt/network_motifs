@@ -5,7 +5,7 @@ from networkx import DiGraph
 from subgraphs.sub_graphs_abc import SubGraphsABC
 import networkx as nx
 
-from subgraphs.sub_graphs_utils import graph_to_hashed_graph
+from utils.sub_graphs import graph_to_hashed_graph
 from collections import defaultdict
 
 from utils.types import SubGraphSearchResult

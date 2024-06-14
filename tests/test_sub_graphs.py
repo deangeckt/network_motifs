@@ -5,8 +5,8 @@ from networks.loaders.network_loader import NetworkLoader
 from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
-from subgraphs.sub_graphs_utils import get_sub_id_name, MotifName, generate_isomorphic_k_sub_graphs, \
-    get_fsl_ids_iso_mapping
+from utils.isomorphic import generate_isomorphic_k_sub_graphs, get_fsl_ids_iso_mapping
+from utils.sub_graphs import get_sub_id_name, MotifName
 from subgraphs.triadic_census import TriadicCensus
 from utils.types import SubGraphSearchResult, NetworkInputType, NetworkLoaderArgs
 
@@ -60,7 +60,7 @@ def test_three_sub_graphs_induced(network_file, expected):
     __compare(k, expected, fanmod_sub_graphs)
 
     triadic_census = TriadicCensus(network.graph, isomorphic_mapping)
-    triadic_census_sub_graphs = triadic_census.search_sub_graphs(k=k, _=False)
+    triadic_census_sub_graphs = triadic_census.search_sub_graphs(k=k, allow_self_loops=False)
     __compare(k, expected, triadic_census_sub_graphs)
 
 
