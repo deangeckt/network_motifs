@@ -7,7 +7,7 @@ from networkx.algorithms import isomorphism
 from tqdm import tqdm
 
 from utils.sub_graphs import get_sub_graph_from_id
-from utils.types import Motif, PolarityFrequencies
+from utils.types import PolarityFrequencies
 
 
 def generate_isomorphic_k_sub_graphs(k: int, allow_self_loops=False) -> tuple[dict, dict]:
@@ -60,7 +60,7 @@ def generate_isomorphic_k_sub_graphs(k: int, allow_self_loops=False) -> tuple[di
 def get_fsl_ids_iso_mapping(src_fsl_ids: list[int], tar_fsl_ids: list[int], k: int) -> dict[int, int]:
     """
     Used when use_isomorphic_mapping flag is off, i.e.: larger K's.
-
+    #TODO: does this support polarity large k?
     :param src_fsl_ids: a list of sub graphs id's of an FSL list
     :param tar_fsl_ids: a list of sub graphs id's of an FSL list
     :param k: motif / sub graph size
@@ -119,8 +119,8 @@ def get_sub_graph_mapping_to_motif(sub_graph: tuple[tuple],
 
 def _is_polarity_sim_isomorphic(g1, g2):
     """
-    check if two graphs of a SIM polarity motif are isomorphic.
-    returns True if number of symbols, e.g.: #"+" == #"-". otherwise False.
+    check if two graphs of a SIM polarity motif are isomorphic. FASTER than the standard checking
+    returns True if number of symbols are equal. e.g.: #"+" == #"-". otherwise False.
     """
     g1_pol_counter = collections.Counter(nx.get_edge_attributes(g1, 'polarity').values())
     g2_pol_counter = collections.Counter(nx.get_edge_attributes(g2, 'polarity').values())
@@ -131,6 +131,15 @@ def merge_polarity_isomorphic_sub_graphs(
         motif_id: Union[int, str],
         roles: list[tuple],
         polarity_frequencies: list[PolarityFrequencies]) -> list[PolarityFrequencies]:
+    """
+    merge polarity isomorphic sub graphs of the same base motif.
+    e.g.: fan out "+ -" and "- +" are isomorphic, thus will be merged to a single pol motif
+    and the other would be deleted from the returned list.
+    :param motif_id: the original motif id (i.e.: not the polarity motif id)
+    :param roles: list of tuples with the pattern of roles of the motif
+    :param polarity_frequencies: a list of object containing frequencies and polarity list
+    :return: merged polarity_frequencies list
+    """
     isomorphic = []
     del_idx_list = []
 

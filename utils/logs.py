@@ -73,16 +73,16 @@ def log_motif_criteria_args(args: MotifCriteriaArgs):
 
 
 def log_sub_graph_args(args: Namespace):
-    logger.info(f'\nSub Graph search using Algorithm: {SubGraphAlgoName(args.sub_graph_algorithm)}')
-    logger.info(f'Enum Sub Graph search using k: {args.k}')
+    logger.info(f'\nSub graph enumeration algorithm: {SubGraphAlgoName(args.sub_graph_algorithm)}')
+    logger.info(f'Search using k: {args.k}')
     if 'use_isomorphic_mapping' in args:
         logger.info(f'Using isomorphic mapping: {args.use_isomorphic_mapping}')
     else:
         logger.info(f'Using isomorphic mapping: True')
 
-    logger.info(f'SIM Sub Graph search using max-control size: {args.sim}')
+    logger.info(f'SIM sub graph search using max-control size: {args.sim}')
     logger.info(f'Allow self loops: {args.allow_self_loops}')
-    logger.info(f'Doing full Motif-Search: {args.run_motif_criteria}')
+    logger.info(f'Full motif search: {args.run_motif_criteria}')
 
 
 def log_randomizer_args(args: Namespace):
