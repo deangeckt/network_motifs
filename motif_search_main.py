@@ -71,7 +71,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/cmpx_pol_k3_m10.bin")
+                        default="results/pol_k3_m25.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -120,7 +120,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=10)
+                        default=25)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -134,7 +134,7 @@ def parse_args():
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-', 'complex'],
+                        default=['+', '-'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
@@ -183,7 +183,8 @@ def polarity_motif_search(
     if not network.use_polarity:
         return
 
-    for sub_id in motif_candidates:
+    print('starting pol motif search:')
+    for sub_id in tqdm(motif_candidates):
         motif = motif_candidates[sub_id]
 
         # count polarity frequencies for the random networks
@@ -329,7 +330,7 @@ def motif_search(args: Namespace):
                 rand_network.fsl[src_] = rand_network.fsl.pop(tar_, 0)
                 rand_network.fsl_fully_mapped[src_] = rand_network.fsl_fully_mapped.pop(tar_, [])
 
-    for sub_id in tqdm(motif_candidates):
+    for sub_id in motif_candidates:
         random_network_samples = [rand_network.fsl.get(sub_id, 0) for rand_network in random_network_sub_graph_results]
         motif_candidate: Motif = motif_candidates[sub_id]
         motif_candidate.random_network_samples = random_network_samples
