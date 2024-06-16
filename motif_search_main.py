@@ -8,8 +8,8 @@ from tqdm import tqdm
 from motif_criteria import MotifCriteria
 from networks.loaders.network_loader import NetworkLoader
 from networks.network import Network
-from post_motif_analysis.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
-from post_motif_analysis.polarity_counter import get_polarity_frequencies
+from utils.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
+from utils.polarity_counter import get_polarity_frequencies
 from random_networks.barabasi_albert_forced_edges import BarabasiAlbertForcedEdges
 from random_networks.erdos_renyi_forced_edges import ErdosRenyiForcedEdges
 from random_networks.markov_chain_switching import MarkovChainSwitching
@@ -71,7 +71,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/pol_k3_m10_new.bin")
+                        default="results/cmpx_pol_k3_m10.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -134,7 +134,7 @@ def parse_args():
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-'],
+                        default=['+', '-', 'complex'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",

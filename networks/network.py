@@ -3,7 +3,7 @@ import collections
 import networkx as nx
 import numpy as np
 
-from post_motif_analysis.polarity_counter import count_network_polarity_ratio
+from utils.polarity_counter import count_network_polarity_ratio
 from utils.simple_logger import Logger
 
 
