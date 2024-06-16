@@ -5,7 +5,7 @@ from networks.loaders.network_loader import NetworkLoader
 from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
-from utils.isomorphic import generate_isomorphic_k_sub_graphs, get_fsl_ids_iso_mapping
+from isomorphic.isomorphic import generate_isomorphic_k_sub_graphs, get_fsl_ids_iso_mapping
 from utils.sub_graphs import get_sub_id_name, MotifName
 from subgraphs.triadic_census import TriadicCensus
 from utils.types import SubGraphSearchResult, NetworkInputType, NetworkLoaderArgs

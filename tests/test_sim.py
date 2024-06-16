@@ -4,7 +4,7 @@ from large_subgraphs.single_input_moudle import SingleInputModule
 from networks.loaders.network_loader import NetworkLoader
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.triadic_census import TriadicCensus
-from utils.isomorphic import generate_isomorphic_k_sub_graphs
+from isomorphic.isomorphic import generate_isomorphic_k_sub_graphs
 from utils.types import NetworkInputType, NetworkLoaderArgs
 
 simple_input_args = NetworkLoaderArgs(

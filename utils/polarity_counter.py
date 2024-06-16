@@ -1,7 +1,7 @@
 import collections
 from typing import Union
 
-from utils.isomorphic import get_sub_graph_mapping_to_motif, merge_polarity_isomorphic_sub_graphs
+from isomorphic.isomorphic import get_sub_graph_mapping_to_motif, IsomorphicMotifMatch
 from utils.types import PolarityFrequencies
 from collections import defaultdict
 from itertools import product
@@ -20,8 +20,10 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
                              roles: list[tuple],
                              polarity_options: list[str],
                              motif_id: Union[int, str],
+                             iso_matcher: IsomorphicMotifMatch,
                              ) -> list[PolarityFrequencies]:
     """
+    :param iso_matcher: an iso matcher object
     :param motif_id: the original motif id (i.e.: not the polarity motif id)
     :param appearances: the sub graphs appearances of a given motif
     :param roles: list of tuples with the pattern of roles of the motif
@@ -42,7 +44,7 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
         for s, t, polarity_attr in sub_graph:
             polarity = polarity_attr['polarity']
             role_edge = (nodes_in_sub_graph_reverse[s], nodes_in_sub_graph_reverse[t])
-            edge_idx = roles.index(role_edge)  # TODO: still bug here (try k=4! m=15, [+ -])
+            edge_idx = roles.index(role_edge)  # TODO: still bug here (try k=4 m=15, [+ -])
             sub_graph_polarity[edge_idx] = polarity
 
         polarity_vec = tuple([sub_graph_polarity[k] for k in sorted(sub_graph_polarity.keys())])
@@ -55,4 +57,4 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
         freq = len(sub_graphs)
         polarity_frequencies.append(PolarityFrequencies(frequency=freq, polarity=polarity_vec, sub_graphs=sub_graphs))
 
-    return merge_polarity_isomorphic_sub_graphs(motif_id, roles, polarity_frequencies)
+    return iso_matcher.merge_polarity_isomorphic_sub_graphs(motif_id, polarity_frequencies)

@@ -19,7 +19,7 @@ from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from large_subgraphs.single_input_moudle import SingleInputModule
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from utils.isomorphic import generate_isomorphic_k_sub_graphs, get_fsl_ids_iso_mapping
+from isomorphic.isomorphic import get_fsl_ids_iso_mapping, IsomorphicMotifMatch
 from utils.sub_graphs import create_base_motif, create_sim_motif
 from subgraphs.triadic_census import TriadicCensus
 from utils.export_import import export_results
@@ -30,7 +30,7 @@ import argparse
 from argparse import Namespace
 
 from utils.types import SubGraphAlgoName, RandomGeneratorAlgoName, NetworkInputType, NetworkLoaderArgs, \
-    MotifCriteriaArgs, Motif, SubGraphSearchResult, BinaryFile, MotifType
+    MotifCriteriaArgs, Motif, SubGraphSearchResult, SearchResultBinaryFile, MotifType
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
@@ -71,7 +71,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/pol_k3_m25.bin")
+                        default="results/cmpx_pol_k3_m25.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -105,7 +105,7 @@ def parse_args():
     parser.add_argument("-sim", "--sim",
                         help="the maximum size of control size in the SIM search algorithm",
                         type=int,
-                        default=3)
+                        default=1)
 
     parser.add_argument("-uim", "--use_isomorphic_mapping",
                         help="run (pre motif search) isomorphic sub-graphs search",
@@ -134,7 +134,7 @@ def parse_args():
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-'],
+                        default=['+', '-', 'complex'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
@@ -194,7 +194,8 @@ def polarity_motif_search(
                 get_polarity_frequencies(appearances=rand_network_res.fsl_fully_mapped.get(sub_id, []),
                                          roles=motif.role_pattern,
                                          polarity_options=network.polarity_options,
-                                         motif_id=sub_id
+                                         motif_id=sub_id,
+                                         iso_matcher=iso_matcher
                                          ))
 
         for polarity_motif in motif.polarity_motifs:
@@ -211,7 +212,7 @@ def polarity_motif_search(
         log_motifs_table([m for m in motif.polarity_motifs if m.motif_criteria.is_motif != MotifType.none])
 
     if args.bin_file:
-        export_results(BinaryFile(args=args, motifs=motif_candidates))
+        export_results(SearchResultBinaryFile(args=args, motifs=motif_candidates))
 
 
 def _populate_motif(motif: Motif, sub_graphs: list):
@@ -261,6 +262,7 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
             polarity_frequencies = get_polarity_frequencies(appearances=motif.sub_graphs,
                                                             roles=motif.role_pattern,
                                                             polarity_options=network.polarity_options,
+                                                            iso_matcher=iso_matcher,
                                                             motif_id=sub_id)
             for motif_pol_freq in polarity_frequencies:
                 # TODO: compare to 'sim', 'dor' etc... remove isinstance. and add SIM's super class...
@@ -287,7 +289,7 @@ def motif_search(args: Namespace):
     if not args.run_motif_criteria:
         log_motif_results(motif_candidates)
         if args.bin_file:
-            export_results(BinaryFile(args=args, motifs=motif_candidates))
+            export_results(SearchResultBinaryFile(args=args, motifs=motif_candidates))
         return
 
     log_randomizer_args(args)
@@ -340,7 +342,7 @@ def motif_search(args: Namespace):
     log_motif_results(motif_candidates)
 
     if args.bin_file and not network.use_polarity:
-        export_results(BinaryFile(args=args, motifs=motif_candidates))
+        export_results(SearchResultBinaryFile(args=args, motifs=motif_candidates))
 
     polarity_motif_search(motif_candidates, random_network_sub_graph_results)
 
@@ -374,8 +376,12 @@ if __name__ == "__main__":
         exit(0)
 
     motif_criteria = MotifCriteria(MotifCriteriaArgs(**vars(args)))
+    iso_matcher = IsomorphicMotifMatch(k=args.k, polarity_options=args.filter_polarity,
+                                       allow_self_loops=args.allow_self_loops)
+
     if args.use_isomorphic_mapping:
-        isomorphic_mapping, isomorphic_graphs = generate_isomorphic_k_sub_graphs(k=args.k)
+        isomorphic_mapping = iso_matcher.isomorphic_mapping
+        isomorphic_graphs = iso_matcher.isomorphic_graphs
     else:
         isomorphic_mapping, isomorphic_graphs = {}, {}
     motif_search(args)

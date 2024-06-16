@@ -121,6 +121,8 @@ class LargeSubGraphSearchResult(SubGraphSearchResult):
         arbitrary_types_allowed = True
 
 
-class BinaryFile(TypedDict):
+class SearchResultBinaryFile(TypedDict):
     args: Namespace
     motifs: dict[Union[str, int], Motif]
+
+

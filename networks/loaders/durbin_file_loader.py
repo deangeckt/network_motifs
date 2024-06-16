@@ -1,5 +1,3 @@
-import numpy as np
-
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
 from utils.types import NetworkLoaderArgs
 

@@ -5,7 +5,7 @@ from typing import Union
 import networkx as nx
 
 from utils.common import sort_dict_freq
-from utils.isomorphic import get_sub_graph_mapping_to_motif
+from isomorphic.isomorphic import get_sub_graph_mapping_to_motif
 from utils.types import Motif
 
 
