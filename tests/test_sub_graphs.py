@@ -5,7 +5,7 @@ from networks.loaders.network_loader import NetworkLoader
 from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
-from isomorphic.isomorphic import generate_isomorphic_k_sub_graphs, get_fsl_ids_iso_mapping
+from isomorphic.isomorphic import get_fsl_ids_iso_mapping, IsomorphicMotifMatch
 from utils.sub_graphs import get_sub_id_name, MotifName
 from subgraphs.triadic_census import TriadicCensus
 from utils.types import SubGraphSearchResult, NetworkInputType, NetworkLoaderArgs
@@ -49,7 +49,8 @@ def test_three_sub_graphs_induced(network_file, expected):
     network = loader.load_network_file(file_path=network_file,
                                        input_type=NetworkInputType.simple_adj_txt)
 
-    isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
+    iso_matcher = IsomorphicMotifMatch(k=k, polarity_options=[])
+    isomorphic_mapping = iso_matcher.isomorphic_mapping
 
     mfinder = MFinderInduced(network.graph, isomorphic_mapping)
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k, allow_self_loops=False)
@@ -70,7 +71,9 @@ def test_three_sub_graphs_none_induced(network_file, expected):
     loader = NetworkLoader(simple_input_args)
     network = loader.load_network_file(file_path=network_file,
                                        input_type=NetworkInputType.simple_adj_txt)
-    isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k)
+
+    iso_matcher = IsomorphicMotifMatch(k=k, polarity_options=[])
+    isomorphic_mapping = iso_matcher.isomorphic_mapping
 
     mfinder = MFinderNoneInduced(network.graph, isomorphic_mapping)
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k, allow_self_loops=False)
@@ -79,7 +82,10 @@ def test_three_sub_graphs_none_induced(network_file, expected):
 
 def test_k_2_with_self_loops():
     k = 2
-    isomorphic_mapping, _ = generate_isomorphic_k_sub_graphs(k=k, allow_self_loops=True)
+
+    iso_matcher = IsomorphicMotifMatch(k=k, polarity_options=[], allow_self_loops=True)
+    isomorphic_mapping = iso_matcher.isomorphic_mapping
+
     graph = nx.DiGraph([(1, 2), (1, 1), (1, 3), (3, 2), (3, 4), (4, 4)])
     expected = {2: 1, 3: 2, 5: 1}
 

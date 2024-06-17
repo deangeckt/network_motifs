@@ -1,4 +1,5 @@
 import collections
+import os
 import pickle
 from collections import defaultdict
 from itertools import product
@@ -8,8 +9,9 @@ import networkx as nx
 from networkx.algorithms import isomorphism
 from tqdm import tqdm
 
-from utils.sub_graphs import get_sub_graph_from_id, create_base_motif
-from utils.types import PolarityFrequencies
+from large_subgraphs.single_input_moudle import get_sim_adj_mat
+from utils.sub_graphs import get_sub_graph_from_id, create_base_motif, create_sim_motif
+from utils.types import PolarityFrequencies, Motif
 
 
 class IsomorphicMappingBinFile(TypedDict):
@@ -92,15 +94,22 @@ def _is_polarity_sim_isomorphic(g1, g2):
 
 class IsomorphicMotifMatch:
     def __init__(self, k: int, polarity_options: list[str], allow_self_loops=False):
-        self.base_path = 'isomorphic/mapping'
         self.k = k
         self.allow_self_loops = allow_self_loops
         self.polarity_options = polarity_options
 
+        self.min_sim_ctrl_size = 3
+        self.max_sim_ctrl_size = 12
+
+        self.base_path = 'isomorphic/mapping'
+
         # Load iso mapping
         file_path = self.__get_isomorphic_k_file_name()
-        bin_file: IsomorphicMappingBinFile = self.__import_iso_mapping(file_path)
+        if not os.path.isfile(file_path):
+            print(f'isomorphic file for k={k} does not exist')
+            return
 
+        bin_file: IsomorphicMappingBinFile = self.__import_iso_mapping(file_path)
         self.isomorphic_mapping = bin_file['isomorphic_mapping']
         self.isomorphic_graphs = bin_file['isomorphic_graphs']
 
@@ -109,14 +118,58 @@ class IsomorphicMotifMatch:
             return
 
         file_path = self.__get_polarity_isomorphic_k_file_name()
+        if not os.path.isfile(file_path):
+            print(f'polarity isomorphic {self.polarity_options} file for k={k} does not exist')
+            return
         bin_file: PolarityIsoMappingBinFile = self.__import_pol_iso_mapping(file_path)
         self.polarity_mapping = bin_file['mapping']
 
+        # Load SIM polarity iso mapping
+        file_path = self.__get_polarity_isomorphic_sim_file_name()
+        if not os.path.isfile(file_path):
+            print(f'sim polarity isomorphic {self.polarity_options} '
+                  f'file for control={self.max_sim_ctrl_size} does not exist')
+            return
+        bin_file: PolarityIsoMappingBinFile = self.__import_pol_iso_mapping(file_path)
+        self.sim_mapping = bin_file['mapping']
+
+    def merge_polarity_isomorphic_frequencies(
+            self,
+            motif_id: Union[int, str],
+            polarity_frequencies: list[PolarityFrequencies]) -> list[PolarityFrequencies]:
+        """
+        merge polarity isomorphic sub graphs frequencies of the same base motif.
+        e.g.: fan out "+ -" and "- +" are isomorphic, thus will be merged to a single pol motif
+        and the other would be deleted from the returned list.
+        :param motif_id: the original motif id (i.e.: not the polarity motif id)
+        :param polarity_frequencies: a list of object containing frequencies and polarity list
+        :return: merged polarity_frequencies list
+        """
+        del_idx_list = []
+        if isinstance(motif_id, str):
+            pol_motif_mapping = self.sim_mapping[motif_id]
+        else:
+            pol_motif_mapping = self.polarity_mapping[motif_id]
+
+        for curr_idx, pol_obj in enumerate(polarity_frequencies):
+            iso_polarity = pol_motif_mapping[str(pol_obj.polarity)]
+            if iso_polarity == pol_obj.polarity:
+                continue
+
+            merge_to_pol_obj = next(obj for obj in polarity_frequencies if obj.polarity == iso_polarity)
+            merge_to_pol_obj.frequency += pol_obj.frequency
+            merge_to_pol_obj.sub_graphs.extend(pol_obj.sub_graphs)
+            del_idx_list.append(curr_idx)
+
+        polarity_frequencies = [polarity_frequencies[i] for i in range(len(polarity_frequencies)) if
+                                i not in del_idx_list]
+        return polarity_frequencies
+
     def generate_isomorphic_k_sub_graphs(self):
         """
-        :export: isomorphic_mapping: a dict where each key is a motif / sub graph id and
+        export: isomorphic_mapping: a dict where each key is a motif / sub graph id and
         the value is the smallest motif id of the same isomorphic set of sub graphs.
-        :export isomorphic_graphs: a dict where each key is the smallest motif id and the value
+        export isomorphic_graphs: a dict where each key is the smallest motif id and the value
         is the list of all the motif ids that are isomorphic to it.
 
         not scalable for k >= 5.
@@ -126,13 +179,13 @@ class IsomorphicMotifMatch:
         possible_options = (2 ** (self.k ** 2))
         for sub_id in tqdm(range(possible_options)):
             sub_graph = get_sub_graph_from_id(decimal=sub_id, k=self.k)
-            un_dir_ub_graph = nx.Graph(sub_graph)
 
-            if list(nx.selfloop_edges(sub_graph)) and not self.allow_self_loops:
+            if not self.allow_self_loops and list(nx.selfloop_edges(sub_graph)):
                 continue
 
+            un_dir_sub_graph = nx.Graph(sub_graph)
             # remove the not connected cases, e.g.: no edges at all-sub graph
-            if not nx.is_connected(un_dir_ub_graph):
+            if not nx.is_connected(un_dir_sub_graph):
                 continue
 
             found = False
@@ -159,9 +212,9 @@ class IsomorphicMotifMatch:
                                                                       isomorphic_graphs=isomorphic_graphs))
 
     @staticmethod
-    def __generate_merge_polarity_isomorphic(motif_id: Union[int, str],
-                                             polarities: list[list[str]],
-                                             roles: list[tuple]) -> dict:
+    def __generate_and_merge_polarity_isomorphic(motif_id: Union[int, str],
+                                                 polarities: list[list[str]],
+                                                 roles: list[tuple]) -> dict:
         isomorphic = []
         mappings = {}
 
@@ -192,48 +245,33 @@ class IsomorphicMotifMatch:
 
         return mappings
 
-    def merge_polarity_isomorphic_sub_graphs(
-            self,
-            motif_id: Union[int, str],
-            polarity_frequencies: list[PolarityFrequencies]) -> list[PolarityFrequencies]:
-        """
-        merge polarity isomorphic sub graphs of the same base motif.
-        e.g.: fan out "+ -" and "- +" are isomorphic, thus will be merged to a single pol motif
-        and the other would be deleted from the returned list.
-        :param motif_id: the original motif id (i.e.: not the polarity motif id)
-        :param polarity_frequencies: a list of object containing frequencies and polarity list
-        :return: merged polarity_frequencies list
-        """
-        del_idx_list = []
-        pol_motif_mapping = self.polarity_mapping[motif_id]
-        for curr_idx, pol_obj in enumerate(polarity_frequencies):
-            iso_polarity = pol_motif_mapping[str(pol_obj.polarity)]
-            if iso_polarity == pol_obj.polarity:
-                continue
-
-            merge_to_pol_obj = next(obj for obj in polarity_frequencies if obj.polarity == iso_polarity)
-            merge_to_pol_obj.frequency += pol_obj.frequency
-            merge_to_pol_obj.sub_graphs.extend(pol_obj.sub_graphs)
-            del_idx_list.append(curr_idx)
-
-        polarity_frequencies = [polarity_frequencies[i] for i in range(len(polarity_frequencies)) if
-                                i not in del_idx_list]
-        return polarity_frequencies
+    def __generate_polarity_isomorphic_for_motif(self, motif: Motif) -> dict:
+        edges = len(motif.role_pattern)
+        products = list(product(self.polarity_options, repeat=edges))
+        polarities = [list(pol) for pol in products]
+        return self.__generate_and_merge_polarity_isomorphic(motif.id, polarities, motif.role_pattern)
 
     def generate_polarity_isomorphic_k_sub_graphs(self):
         polarity_isomorphic_mapping = {}
-        # TODO: extend with SIM keys
+
         for sub_id in tqdm(self.isomorphic_graphs.keys()):
             polarity_isomorphic_mapping[sub_id] = {}
             motif = create_base_motif(sub_id=sub_id, k=self.k)
+            polarity_isomorphic_mapping[sub_id] = self.__generate_polarity_isomorphic_for_motif(motif)
 
-            edges = len(motif.role_pattern)
-            products = list(product(self.polarity_options, repeat=edges))
-            polarities = [list(pol) for pol in products]
-            polarity_isomorphic_mapping[sub_id] = self.__generate_merge_polarity_isomorphic(sub_id,
-                                                                                            polarities,
-                                                                                            motif.role_pattern)
         file_path = self.__get_polarity_isomorphic_k_file_name()
+        self.__export_pol_iso_mapping(file_path, PolarityIsoMappingBinFile(mapping=polarity_isomorphic_mapping))
+
+    def generate_polarity_isomorphic_sim_graphs(self):
+        polarity_isomorphic_mapping = {}
+
+        for control_size in tqdm(range(self.min_sim_ctrl_size, self.max_sim_ctrl_size + 1)):
+            sim_id = f'SIM_{control_size}'
+            polarity_isomorphic_mapping[sim_id] = {}
+            motif = create_sim_motif(sim_id=sim_id, adj_mat=get_sim_adj_mat(control_size))
+            polarity_isomorphic_mapping[sim_id] = self.__generate_polarity_isomorphic_for_motif(motif)
+
+        file_path = self.__get_polarity_isomorphic_sim_file_name()
         self.__export_pol_iso_mapping(file_path, PolarityIsoMappingBinFile(mapping=polarity_isomorphic_mapping))
 
     @staticmethod
@@ -267,9 +305,14 @@ class IsomorphicMotifMatch:
     def __get_polarity_isomorphic_k_file_name(self):
         pol_name = 'cmpx_pol' if 'complex' in self.polarity_options else 'pol'
         if self.allow_self_loops:
-            file_path = f'{self.base_path}/{pol_name}_k{self.k}_w_self_loops.bin'
+            file_path = f'{self.base_path}/k{self.k}_{pol_name}_w_self_loops.bin'
         else:
-            file_path = f'{self.base_path}/{pol_name}_k{self.k}.bin'
+            file_path = f'{self.base_path}/k{self.k}_{pol_name}.bin'
+        return file_path
+
+    def __get_polarity_isomorphic_sim_file_name(self):
+        pol_name = 'cmpx_pol' if 'complex' in self.polarity_options else 'pol'
+        file_path = f'{self.base_path}/sim{self.max_sim_ctrl_size}_{pol_name}.bin'
         return file_path
 
 
@@ -277,3 +320,4 @@ if __name__ == "__main__":
     iso_matcher = IsomorphicMotifMatch(k=3, polarity_options=['+', '-', 'complex'], allow_self_loops=False)
     # iso_matcher.generate_isomorphic_k_sub_graphs()
     # iso_matcher.generate_polarity_isomorphic_k_sub_graphs()
+    iso_matcher.generate_polarity_isomorphic_sim_graphs()

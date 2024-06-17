@@ -57,4 +57,4 @@ def get_polarity_frequencies(appearances: list[tuple[tuple]],
         freq = len(sub_graphs)
         polarity_frequencies.append(PolarityFrequencies(frequency=freq, polarity=polarity_vec, sub_graphs=sub_graphs))
 
-    return iso_matcher.merge_polarity_isomorphic_sub_graphs(motif_id, polarity_frequencies)
+    return iso_matcher.merge_polarity_isomorphic_frequencies(motif_id, polarity_frequencies)
