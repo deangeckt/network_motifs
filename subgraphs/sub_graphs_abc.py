@@ -48,6 +48,7 @@ class SubGraphsABC(metaclass=ABCMeta):
             self.fsl[sub_id] = 1
             self.__append_to_fully_mapped_fsl(sub_id, sub_graph)
             return
+
         if sub_id in self.fsl:
             self.fsl[sub_id] += 1
             self.__append_to_fully_mapped_fsl(sub_id, sub_graph)
