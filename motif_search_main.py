@@ -76,12 +76,12 @@ def parse_args():
     # [Input file]
     parser.add_argument("-it", "--input_type",
                         help="the type of the input network",
-                        default='worm_wiring_xlsx',
+                        default='polarity_xlsx',
                         choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'graph'],
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx"
+                        default="networks/data/polarity_2020/s1_data.xlsx"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of tuples where each is an edge. in the format: "1 2" "2 3"...',
@@ -120,7 +120,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=10)
+                        default=5)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -134,7 +134,7 @@ def parse_args():
     parser.add_argument("-fp", "--filter_polarity",
                         help="polarity: filter neurons with polarity",
                         choices=['+', '-', 'no pred', 'complex'],
-                        default=['+', '-', 'complex'],
+                        default=['+', '-'],
                         nargs='+')
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
@@ -357,6 +357,7 @@ def load_network_from_args(args: Namespace) -> Network:
     else:
         network = loader.load_network_file(input_type=input_type,
                                            file_path=args.input_network_file)
+    # loader.export_to_gephi('pol_m5.gexf')
     return network
 
 
