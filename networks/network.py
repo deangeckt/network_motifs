@@ -85,3 +85,8 @@ class Network:
         self.__degree_stats(self.graph.degree, 'Degree')
         self.__degree_stats(self.graph.in_degree, 'In-Degree')
         self.__degree_stats(self.graph.out_degree, 'Out-Degree')
+
+    def export_to_gephi(self, output_file_path: str):
+        mapping = {i: n for i, n in enumerate(self.neuron_names)}
+        g = nx.relabel_nodes(self.graph, mapping) if mapping else self.graph
+        nx.write_gexf(g, output_file_path)

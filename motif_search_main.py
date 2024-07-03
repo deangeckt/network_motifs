@@ -357,7 +357,6 @@ def load_network_from_args(args: Namespace) -> Network:
     else:
         network = loader.load_network_file(input_type=input_type,
                                            file_path=args.input_network_file)
-    # loader.export_to_gephi('pol_m5.gexf')
     return network
 
 
