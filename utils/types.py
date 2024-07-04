@@ -32,6 +32,7 @@ class SubGraphAlgoName(str, Enum):
 
 class RandomGeneratorAlgoName(str, Enum):
     markov_chain_switching = 'markov_chain'
+    nerve_ring_markov_chain_switching = 'nerve_ring_markov_chain'
     erdos_renyi = 'erdos_renyi'
     barabasi = 'barabasi'
 
@@ -124,5 +125,3 @@ class LargeSubGraphSearchResult(SubGraphSearchResult):
 class SearchResultBinaryFile(TypedDict):
     args: Namespace
     motifs: dict[Union[str, int], Motif]
-
-

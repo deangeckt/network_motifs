@@ -28,7 +28,7 @@ class MarkovChainSwitching(NetworkRandomizer):
 
     def generate(self, amount: int) -> list[DiGraph]:
         self.logger.info(f'Markov chain iterations: {self.markov_chain_num_iterations}')
-        random_networks = [self.__markov_chain() for _ in tqdm(range(amount))]
+        random_networks = [self._markov_chain() for _ in tqdm(range(amount))]
 
         self.logger.info(f'Markov chain success ratio: '
                          f'{round(self.success_switch / (self.markov_chain_num_iterations * amount), 5)}')
@@ -54,7 +54,17 @@ class MarkovChainSwitching(NetworkRandomizer):
         network.add_edge(x1, y2, polarity=e1_polarity)
         network.add_edge(x2, y1, polarity=e2_polarity)
 
-    def __markov_chain(self) -> DiGraph:
+    @staticmethod
+    def switching_constrain(graph: DiGraph, x1: int, y1: int, x2: int, y2: int) -> bool:
+        if x1 == x2 or x1 == y2 or x2 == y1 or y1 == y2:
+            return False
+
+        if graph.has_edge(x1, y2) or graph.has_edge(x2, y1):
+            return False
+
+        return True
+
+    def _markov_chain(self) -> DiGraph:
         graph: DiGraph = self.network.graph.copy()
 
         for _ in range(self.markov_chain_num_iterations):
@@ -62,10 +72,7 @@ class MarkovChainSwitching(NetworkRandomizer):
             x1, y1 = e1
             x2, y2 = e2
 
-            if x1 == x2 or x1 == y2 or x2 == y1 or y1 == y2:
-                continue
-
-            if graph.has_edge(x1, y2) or graph.has_edge(x2, y1):
+            if not self.switching_constrain(graph, x1, x2, y1, y2):
                 continue
 
             self.success_switch += 1

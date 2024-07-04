@@ -8,6 +8,7 @@ from tqdm import tqdm
 from motif_criteria import MotifCriteria
 from networks.loaders.network_loader import NetworkLoader
 from networks.network import Network
+from random_networks.nerve_ring_markov_chain_switching import NerveRingMarkovChainSwitching
 from utils.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
 from utils.polarity_counter import get_polarity_frequencies
 from random_networks.barabasi_albert_forced_edges import BarabasiAlbertForcedEdges
@@ -105,7 +106,7 @@ def parse_args():
     parser.add_argument("-sim", "--sim",
                         help="the maximum size of control size in the SIM search algorithm",
                         type=int,
-                        default=8)
+                        default=1)
 
     parser.add_argument("-uim", "--use_isomorphic_mapping",
                         help="run (pre motif search) isomorphic sub-graphs search",
@@ -120,7 +121,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=25)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -145,12 +146,12 @@ def parse_args():
     # [Randomizer]
     parser.add_argument("-r", "--randomizer",
                         help="main randomizer algorithm in a full motif search",
-                        default='markov_chain',
-                        choices=['markov_chain', 'erdos_renyi', 'barabasi'])
+                        default='nerve_ring_markov_chain',
+                        choices=['markov_chain', 'nerve_ring_markov_chain', 'erdos_renyi', 'barabasi'])
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=50)
+                        default=10)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -296,6 +297,8 @@ def motif_search(args: Namespace):
     random_generator_algo_choice = RandomGeneratorAlgoName(args.randomizer)
     if random_generator_algo_choice == RandomGeneratorAlgoName.markov_chain_switching:
         randomizer = MarkovChainSwitching(network, switch_factor=args.switch_factor)
+    elif random_generator_algo_choice == RandomGeneratorAlgoName.nerve_ring_markov_chain_switching:
+        randomizer = NerveRingMarkovChainSwitching(network, switch_factor=args.switch_factor)
     else:
         randomizer = random_generator_algorithms[random_generator_algo_choice](network)
 

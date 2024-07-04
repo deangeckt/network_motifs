@@ -92,7 +92,13 @@ def node_properties(network: Network, node: Union[str, int]):
     print(f'Node {node} properties:')
 
     node_idx = network.neuron_names.index(node) if isinstance(node, str) else node
+
+    if node_idx not in dict(network.graph.degree):
+        print(f'Degree: 0')
+        return
+
     print(f'Degree: {network.graph.degree[node_idx]}')
     print(f'Out Degree: {network.graph.out_degree[node_idx]}')
     print(f'In Degree: {network.graph.in_degree[node_idx]}')
     print(f'Clustering coefficient: {round(nx.average_clustering(network.graph, nodes=[node_idx]), 3)}')
+
