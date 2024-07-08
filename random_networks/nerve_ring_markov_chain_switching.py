@@ -216,7 +216,7 @@ class NerveRingMarkovChainSwitching(MarkovChainSwitching):
     def __init__(self, network: Network, switch_factor: int):
         super().__init__(network, switch_factor)
 
-        self.DISTANCE_TH = 0.5
+        self.DISTANCE_TH = 0.1
         self.neuron_names = self.network.neuron_names
         self.nerve_ring_allow = defaultdict(set)
         self.init_nerve_ring_allow_list()

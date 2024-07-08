@@ -89,5 +89,6 @@ def log_randomizer_args(args: Namespace):
     random_generator_algo_choice = RandomGeneratorAlgoName(args.randomizer)
     logger.info(f'\nRandomizer: using {random_generator_algo_choice} algorithm')
     logger.info(f'Randomizer: generating {args.network_amount} random networks')
-    if random_generator_algo_choice == RandomGeneratorAlgoName.markov_chain_switching:
+    if random_generator_algo_choice in [RandomGeneratorAlgoName.markov_chain_switching,
+                                        RandomGeneratorAlgoName.nerve_ring_markov_chain_switching]:
         logger.info(f'Markov chain switch factor: {args.switch_factor}')

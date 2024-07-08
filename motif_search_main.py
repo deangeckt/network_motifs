@@ -72,7 +72,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default=None)
+                        default="results/pol_k3_m5_bio_rand.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -121,7 +121,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=25)
+                        default=5)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -151,11 +151,11 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=10)
+                        default=1000)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
-                        default=10)
+                        default=20)
 
     # [Motif criteria]
     parser.add_argument("-a", "--alpha",
