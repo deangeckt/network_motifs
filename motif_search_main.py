@@ -155,7 +155,7 @@ def parse_args():
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
-                        default=20)
+                        default=10)
 
     # [Motif criteria]
     parser.add_argument("-a", "--alpha",
