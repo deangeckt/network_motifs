@@ -17,6 +17,7 @@ class SingleInputModule:
     paper:    Shai S. Shen-Orr1, Ron Milo2, Shmoolik Mangan1 & Uri Alon1
               "Network motifs in the transcriptional regulation  network of Escherichia coli"
     """
+    # TODO: faster impl: try to fix the order: first check connections then the options...
 
     def __init__(self, network: DiGraph):
         self.network = network
