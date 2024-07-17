@@ -20,6 +20,7 @@ class NetworkLoaderArgs(BaseModel):
     filter_prim_nt: Optional[list[Union[str, int]]] = ['GABA', 'Glu', 'ACh', 0]
     filter_syn_type: Optional[str] = 'chem'
     filter_sex_type: Optional[str] = 'herm'
+    filter_nerve_ring_neurons: Optional[bool] = False
 
 
 class SubGraphAlgoName(str, Enum):

@@ -72,7 +72,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/pol_k3_m5_bio_rand.bin")
+                        default="results/pol_k3_m5_nerve_ring.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -130,6 +130,10 @@ def parse_args():
                         help="filter sex type, supported in durbin and worm_wiring networks",
                         choices=['herm', 'male'],
                         default='herm')
+    parser.add_argument("-fnrn", "--filter_nerve_ring_neurons",
+                        help="filter the neuronal connectome with only the (180) nerve ring neurons",
+                        action='store_true',
+                        default=True)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -146,7 +150,7 @@ def parse_args():
     # [Randomizer]
     parser.add_argument("-r", "--randomizer",
                         help="main randomizer algorithm in a full motif search",
-                        default='nerve_ring_markov_chain',
+                        default='markov_chain',
                         choices=['markov_chain', 'nerve_ring_markov_chain', 'erdos_renyi', 'barabasi'])
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",

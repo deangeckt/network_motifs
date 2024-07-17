@@ -82,6 +82,12 @@ def log_sub_graph_args(args: Namespace):
 
     logger.info(f'SIM sub graph search using max-control size: {args.sim}')
     logger.info(f'Allow self loops: {args.allow_self_loops}')
+
+    if 'filter_nerve_ring_neurons' in args:
+        logger.info(f'Using nerve ring neurons only: {args.filter_nerve_ring_neurons}')
+    else:
+        logger.info(f'Using nerve ring neurons only: False')
+
     logger.info(f'Full motif search: {args.run_motif_criteria}')
 
 

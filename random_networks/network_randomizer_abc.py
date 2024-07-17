@@ -19,6 +19,7 @@ class NetworkRandomizer(metaclass=ABCMeta):
 
     def _log_avg_num_of_generated_edges(self, random_networks: list[DiGraph], amount: int):
         avg_edges = sum([len(rand_network.edges) for rand_network in random_networks]) / amount
+        # TODO: check why this is lower than E in pol network... debug with 5 rand networks...
         self.logger.info(f'average # edges of all random networks: {round(avg_edges, 3)}')
 
     @staticmethod
