@@ -13,14 +13,10 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
         self.args = args
 
     def __edge_in_nerve_ring(self, v1: int, v2: int) -> bool:
+        # both neurons have to be in the nerve ring
         n1 = self.network.neuron_names[v1]
         n2 = self.network.neuron_names[v2]
-
-        # both neurons have to be in the nerve ring
-        if n1 in nerve_ring_neurons and n2 in nerve_ring_neurons:
-            return True
-
-        return False
+        return n1 in nerve_ring_neurons and n2 in nerve_ring_neurons
 
     def _append_edge(self, v1: int, v2: int, synapse: int, gap: int, polarity=None):
         if self.args.filter_nerve_ring_neurons and not self.__edge_in_nerve_ring(v1, v2):

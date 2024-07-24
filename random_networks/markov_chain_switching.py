@@ -47,10 +47,8 @@ class MarkovChainSwitching(NetworkRandomizer):
     def __switch_with_polarity(network: DiGraph, x1: int, y1: int, x2: int, y2: int):
         e1_polarity = network.edges[x1, y1]['polarity']
         e2_polarity = network.edges[x2, y2]['polarity']
-
         network.remove_edge(x1, y1)
         network.remove_edge(x2, y2)
-
         network.add_edge(x1, y2, polarity=e1_polarity)
         network.add_edge(x2, y1, polarity=e2_polarity)
 
@@ -72,7 +70,7 @@ class MarkovChainSwitching(NetworkRandomizer):
             x1, y1 = e1
             x2, y2 = e2
 
-            if not self.switching_constrain(graph, x1, x2, y1, y2):
+            if not self.switching_constrain(graph, x1, y1, x2, y2):
                 continue
 
             self.success_switch += 1

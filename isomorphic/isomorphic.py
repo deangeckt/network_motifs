@@ -26,7 +26,7 @@ class PolarityIsoMappingBinFile(TypedDict):
 def get_fsl_ids_iso_mapping(src_fsl_ids: list[int], tar_fsl_ids: list[int], k: int) -> dict[int, int]:
     """
     Used when use_isomorphic_mapping flag is off, i.e.: larger K's.
-    #TODO: does this support polarity large k? do we even want this anymore...?
+    #TODO: does this support the polarity network with large k?
     :param src_fsl_ids: a list of sub graphs id's of an FSL list
     :param tar_fsl_ids: a list of sub graphs id's of an FSL list
     :param k: motif / sub graph size

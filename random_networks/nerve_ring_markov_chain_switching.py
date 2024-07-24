@@ -57,11 +57,11 @@ class NerveRingMarkovChainSwitching(MarkovChainSwitching):
             x1, y1 = e1
             x2, y2 = e2
 
-            if not self.switching_constrain(graph, x1, x2, y1, y2):
+            if not self.switching_constrain(graph, x1, y1, x2, y2):
                 continue
 
-            if not self.nerve_ring_constrain(self.neuron_names[x1], self.neuron_names[x2],
-                                             self.neuron_names[y1], self.neuron_names[y2]):
+            if not self.nerve_ring_constrain(self.neuron_names[x1], self.neuron_names[y1],
+                                             self.neuron_names[x2], self.neuron_names[y2]):
                 continue
 
             self.success_switch += 1

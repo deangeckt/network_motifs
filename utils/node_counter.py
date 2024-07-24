@@ -27,7 +27,7 @@ def sort_node_appearances_in_sub_graph(appearances: list[tuple[tuple]],
     return sort_dict_freq(nodes_count)
 
 
-# TODO: Add new role func: generalization roles to nodes (uri alon 2004): E.g in the fan out, 2 nodes have the same
+# TODO: Add new role function: generalization roles to nodes (uri alon 2004): E.g in the fan out, 2 nodes have the same
 #  role ‘a’
 
 def sort_node_roles_in_sub_graph(appearances: list[tuple[tuple]],

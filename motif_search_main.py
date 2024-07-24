@@ -72,7 +72,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/pol_k3_m5_nerve_ring.bin")
+                        default=None)
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -121,7 +121,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=15)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -155,7 +155,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=1000)
+                        default=10)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
@@ -270,7 +270,7 @@ def sub_graph_search(args: Namespace) -> dict[Union[str, int], Motif]:
                                                             iso_matcher=iso_matcher,
                                                             motif_id=sub_id)
             for motif_pol_freq in polarity_frequencies:
-                # TODO: compare to 'sim', 'dor' etc... remove isinstance. and add SIM's super class...
+                # TODO: compare to 'sim', 'dor' etc: replace 'isinstance' with a super class property
                 if isinstance(sub_id, str):
                     polarity_motif = create_sim_motif(sim_id=sub_id, adj_mat=sim_search_result.adj_mat[sub_id])
                 else:
