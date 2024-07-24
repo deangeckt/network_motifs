@@ -54,9 +54,15 @@ class MarkovChainSwitching(NetworkRandomizer):
 
     @staticmethod
     def switching_constrain(graph: DiGraph, x1: int, y1: int, x2: int, y2: int) -> bool:
-        if x1 == x2 or x1 == y2 or x2 == y1 or y1 == y2:
+        # These are the unnecessary
+        if x1 == x2 or y1 == y2:
             return False
 
+        # These will create new self edges
+        if x1 == y2 or x2 == y1:
+            return False
+
+        # This saves the degree
         if graph.has_edge(x1, y2) or graph.has_edge(x2, y1):
             return False
 
