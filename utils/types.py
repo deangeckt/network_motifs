@@ -11,6 +11,7 @@ class NetworkInputType(str, Enum):
     worm_wiring_xlsx = 'worm_wiring_xlsx'
     polarity_xlsx = 'polarity_xlsx'
     durbin_txt = 'durbin_txt'
+    multilayer = 'multilayer'
     graph = 'graph'
 
 
@@ -21,6 +22,8 @@ class NetworkLoaderArgs(BaseModel):
     filter_syn_type: Optional[str] = 'chem'
     filter_sex_type: Optional[str] = 'herm'
     filter_nerve_ring_neurons: Optional[bool] = False
+    filter_monoamines: Optional[list[str]] = ['dopamine', 'octopamine', 'serotonin', 'tyramine']
+    allow_self_loops: Optional[bool] = False
 
 
 class SubGraphAlgoName(str, Enum):

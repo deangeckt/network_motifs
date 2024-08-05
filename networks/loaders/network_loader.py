@@ -3,6 +3,7 @@ import os
 import networkx as nx
 
 from networks.loaders.durbin_file_loader import DurbinFileLoader
+from networks.loaders.multilayer_loader import MultilayerConnectomeLoader
 from networks.loaders.neuronal_polarity_loader import NeuronalPolarityLoader
 from networks.loaders.simple_adj_file_loader import SimpleAdjFileLoader
 from networks.loaders.worm_wiring_loader import WormWiringLoader
@@ -26,6 +27,8 @@ class NetworkLoader:
             loader = NeuronalPolarityLoader(self.args)
         elif input_type == NetworkInputType.durbin_txt:
             loader = DurbinFileLoader(self.args)
+        elif input_type == NetworkInputType.multilayer:
+            loader = MultilayerConnectomeLoader(self.args)
         else:
             err = f'Error reading network input file: {input_type}'
             self.logger.info(err)

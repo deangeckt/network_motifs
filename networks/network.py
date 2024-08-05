@@ -28,6 +28,9 @@ class Network:
         self.polarity_ratio = collections.Counter([])
         self.polarity_options: list[str] = []
 
+        # multilayer configuration
+        self.use_monoamines = False
+
     def calc_polarity_ratio(self):
         """
         should be called after the graph has been loaded

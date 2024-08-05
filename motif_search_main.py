@@ -52,8 +52,8 @@ def my_input_files():
     # path = "networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx"
     # path = "networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July 2020.xlsx"
     # path = "networks/data/polarity_2020/s1_data.xlsx"
-    # path = "networks/data/Uri_Alon_2002/example.txt"
     # path = "networks/data/Durbin_1986/neurodata.txt"
+    # path = "networks/data/Multilayer_Connectome_2016/edgelist_MA.csv"
     pass
 
 
@@ -77,12 +77,13 @@ def parse_args():
     # [Input file]
     parser.add_argument("-it", "--input_type",
                         help="the type of the input network",
-                        default='polarity_xlsx',
-                        choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'graph'],
+                        default='multilayer',
+                        choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'multilayer',
+                                 'graph'],
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/polarity_2020/s1_data.xlsx"
+                        default="networks/data/Multilayer_Connectome_2016/edgelist_MA.csv"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of tuples where each is an edge. in the format: "1 2" "2 3"...',
@@ -133,7 +134,7 @@ def parse_args():
     parser.add_argument("-fnrn", "--filter_nerve_ring_neurons",
                         help="filter the neuronal connectome with only the (180) nerve ring neurons",
                         action='store_true',
-                        default=True)
+                        default=False)
 
     # [Polarity]
     parser.add_argument("-fp", "--filter_polarity",
@@ -147,6 +148,13 @@ def parse_args():
                         default=['Glu', 'GABA', 'ACh', 0],
                         nargs='+')
 
+    # [Monoamines]
+    parser.add_argument("-fma", "--filter_monoamines",
+                        help="Monoamines: filter neurons with MA transmitter",
+                        choices=['dopamine', 'octopamine', 'serotonin', 'tyramine'],
+                        default=['octopamine'],
+                        nargs='+')
+
     # [Randomizer]
     parser.add_argument("-r", "--randomizer",
                         help="main randomizer algorithm in a full motif search",
@@ -155,7 +163,7 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=10)
+                        default=1000)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
