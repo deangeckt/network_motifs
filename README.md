@@ -39,13 +39,18 @@ Post Motif-Search analysis:
 ![image](https://github.com/deangeckt/network_motifs/assets/24900065/730c2962-0045-4a82-beea-bc1b86ecbc06)
 ![image](https://github.com/deangeckt/network_motifs/assets/24900065/35ed62ef-d0a1-4c4a-9f69-00aa88a9bde3)
 
+- Plot Motifs's Z-score vs N_real:
+ ![image](https://github.com/user-attachments/assets/c29c8594-4330-42cb-b6e0-a2b9c1630f1e)
 
-- Frequency  of nodes per their role in a given Motif:
+- Compare 2 networks Z-scores:
+![image](https://github.com/user-attachments/assets/6e2c6c63-7163-4684-8e2f-1b34b29c88c0)
+
+- Analyze the frequency of nodes per their role in a given Motif:
   ![image](https://github.com/deangeckt/network_motifs/assets/24900065/c4092a87-0bbe-4994-b2e1-13a03312a979)
 
-- Frequency  of specific nodes in all Motifs:
-
+- Analyze the frequency of specific nodes in all Motifs:
 ![image](https://github.com/deangeckt/network_motifs/assets/24900065/a62d074c-a5fd-46ec-810a-1d999ab714b8)
 
 
-
+- Filter (and later draw) all subgraphs where node N was part of motif M in role R, e.g.,:
+![image](https://github.com/user-attachments/assets/601ceb0a-3644-4950-a57e-6f8f044ac912)
