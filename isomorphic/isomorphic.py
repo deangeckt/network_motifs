@@ -317,7 +317,9 @@ class IsomorphicMotifMatch:
 
 
 if __name__ == "__main__":
-    iso_matcher = IsomorphicMotifMatch(k=4, polarity_options=['+', '-'], allow_self_loops=False)
-    # iso_matcher.generate_isomorphic_k_sub_graphs()
-    iso_matcher.generate_polarity_isomorphic_k_sub_graphs()
+    # iso_matcher = IsomorphicMotifMatch(k=4, polarity_options=['+', '-'], allow_self_loops=False)
+    iso_matcher = IsomorphicMotifMatch(k=3, polarity_options=[], allow_self_loops=True)
+
+    iso_matcher.generate_isomorphic_k_sub_graphs()
+    # iso_matcher.generate_polarity_isomorphic_k_sub_graphs()
     # iso_matcher.generate_polarity_isomorphic_sim_graphs()

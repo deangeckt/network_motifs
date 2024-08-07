@@ -86,8 +86,8 @@ def parse_args():
                         default="networks/data/Multilayer_Connectome_2016/edgelist_MA.csv"
                         )
     parser.add_argument("-ing", "--input_network_graph",
-                        help='a graph: list of tuples where each is an edge. in the format: "1 2" "2 3"...',
-                        default=None,
+                        help='a graph: list of strings (tuples) where each is an edge. in the format: ["1 2" "2 3" ...]',
+                        default=["a e", "a d", "b e", "c d", "d a", "d c", "d d", "e a", "e b", "e c", "e f", "f f"],
                         nargs='+'
                         )
 
@@ -386,6 +386,7 @@ if __name__ == "__main__":
     sub_graph_algo_choice = SubGraphAlgoName(args.sub_graph_algorithm)
 
     network = load_network_from_args(args)
+
     if not len(network.graph):
         logger.info('Empty graph')
         exit(0)

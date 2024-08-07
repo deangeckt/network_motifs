@@ -23,14 +23,14 @@ Implemented random networks algorithms:
  - **Simple Markov-Chain**: R. Kannan, P. Tetali, S. Vempala, Random Struct. Algorithms 14, 293 (1999).
  - **Erdos Renyi**: with probability p such that the average |E| of all random networks ~= |E| of the original network.  [(Wikipedia)](https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model)
  - **Barabási–Albert model**: with m (# of edges to attach) = |E| / |N|. then random direction per edge is chosen. [(Wikipedia)](https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model)
- - **Anatomical constrained Markov-chain**: allow switches based on the C.elegans nerve-ring distances, based on Zaslaver et al., 2022: "The synaptic organization in the Caenorhabditis elegans neural network suggests significant local compartmentalized computations"
+ - **Anatomical constrained Markov-Chain**: allow switches based on the C.elegans nerve-ring distances, based on Zaslaver et al., 2022: "The synaptic organization in the Caenorhabditis elegans neural network suggests significant local compartmentalized computations"
 ##
 Supporting the following network formats:
 - **simple** txt format: (v1, v2, w) per line
 - **worm wiring** format: https://wormwiring.org/pages/adjacency.html
 - **polarity** format from the 2020 paper: Fenyves BG, Szilágyi GS, Vassy Z, Sőti C, Csermely P. "Synaptic polarity and sign-balance prediction using gene expression data in the Caenorhabditis elegans chemical synapse neuronal connectome network"
 - **Durbin** 1986 - https://www.wormatlas.org/neuronalwiring.html
-- **multilayer connectome** format from the 2016 paper:  Bentley B, Branicky R, Barnes CL, Chew YL, Yemini E, et al. "The Multilayer Connectome of Caenorhabditis elegans"
+- **multilayer connectome** format from the 2016 paper: Bentley B, Branicky R, Barnes CL, Chew YL, Yemini E, et al. "The Multilayer Connectome of Caenorhabditis elegans"
 
 ##
 Post Motif-Search analysis:
