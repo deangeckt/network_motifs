@@ -46,11 +46,7 @@ class MultilayerConnectomeLoader(NetworkLoaderStrategy):
 
             n1 = neurons_indices[v1]
             n2 = neurons_indices[v2]
-            # TODO: some edges twice due to different receptors - increase the weight?
-            # if self.network.graph.has_edge(n1, n2):
-            #     print(v1, v2)
-            self.network.graph.add_edge(n1, n2, monoamine=ma, receptor=receptor, polarity=None)
+            # Diff receptors leads to some edges appear more than one. we currently ignore it
+            self.network.graph.add_edge(n1, n2, monoamine=ma, polarity=None)
 
         self.network.use_monoamines = True
-
-
