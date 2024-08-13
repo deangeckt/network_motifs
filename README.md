@@ -52,5 +52,9 @@ Post Motif-Search analysis:
 ![image](https://github.com/deangeckt/network_motifs/assets/24900065/a62d074c-a5fd-46ec-810a-1d999ab714b8)
 
 
-- Filter (and later draw) all subgraphs where node N was part of motif M in role R, e.g.,:
+- Filter (and later draw) all **subgraphs** where node N was part of motif M in role R, e.g.,:
 ![image](https://github.com/user-attachments/assets/601ceb0a-3644-4950-a57e-6f8f044ac912)
+
+- Rank any set of subgraphs by different metrices (degree, clustering coefficient)
+  ![image](https://github.com/user-attachments/assets/489a80ed-e52e-4a84-9a03-51075568e119)
+
