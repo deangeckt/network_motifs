@@ -1,7 +1,6 @@
 import pandas as pd
 
 from networks.loaders.network_loader_strategy import NetworkLoaderStrategy
-from utils.polarity_counter import count_network_polarity_ratio
 from utils.types import NetworkLoaderArgs
 
 

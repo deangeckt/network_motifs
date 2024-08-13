@@ -98,7 +98,7 @@ def parse_args():
                         default=True)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
-                        default='triadic_census',
+                        default='mfinder_ni',
                         choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'specific'])
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif to search in the enumeration algorithm",
@@ -152,7 +152,7 @@ def parse_args():
     parser.add_argument("-fma", "--filter_monoamines",
                         help="Monoamines: filter neurons with MA transmitter",
                         choices=['dopamine', 'octopamine', 'serotonin', 'tyramine'],
-                        default=['dopamine', 'octopamine', 'serotonin', 'tyramine'],
+                        default=['octopamine'],
                         nargs='+')
 
     # [Randomizer]

@@ -101,4 +101,3 @@ def node_properties(network: Network, node: Union[str, int]):
     print(f'Out Degree: {network.graph.out_degree[node_idx]}')
     print(f'In Degree: {network.graph.in_degree[node_idx]}')
     print(f'Clustering coefficient: {round(nx.average_clustering(network.graph, nodes=[node_idx]), 3)}')
-
