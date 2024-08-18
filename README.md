@@ -34,14 +34,18 @@ Supporting the following network formats:
 
 ##
 Post Motif-Search analysis' features:
-- sort Motifs and Anti-Motifs based on Z-score:
-![image](https://github.com/deangeckt/network_motifs/assets/24900065/730c2962-0045-4a82-beea-bc1b86ecbc06)
-![image](https://github.com/deangeckt/network_motifs/assets/24900065/35ed62ef-d0a1-4c4a-9f69-00aa88a9bde3)
+- Sort Motifs and Anti-Motifs based on Z-score:
+  
+ ![image](https://github.com/deangeckt/network_motifs/assets/24900065/730c2962-0045-4a82-beea-bc1b86ecbc06)
+ ![image](https://github.com/deangeckt/network_motifs/assets/24900065/35ed62ef-d0a1-4c4a-9f69-00aa88a9bde3)
 
 - Plot Motifs's Z-score vs N_real:
  ![image](https://github.com/user-attachments/assets/c29c8594-4330-42cb-b6e0-a2b9c1630f1e)
 
-- Compare 2 networks Z-scores:
+- Compare multiple networks normalized Z-scores:
+  ![image](https://github.com/user-attachments/assets/54b8ffca-12bb-4c36-bb83-9a9dee68295f)
+
+- Compare 2 networks Z-scores (via a scatter):
 ![image](https://github.com/user-attachments/assets/6e2c6c63-7163-4684-8e2f-1b34b29c88c0)
 
 - Analyze the frequency of nodes per their role in a given Motif:
