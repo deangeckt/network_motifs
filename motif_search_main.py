@@ -54,6 +54,7 @@ def my_input_files():
     # path = "networks/data/polarity_2020/s1_data.xlsx"
     # path = "networks/data/Durbin_1986/neurodata.txt"
     # path = "networks/data/Multilayer_Connectome_2016/edgelist_MA.csv"
+    # path = "networks/data/intersections/ma_and_cook_si2_herm_chem.bin"
     pass
 
 
@@ -72,18 +73,18 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default=None)
+                        default="results/ma_and_cook_si2_herm_chem.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
                         help="the type of the input network",
-                        default='multilayer',
+                        default='binary_network_file',
                         choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'multilayer',
-                                 'graph'],
+                                 'graph', 'binary_network_file'],
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/Multilayer_Connectome_2016/edgelist_MA.csv"
+                        default="networks/data/intersections/ma_and_cook_si2_herm_chem.bin"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of strings (tuples) where each is an edge. in the format: ["1 2" "2 3" ...]',
@@ -98,7 +99,7 @@ def parse_args():
                         default=True)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
-                        default='mfinder_ni',
+                        default='mfinder_i',
                         choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'specific'])
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif to search in the enumeration algorithm",
@@ -122,7 +123,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=15)
+                        default=5)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -145,7 +146,7 @@ def parse_args():
     parser.add_argument("-fpn", "--filter_prim_nt",
                         help="polarity: filter neurons with primary neurotransmitter",
                         choices=['Glu', 'GABA', 'ACh', 0],
-                        default=['Glu', 'GABA', 'ACh', 0],
+                        default=['Glu'],
                         nargs='+')
 
     # [Monoamines]
@@ -163,11 +164,11 @@ def parse_args():
     parser.add_argument("-na", "--network_amount",
                         help="amount of random networks to generate in a full motif search",
                         type=int,
-                        default=100)
+                        default=1000)
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
-                        default=10)
+                        default=200)
 
     # [Motif criteria]
     parser.add_argument("-a", "--alpha",

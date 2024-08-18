@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Optional, Union, TypedDict
 
 import numpy as np
+from networkx import DiGraph
 from pydantic import BaseModel
 
 
@@ -13,6 +14,7 @@ class NetworkInputType(str, Enum):
     durbin_txt = 'durbin_txt'
     multilayer = 'multilayer'
     graph = 'graph'
+    binary_network = 'binary_network_file'
 
 
 class NetworkLoaderArgs(BaseModel):
@@ -129,3 +131,9 @@ class LargeSubGraphSearchResult(SubGraphSearchResult):
 class SearchResultBinaryFile(TypedDict):
     args: Namespace
     motifs: dict[Union[str, int], Motif]
+
+
+class NetworkBinaryFile(TypedDict):
+    graph: DiGraph
+    participating_neurons: set
+    neuron_names: list

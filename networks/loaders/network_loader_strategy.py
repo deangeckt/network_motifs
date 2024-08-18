@@ -7,6 +7,7 @@ from utils.types import NetworkLoaderArgs
 
 
 class NetworkLoaderStrategy(metaclass=ABCMeta):
+
     def __init__(self, args: NetworkLoaderArgs):
         self.logger = Logger()
         self.network = Network(args.synapse_threshold)

@@ -40,11 +40,11 @@ class MultilayerConnectomeLoader(NetworkLoaderStrategy):
             if not self.args.allow_self_loops and v1 == v2:
                 continue
 
-            self.network.participating_neurons.add(v1)
-            self.network.participating_neurons.add(v2)
-
             n1 = neurons_indices[v1]
             n2 = neurons_indices[v2]
+
+            self.network.participating_neurons.add(n1)
+            self.network.participating_neurons.add(n2)
             # Diff receptors leads to some edges appear more than one. we currently ignore it
             self.network.graph.add_edge(n1, n2, monoamine=ma, polarity=None)
 
