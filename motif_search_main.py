@@ -73,7 +73,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/ma_and_cook_si2_herm_chem.bin")
+                        default="results/ma_and_pol_sf200.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -84,7 +84,7 @@ def parse_args():
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/intersections/ma_and_cook_si2_herm_chem.bin"
+                        default="networks/data/intersections/ma_and_pol.bin"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of strings (tuples) where each is an edge. in the format: ["1 2" "2 3" ...]',

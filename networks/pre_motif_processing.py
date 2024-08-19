@@ -65,8 +65,8 @@ n2 = loader.load_network_file(file_path="networks/data/Multilayer_Connectome_201
 
 int_network = graph_intersection(n1, n2)
 int_network.properties()
-export_network('networks/data/intersections/ma_and_cook_si2_herm_chem.bin',
-               NetworkBinaryFile(graph=int_network.graph,
-                                 participating_neurons=int_network.participating_neurons,
-                                 neuron_names=int_network.neuron_names)
-               )
+# export_network('networks/data/intersections/ma_and_cook_si2_male_gap.bin',
+#                NetworkBinaryFile(graph=int_network.graph,
+#                                  participating_neurons=int_network.participating_neurons,
+#                                  neuron_names=int_network.neuron_names)
+#                )
