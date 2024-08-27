@@ -21,7 +21,7 @@ class Network:
         self.amount_of_gaps_in_graph = 0
         self.amount_of_gaps_in_total = 0
 
-        self.participating_neurons = set()
+        self.participating_nodes = set()
 
         # polarity configuration
         self.use_polarity = False
@@ -58,7 +58,7 @@ class Network:
         self.logger.info(f'\nNetwork properties:')
         if self.neuron_names:
             self.logger.info(f'\tNeurons in the network: {len(self.neuron_names)}')
-            self.logger.info(f'\tParticipating Neurons (in the graph): {len(self.participating_neurons)}')
+            self.logger.info(f'\tParticipating Neurons (in the graph): {len(self.participating_nodes)}')
 
             self.logger.info(f'\n\tParticipating Nodes are neurons with at least: {self.synapse_threshold} synapses')
 

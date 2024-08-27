@@ -135,5 +135,5 @@ class SearchResultBinaryFile(TypedDict):
 
 class NetworkBinaryFile(TypedDict):
     graph: DiGraph
-    participating_neurons: set
+    participating_nodes: set
     neuron_names: list

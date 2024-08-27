@@ -43,8 +43,8 @@ class MultilayerConnectomeLoader(NetworkLoaderStrategy):
             n1 = neurons_indices[v1]
             n2 = neurons_indices[v2]
 
-            self.network.participating_neurons.add(n1)
-            self.network.participating_neurons.add(n2)
+            self.network.participating_nodes.add(n1)
+            self.network.participating_nodes.add(n2)
             # Diff receptors leads to some edges appear more than one. we currently ignore it
             self.network.graph.add_edge(n1, n2, monoamine=ma, polarity=None)
 

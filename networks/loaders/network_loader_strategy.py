@@ -23,8 +23,8 @@ class NetworkLoaderStrategy(metaclass=ABCMeta):
         if self.args.filter_nerve_ring_neurons and not self.__edge_in_nerve_ring(v1, v2):
             return
 
-        self.network.participating_neurons.add(v1)
-        self.network.participating_neurons.add(v2)
+        self.network.participating_nodes.add(v1)
+        self.network.participating_nodes.add(v2)
 
         self.network.amount_of_synapses_in_total += synapse
         self.network.amount_of_gaps_in_total += gap

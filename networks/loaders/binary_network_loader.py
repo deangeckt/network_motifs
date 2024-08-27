@@ -14,5 +14,5 @@ class BinaryNetworkLoader(NetworkLoaderStrategy):
         file_path = args[0]
         network_binary: NetworkBinaryFile = import_network(file_path)
         self.network.neuron_names = network_binary['neuron_names']
-        self.network.participating_neurons = network_binary['participating_neurons']
+        self.network.participating_nodes = network_binary['participating_nodes']
         self.network.graph = network_binary['graph']
