@@ -73,18 +73,18 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/ma_and_pol_sf200.bin")
+                        default="results/example.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
                         help="the type of the input network",
-                        default='binary_network_file',
+                        default='worm_wiring_xlsx',
                         choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'multilayer',
                                  'graph', 'binary_network_file'],
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/intersections/ma_and_pol.bin"
+                        default="networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of strings (tuples) where each is an edge. in the format: ["1 2" "2 3" ...]',
@@ -96,10 +96,10 @@ def parse_args():
     parser.add_argument("-rmc", "--run_motif_criteria",
                         help="run full motif search with motif criteria tests",
                         action='store_true',
-                        default=True)
+                        default=False)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
-                        default='mfinder_i',
+                        default='fanmod',
                         choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'specific'])
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif to search in the enumeration algorithm",
@@ -123,7 +123,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=5)
+                        default=15)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
@@ -168,7 +168,7 @@ def parse_args():
     parser.add_argument("-sf", "--switch_factor",
                         help="number of switch factors done by the markov chain randomizer",
                         type=int,
-                        default=200)
+                        default=10)
 
     # [Motif criteria]
     parser.add_argument("-a", "--alpha",
