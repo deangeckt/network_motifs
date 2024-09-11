@@ -9,7 +9,7 @@ class SimpleAdjFileLoader(NetworkLoaderStrategy):
     def load(self, *args):
         """
         simple txt format: (v1, v2, w) per line
-        whereas v1 -> v2, and w is ignored
+        where v1 -> v2, and w is ignored
         """
         file_path = args[0]
         with open(file_path, "r") as f:

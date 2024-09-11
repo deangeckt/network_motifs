@@ -8,6 +8,6 @@ python motif_search_main.py ^
 --sub_graph_algorithm mfinder_i ^
 --k 3 ^
 --sim 1 ^
---bin_file "durbin_herm_chem_k4_m5.bin" ^
+--bin_file "durbin_herm_chem_k3_m10.bin" ^
 --run_motif_criteria
 

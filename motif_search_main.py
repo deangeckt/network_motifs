@@ -111,7 +111,7 @@ def parse_args():
                         default=1)
 
     parser.add_argument("-uim", "--use_isomorphic_mapping",
-                        help="run (pre motif search) isomorphic sub-graphs search",
+                        help="use the (predefined) isomorphic mappings in the enumeration algorithm",
                         action='store_true',
                         default=True)
     parser.add_argument("-asl", "--allow_self_loops",
@@ -332,7 +332,7 @@ def motif_search(args: Namespace):
 
         random_network_sub_graph_results.append(combined_res)
 
-    # handle mapping in case no isomorphic_graphs
+    # handle mapping in case no isomorphic_graphs (i.e., large K)
     if not isomorphic_graphs:
         n_real_ids = [m.id for m in motif_candidates.values() if isinstance(m.id, int)]
         rand_network_ids = []
