@@ -251,9 +251,9 @@ These utilities are located under /post-motif-analysis folder, they need a binar
 - Filter (and later draw) all **subgraphs** where node N was part of motif M in role R, e.g.,:
 ![image](https://github.com/user-attachments/assets/601ceb0a-3644-4950-a57e-6f8f044ac912)
 
-- Rank any set of subgraphs by different metrices (degree, clustering coefficient)
+- Rank any set of subgraphs by different metrics (degree, clustering coefficient)
 ![image](https://github.com/user-attachments/assets/489a80ed-e52e-4a84-9a03-51075568e119)
 
-- Explore larger-than-k=3 (beasts) Moitfs:
+- Explore larger-than-k=3 (beasts) motifs:
   ![image](https://github.com/user-attachments/assets/14afc5c1-d425-4a57-8374-7e1d923375d2)
 
