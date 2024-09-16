@@ -5,7 +5,7 @@ from networks.loaders.network_loader import NetworkLoader
 from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
-from isomorphic.isomorphic import get_fsl_ids_iso_mapping, IsomorphicMotifMatch
+from isomorphic.isomorphic import match_two_fsl_id_lists, IsomorphicMotifMatch
 from utils.sub_graphs import get_sub_id_name, MotifName
 from subgraphs.triadic_census import TriadicCensus
 from utils.types import SubGraphSearchResult, NetworkInputType, NetworkLoaderArgs
@@ -106,14 +106,14 @@ def test_k_2_with_self_loops_wo_iso_mapping():
     mfinder = MFinderInduced(graph, {})
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k, allow_self_loops=True)
 
-    ids_iso_mapping = get_fsl_ids_iso_mapping(list(mfinder_sub_graphs.fsl.keys()), list(expected.keys()), k=k)
+    ids_iso_mapping = match_two_fsl_id_lists(list(mfinder_sub_graphs.fsl.keys()), list(expected.keys()), k=k)
     for src_id in ids_iso_mapping:
         tar_id = ids_iso_mapping[src_id]
         assert mfinder_sub_graphs.fsl[src_id] == expected[tar_id]
 
     fanmod = FanmodESU(graph, {})
     fanmod_sub_graphs = fanmod.search_sub_graphs(k=k, allow_self_loops=True)
-    ids_iso_mapping = get_fsl_ids_iso_mapping(list(fanmod_sub_graphs.fsl.keys()), list(expected.keys()), k=k)
+    ids_iso_mapping = match_two_fsl_id_lists(list(fanmod_sub_graphs.fsl.keys()), list(expected.keys()), k=k)
     for src_id in ids_iso_mapping:
         tar_id = ids_iso_mapping[src_id]
         assert fanmod_sub_graphs.fsl[src_id] == expected[tar_id]

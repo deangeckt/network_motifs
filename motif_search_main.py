@@ -20,7 +20,7 @@ from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from large_subgraphs.single_input_moudle import SingleInputModule
 from subgraphs.specific_subgraphs import SpecificSubGraphs
 from subgraphs.sub_graphs_abc import SubGraphsABC
-from isomorphic.isomorphic import get_fsl_ids_iso_mapping, IsomorphicMotifMatch
+from isomorphic.isomorphic import match_two_fsl_id_lists, IsomorphicMotifMatch
 from utils.sub_graphs import create_base_motif, create_sim_motif
 from subgraphs.triadic_census import TriadicCensus
 from utils.export_import import export_results
@@ -339,7 +339,7 @@ def motif_search(args: Namespace):
         for rand_network in random_network_sub_graph_results:
             rand_network_ids.append([k for k in list(rand_network.fsl.keys()) if isinstance(k, int)])
 
-        iso_mappings = [get_fsl_ids_iso_mapping(n_real_ids, rand_ids, k=args.k) for rand_ids in rand_network_ids]
+        iso_mappings = [match_two_fsl_id_lists(n_real_ids, rand_ids, k=args.k) for rand_ids in rand_network_ids]
         for iso_map, rand_network in zip(iso_mappings, random_network_sub_graph_results):
             for src_ in iso_map:
                 tar_ = iso_map[src_]
