@@ -1,5 +1,7 @@
 
 # Detect and analyze Network Motifs of any network, with Python. #
+![example workflow](https://github.com/deangeckt/network_motifs/actions/workflows/python-app.yml/badge.svg)
+
 🪱 We focus on **_C.elegans_** connectome networks but the code can be applied to any network. 🪱
 
 ## We implemented and support: ##
