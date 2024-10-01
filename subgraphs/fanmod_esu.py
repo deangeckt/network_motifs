@@ -34,7 +34,7 @@ class FanmodESU(SubGraphsABC):
                 self._inc_count_w_canonical_label(graph)
         else:
             while len(extension) > 0:
-                w = random.sample(extension, 1)[0]
+                w = random.sample(list(extension), 1)[0]
                 extension.remove(w)
 
                 w_neighbors = set(self.undirected_network.neighbors(w))

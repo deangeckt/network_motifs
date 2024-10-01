@@ -4,7 +4,7 @@ from typing import Optional, Union, TypedDict
 
 import numpy as np
 from networkx import DiGraph
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class NetworkInputType(str, Enum):
@@ -90,6 +90,7 @@ class PolarityFrequencies(BaseModel):
 
 
 class Motif(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     name: MotifName  # motif name
     id: Union[int, str]  # motif if / sub graph id
     adj_mat: np.ndarray  # adjacency matrix
@@ -110,9 +111,6 @@ class Motif(BaseModel):
     polarity_motifs: Optional[list['Motif']] = []
     polarity: Optional[list[str]] = []
 
-    class Config:
-        arbitrary_types_allowed = True
-
 
 class SubGraphSearchResult(BaseModel):
     # frequent sub graph list: key=motif id, value is the frequency
@@ -122,10 +120,8 @@ class SubGraphSearchResult(BaseModel):
 
 
 class LargeSubGraphSearchResult(SubGraphSearchResult):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     adj_mat: dict[str, np.ndarray]
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class SearchResultBinaryFile(TypedDict):

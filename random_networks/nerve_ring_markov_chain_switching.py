@@ -53,7 +53,7 @@ class NerveRingMarkovChainSwitching(MarkovChainSwitching):
         graph: DiGraph = self.network.graph.copy()
 
         for _ in range(self.markov_chain_num_iterations):
-            e1, e2 = random.sample(graph.edges, 2)
+            e1, e2 = random.sample(list(graph.edges), 2)
             x1, y1 = e1
             x2, y2 = e2
 

@@ -18,7 +18,6 @@ simple_input_args = NetworkLoaderArgs(
 def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: SubGraphSearchResult, test_specific=True):
     for sub_id in actual_sub_graphs.fsl:
         if test_specific:
-
             sub_name = get_sub_id_name(sub_id=sub_id, k=k)
             if sub_name not in expected_sub_graphs:
                 continue
@@ -103,7 +102,7 @@ def test_k_2_with_self_loops_wo_iso_mapping():
     graph = nx.DiGraph([(1, 2), (1, 1), (1, 3), (3, 2), (3, 4), (4, 4)])
     expected = {2: 1, 3: 2, 5: 1}
 
-    mfinder = MFinderInduced(graph, {})
+    mfinder = MFinderInduced(graph, isomorphic_mapping={})
     mfinder_sub_graphs = mfinder.search_sub_graphs(k=k, allow_self_loops=True)
 
     ids_iso_mapping = match_two_fsl_id_lists(list(mfinder_sub_graphs.fsl.keys()), list(expected.keys()), k=k)
@@ -111,7 +110,7 @@ def test_k_2_with_self_loops_wo_iso_mapping():
         tar_id = ids_iso_mapping[src_id]
         assert mfinder_sub_graphs.fsl[src_id] == expected[tar_id]
 
-    fanmod = FanmodESU(graph, {})
+    fanmod = FanmodESU(graph, isomorphic_mapping={})
     fanmod_sub_graphs = fanmod.search_sub_graphs(k=k, allow_self_loops=True)
     ids_iso_mapping = match_two_fsl_id_lists(list(fanmod_sub_graphs.fsl.keys()), list(expected.keys()), k=k)
     for src_id in ids_iso_mapping:
