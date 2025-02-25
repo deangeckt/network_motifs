@@ -10,7 +10,7 @@
 - **Mfinder**, both an induced and non-induced version. R. Milo, S. Shen-Orr, S. Itzkovitz, N. Kashtan,D. Chklovskii, and U. Alon, “Network motifs: simple building blocks of complex networks.” Science, vol. 298, no. 5594, pp. 824–827, October 2002"
 - **FANMOD** - S. Wernicke, “Efficient detection of network motifs” 2006
 - **Triadic Census** - (a wrapper of networkx implementation) Vladimir Batagelj and Andrej Mrvar, "A subquadratic triad census algorithm for large sparse networks with small maximum degree" 2001
-
+- **Netsci (Louzoun)** - a wrapper of [Netsci package](https://github.com/gialdetti/netsci). Gal, E., Perin, R., Markram, H., London, M., and Segev, I. (2019). Neuron Geometry Underlies a Universal Local Architecture in Neuronal Networks.
 #### Large Motif search algorithms: ####
 - **SIM** - Single Input moudle. Shai S. Shen-Orr, Ron Milo, Shmoolik Mangan & Uri Alon, "Network motifs in the transcriptional regulation  network of Escherichia coli"
 

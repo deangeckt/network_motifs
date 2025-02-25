@@ -2,7 +2,7 @@ networkx==3.2.1
 numpy~=1.26.4
 scipy==1.12.0
 matplotlib
-tqdm~=4.66.2
+tqdm~=4.67.1
 pytest~=8.1.1
 singleton_decorator~=1.0.0
 pandas~=2.2.1
@@ -11,3 +11,4 @@ pydantic~=2.6.4
 tabulate==0.9.0
 jupyter~=1.0.0
 plotly~=5.22.0
+netsci==0.0.3
