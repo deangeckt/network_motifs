@@ -25,6 +25,9 @@ class NetsciWrapper(SubGraphsABC):
 
     def __init__(self, network: DiGraph, isomorphic_mapping: dict):
         super().__init__(network, isomorphic_mapping)
+        # self.network.remove_edges_from(nx.selfloop_edges(network))
+        # TODO: a bug when input graph has a self loop...
+
         self.motif_keys = [12, 36, 6, 38, 14, 74, 98, 78, 102, 46, 108, 110, 238]
         self.unique_roles = {'a', 'b', 'c'}
 

@@ -32,7 +32,7 @@ import argparse
 from argparse import Namespace
 
 from utils.types import SubGraphAlgoName, RandomGeneratorAlgoName, NetworkInputType, NetworkLoaderArgs, \
-    MotifCriteriaArgs, Motif, SubGraphSearchResult, SearchResultBinaryFile, MotifType, NetworkBinaryFile
+    MotifCriteriaArgs, Motif, SubGraphSearchResult, SearchResultBinaryFile, MotifType
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
@@ -75,19 +75,20 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default=None)
+                        default="results/example.bin")
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
                         help="the type of the input network",
-                        default='worm_wiring_xlsx',
+                        default='scipy_sparse',
                         choices=['simple_adj_txt', 'worm_wiring_xlsx', 'polarity_xlsx', 'durbin_txt', 'multilayer',
-                                 'graph', 'binary_network_file'],
+                                 'graph', 'binary_network_file', 'scipy_sparse'],
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July 2020.xlsx"
-                        # default="test_network_large.bin"
+                        # default="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July 2020.xlsx"
+                        default="networks/data/toy.npz"
+                        # default="networks/data/toy_network.txt"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of strings (tuples) where each is an edge. in the format: ["1 2" "2 3" ...]',
@@ -102,7 +103,7 @@ def parse_args():
                         default=False)
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
-                        default='fanmod',
+                        default='netsci_wrapper',
                         choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'netsci_wrapper', 'specific'])
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif to search in the enumeration algorithm",

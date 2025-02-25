@@ -15,6 +15,7 @@ class NetworkInputType(str, Enum):
     multilayer = 'multilayer'
     graph = 'graph'
     binary_network = 'binary_network_file'
+    scipy_sparse = 'scipy_sparse'
 
 
 class NetworkLoaderArgs(BaseModel):

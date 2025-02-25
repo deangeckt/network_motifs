@@ -46,7 +46,7 @@ optional arguments:
                         file path to save log results
   -bf BIN_FILE, --bin_file BIN_FILE
                         file path to save binary results
-  -it {simple_adj_txt,worm_wiring_xlsx,polarity_xlsx,durbin_txt,multilayer,graph,binary_network_file}, --input_type {simple_adj_txt,worm_wiring_xlsx,polarity_xlsx,durbin_txt,multilayer,graph,binary_network_file}
+  -it {simple_adj_txt,worm_wiring_xlsx,polarity_xlsx,durbin_txt,multilayer,graph,binary_network_file}, --input_type {simple_adj_txt,worm_wiring_xlsx,polarity_xlsx,durbin_txt,multilayer,graph,binary_network_file,scipy_sparse}
                         the type of the input network
   -inf INPUT_NETWORK_FILE, --input_network_file INPUT_NETWORK_FILE
                         file path of the input network
@@ -54,7 +54,7 @@ optional arguments:
                         a graph: list of strings (tuples) where each is an edge. in the format: ["1 2" "2 3" ...]
   -rmc, --run_motif_criteria
                         run full motif search with motif criteria tests
-  -sa {mfinder_i,mfinder_ni,fanmod,triadic_census,specific}, --sub_graph_algorithm {mfinder_i,mfinder_ni,fanmod,triadic_census,specific}
+  -sa {mfinder_i,mfinder_ni,fanmod,triadic_census,netsci_wrapper,specific}, --sub_graph_algorithm {mfinder_i,mfinder_ni,fanmod,triadic_census,netsci_wrapper,specific}
                         sub-graph enumeration algorithm
   -k K, --k K           the size of sub-graph / motif to search in the enumeration algorithm
   -sim SIM, --sim SIM   the maximum size of control size in the SIM search algorithm

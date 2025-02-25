@@ -6,6 +6,7 @@ from networks.loaders.binary_network_loader import BinaryNetworkLoader
 from networks.loaders.durbin_file_loader import DurbinFileLoader
 from networks.loaders.multilayer_loader import MultilayerConnectomeLoader
 from networks.loaders.neuronal_polarity_loader import NeuronalPolarityLoader
+from networks.loaders.scipy_sparse_loader import ScipySparseLoader
 from networks.loaders.simple_adj_file_loader import SimpleAdjFileLoader
 from networks.loaders.worm_wiring_loader import WormWiringLoader
 from networks.network import Network
@@ -32,6 +33,8 @@ class NetworkLoader:
             loader = MultilayerConnectomeLoader(self.args)
         elif input_type == NetworkInputType.binary_network:
             loader = BinaryNetworkLoader(self.args)
+        elif input_type == NetworkInputType.scipy_sparse:
+            loader = ScipySparseLoader(self.args)
         else:
             err = f'Error reading network input file: {input_type}'
             self.logger.info(err)
