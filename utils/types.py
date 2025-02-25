@@ -34,6 +34,7 @@ class SubGraphAlgoName(str, Enum):
     mfinder_none_induced = 'mfinder_ni'
     fanmod_esu = 'fanmod'
     triadic_census = 'triadic_census'
+    netsci_wrapper = 'netsci_wrapper'
 
 
 class RandomGeneratorAlgoName(str, Enum):

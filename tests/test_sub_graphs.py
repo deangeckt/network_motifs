@@ -6,6 +6,7 @@ from subgraphs.fanmod_esu import FanmodESU
 from subgraphs.mfinder_enum_induced import MFinderInduced
 from subgraphs.mfinder_enum_none_induced import MFinderNoneInduced
 from isomorphic.isomorphic import match_two_fsl_id_lists, IsomorphicMotifMatch
+from subgraphs.netsci_wrapper import NetsciWrapper
 from utils.sub_graphs import get_sub_id_name, MotifName
 from subgraphs.triadic_census import TriadicCensus
 from utils.types import SubGraphSearchResult, NetworkInputType, NetworkLoaderArgs
@@ -21,7 +22,6 @@ def __compare(k: int, expected_sub_graphs: dict, actual_sub_graphs: SubGraphSear
             sub_name = get_sub_id_name(sub_id=sub_id, k=k)
             if sub_name not in expected_sub_graphs:
                 continue
-
             assert actual_sub_graphs.fsl[sub_id] == expected_sub_graphs[sub_name]
         else:
             assert actual_sub_graphs.fsl[sub_id] == expected_sub_graphs[sub_id]
@@ -62,6 +62,10 @@ def test_three_sub_graphs_induced(network_file, expected):
     triadic_census = TriadicCensus(network.graph, isomorphic_mapping)
     triadic_census_sub_graphs = triadic_census.search_sub_graphs(k=k, allow_self_loops=False)
     __compare(k, expected, triadic_census_sub_graphs)
+
+    netsciWrap = NetsciWrapper(network.graph, isomorphic_mapping)
+    netsciWrap_sub_graphs = netsciWrap.search_sub_graphs(k=k, allow_self_loops=False)
+    __compare(k, expected, netsciWrap_sub_graphs)
 
 
 @pytest.mark.parametrize("network_file,expected", [paper_example_none_induced, paper_ecoli_none_induced])

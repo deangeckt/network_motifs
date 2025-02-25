@@ -54,7 +54,7 @@ def log_motif_results(motifs: dict[int, Motif]):
             continue
         logger.info(f'\nMotif Id: {motif_id}')
         # for s in motif.sub_graphs:
-        #     logger.info(s)
+        #     logger.info(str(s))
         logger.info(f'Appearances of Nodes in the sub-graph: {motif.node_appearances}')
         logger.info(f'Role pattern: {motif.role_pattern}')
         for role in motif.node_roles:

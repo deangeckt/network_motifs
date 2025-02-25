@@ -9,6 +9,7 @@ from motif_criteria import MotifCriteria
 from networks.loaders.network_loader import NetworkLoader
 from networks.network import Network
 from random_networks.nerve_ring_markov_chain_switching import NerveRingMarkovChainSwitching
+from subgraphs.netsci_wrapper import NetsciWrapper
 from utils.node_counter import sort_node_appearances_in_sub_graph, sort_node_roles_in_sub_graph
 from utils.polarity_counter import get_polarity_frequencies
 from random_networks.barabasi_albert_forced_edges import BarabasiAlbertForcedEdges
@@ -31,14 +32,15 @@ import argparse
 from argparse import Namespace
 
 from utils.types import SubGraphAlgoName, RandomGeneratorAlgoName, NetworkInputType, NetworkLoaderArgs, \
-    MotifCriteriaArgs, Motif, SubGraphSearchResult, SearchResultBinaryFile, MotifType
+    MotifCriteriaArgs, Motif, SubGraphSearchResult, SearchResultBinaryFile, MotifType, NetworkBinaryFile
 
 sub_graph_algorithms = {
     SubGraphAlgoName.specific: SpecificSubGraphs,
     SubGraphAlgoName.mfinder_induced: MFinderInduced,
     SubGraphAlgoName.mfinder_none_induced: MFinderNoneInduced,
     SubGraphAlgoName.fanmod_esu: FanmodESU,
-    SubGraphAlgoName.triadic_census: TriadicCensus
+    SubGraphAlgoName.triadic_census: TriadicCensus,
+    SubGraphAlgoName.netsci_wrapper: NetsciWrapper
 }
 
 random_generator_algorithms = {
@@ -73,7 +75,7 @@ def parse_args():
                         default=None)
     parser.add_argument("-bf", "--bin_file",
                         help="file path to save binary results",
-                        default="results/example.bin")
+                        default=None)
 
     # [Input file]
     parser.add_argument("-it", "--input_type",
@@ -84,7 +86,8 @@ def parse_args():
                         required=False)
     parser.add_argument("-inf", "--input_network_file",
                         help="file path of the input network",
-                        default="networks/data/Cook_2019/SI 2 Synapse adjacency matrices.xlsx"
+                        default="networks/data/Cook_2019/SI 5 Connectome adjacency matrices, corrected July 2020.xlsx"
+                        # default="test_network_large.bin"
                         )
     parser.add_argument("-ing", "--input_network_graph",
                         help='a graph: list of strings (tuples) where each is an edge. in the format: ["1 2" "2 3" ...]',
@@ -100,7 +103,7 @@ def parse_args():
     parser.add_argument("-sa", "--sub_graph_algorithm",
                         help="sub-graph enumeration algorithm",
                         default='fanmod',
-                        choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'specific'])
+                        choices=['mfinder_i', 'mfinder_ni', 'fanmod', 'triadic_census', 'netsci_wrapper', 'specific'])
     parser.add_argument("-k", "--k",
                         help="the size of sub-graph / motif to search in the enumeration algorithm",
                         type=int,
@@ -123,7 +126,7 @@ def parse_args():
     parser.add_argument("-st", "--synapse_threshold",
                         help="filter neurons with >= # synapses (only in neuron networks files)",
                         type=int,
-                        default=15)
+                        default=1)
     parser.add_argument("-fsy", "--filter_syn_type",
                         help="filter synapse type, supported in durbin and worm_wiring networks",
                         choices=['chem', 'gap', 'all'],
